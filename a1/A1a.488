@@ -1,0 +1,12 @@
+1.
+var x:integer
+x:=2
+var y:integer
+y:=3
+if (x<y) then output (x+y) fi
+if (x+2)>y then output (x-y) fi
+if (x<y and (x+2)>y) then output x fi
+if (x<y or x>y) then output y fi
+if (x<=y or x>=y) then output 1 fi
+if ((x+1)=y) then output 2 fi
+if (x not = y) then output 3 fi
