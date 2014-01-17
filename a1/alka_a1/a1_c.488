@@ -1,0 +1,24 @@
+{
+	var sum : integer
+	var num : integer
+	num := 0
+	sum := 0
+
+	while ( sum < 9 )
+	do
+		sum := sum + 1
+
+		if ( sum = 6 )
+		then
+			exit
+		fi
+	end
+
+	repeat ( sum := sum + 1 ) until ( sum = 20 )
+
+	while ( true )
+	do
+		num := num + 1
+		exit when ( num = 6 )
+	end
+}

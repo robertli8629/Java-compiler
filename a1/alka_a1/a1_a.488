@@ -1,0 +1,28 @@
+{
+	var amt : integer
+	var found : boolean
+	var sum : integer
+	amt := ( 100 + 0 - 30 ) * 50 / 2
+
+	if ( amt not= 1700 ) and ( amt >= 100 )
+	then
+
+		found := false
+		sum := 0
+
+		while ( not found )
+		do
+			sum := sum + 1
+			
+			if ( sum > 10 or sum = 5 )
+			then
+				found := true
+			fi 	
+		end
+	fi		
+
+	if ( not amt < 1700 ) and ( amt <= 1750 )
+	then 
+		amt := 0
+	fi
+}
