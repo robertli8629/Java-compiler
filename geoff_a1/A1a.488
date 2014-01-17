@@ -12,9 +12,6 @@
     y := 20
     z := x + y * x / y - x
 
-    % Undeclared variable. This may be a semantic (not syntactic) error?
-    w := z
-
     bool1 := not true
     bool2 := bool1 or true
     bool3 := bool2 and false
