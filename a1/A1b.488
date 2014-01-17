@@ -1,8 +1,20 @@
 {
-var array[-1..2]:integer
-array[-1]:=1
-array[0]:=2
-array[1]:=3
-array[2]:=4
-put array
+var array1[-1..2]:integer
+var array2[2]:integer
+var array3[1..2]:integer
+
+array1[-1]:=1
+array1[0]:=2
+array1[1]:=3
+array1[2]:=4
+put array1[0]
+
+
+array2[1]:=1
+array2[2]:=2
+put array2[1]
+
+array3[1]:=1
+array3[2]:=2
+put array3[2]
 }

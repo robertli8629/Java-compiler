@@ -1,16 +1,21 @@
 {
 var array[1..10]:integer
 var i:integer
+
 i:=1
 while (i<11) do {
-array[i]:=i
-i:=i+1
-}end
-put array
-i:=0
+	array[i]:=i
+	i:=i+1
+} end
+
+put array[5]
+
+i:=1
 repeat {
-array[i]:=array[i]+1
-i:=i+1
-}until i=10
-put array
+	array[i]:=array[i]+1
+	i:=i+1
+} until i=10
+
+put array[5]
+
 }
