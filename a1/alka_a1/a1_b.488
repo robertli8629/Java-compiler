@@ -1,0 +1,14 @@
+{
+	var arr_1D[-2..2] : integer
+	var arr_2D[4,4] : integer 
+	var num : integer
+
+	num := -2
+	while ( num < 3 )
+	do
+		arr_1D[num] := num
+		num := num + 1
+	end
+	
+	arr_2D[3,2] := 7	
+}

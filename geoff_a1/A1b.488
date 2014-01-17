@@ -1,0 +1,21 @@
+{
+    % CSC488 A1b
+    % A program using variations on array declaration, bounds and
+    % assignment.
+
+    var array1[5] : integer
+    var array2[10..20] : integer
+    var array3[-10..0] : integer
+
+    var array4[5, 5] : boolean
+    var array5[-5..-1, 10] : boolean
+    var array6[2..6, -2..3] : boolean
+
+    array1[1] := 10
+    array2[15] := array1[1]
+    array3[-4] := array2[15] - 3
+    array4[2, 4] := array1[1] < array3[-4]
+    array5[-2, 1] := not array4[2, 4]
+    array6[2, -2] := array4[2, 4] or array5[-2, 1]
+}
+

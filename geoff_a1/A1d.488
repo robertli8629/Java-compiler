@@ -1,0 +1,37 @@
+{
+    % CSC488 A1 part d
+    % A program using non-recursive functions and procedures with and
+    % without parameters.
+
+    func hello_world_func() : boolean {
+        put "Hello World!", newline
+        result true
+    }
+
+    func max(num1 : integer, num2 : integer) : integer {
+        result (num1 < num2 ? num2 : num1)
+    }
+
+    proc hello_world_proc() {
+        put "Hello World!", newline
+        return
+    }
+
+    proc output_range(start : integer, end : integer) {
+        repeat {
+            put start, newline
+            start := start + 1
+        } until (start > end)
+        return
+    }
+
+    var bool : boolean
+    var int : integer
+
+    result := hello_world_func()
+    int := max(1, 10)
+
+    hello_world_proc()
+    output_range(1, 5)
+}
+

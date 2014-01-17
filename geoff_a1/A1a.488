@@ -1,0 +1,29 @@
+{
+    % CSC488 A1a
+    % A program using all arithmetic, logical and conditional operators,
+    % plus variable declaration and assignment.
+
+    var x : integer
+    var y, z : integer
+    var bool1, bool2, bool3 : boolean
+    var bool4 : boolean
+
+    x := -10
+    y := 20
+    z := x + y * x / y - x
+
+    bool1 := not true
+    bool2 := bool1 or true
+    bool3 := bool2 and false
+    bool4 := bool1 and bool2 or bool3 and not bool1
+
+    bool1 := x < y 
+    bool2 := z > x
+    bool3 := 1000 <= 1000
+    bool1 := 1 >= 100
+    bool4 := bool1 = bool2
+    bool4 := 2 = 2
+    bool4 := 10 not= 0
+    bool4 := bool3 not= bool4
+}
+
