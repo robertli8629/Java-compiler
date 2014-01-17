@@ -2,6 +2,7 @@
     % CSC488 A1 part d
     % A program using non-recursive functions and procedures with and
     % without parameters.
+    % Author: g0haugan
 
     func hello_world_func() : boolean {
         put "Hello World!", newline

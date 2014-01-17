@@ -2,6 +2,7 @@
     % CSC488 A1a
     % A program using all arithmetic, logical and conditional operators,
     % plus variable declaration and assignment.
+    % Author: g0haugan
 
     var x : integer
     var y, z : integer

@@ -1,6 +1,7 @@
 {
     % CSC488 A1c
     % A program using all loop building and loop exit constructs.
+    % Author: g0haugan
 
     var x : integer
 

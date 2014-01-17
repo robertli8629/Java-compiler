@@ -2,6 +2,7 @@
     % CSC488 A1b
     % A program using variations on array declaration, bounds and
     % assignment.
+    % Author: g0haugan
 
     var array1[5] : integer
     var array2[10..20] : integer
