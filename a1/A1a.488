@@ -1,12 +1,13 @@
-1.
+{
 var x:integer
-x:=2
 var y:integer
+x:=2
 y:=3
-if (x<y) then output (x+y) fi
-if (x+2)>y then output (x-y) fi
-if (x<y and (x+2)>y) then output x fi
-if (x<y or x>y) then output y fi
-if (x<=y or x>=y) then output 1 fi
-if ((x+1)=y) then output 2 fi
-if (x not = y) then output 3 fi
+if (x<y) then put (x+y) fi
+if (x+2)>y then put (x-y) fi
+if (x<y and (x+2)>y) then put x fi
+if (x<y or x>y) then put y fi
+if (x<=y or x>=y) then put 1 fi
+if ((x+1)=y) then put 2 fi
+if (x not = y) then put 3 fi
+}
