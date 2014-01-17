@@ -4,7 +4,7 @@ func foo():integer {
 }
 
 func add_x_y_times(x:integer, y:integer):integer {
-	if (x=0) then return x
+	if (y=0) then return x
 	add_x_y_times(x+1,y-1)
 }
 
