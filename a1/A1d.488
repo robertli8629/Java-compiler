@@ -1,25 +1,27 @@
 {
 func foo():integer {
-	return 0
+	result 0
 }
 
 func add(x:integer, y:integer):integer {
-	return x+y
+	result x+y
 }
 
 proc print_zero() {
 	put 0
+	return
 }
 
 proc print_int(x:integer) {
 	put x
+	return
 }
 
 var a:integer
 var b:integer
 
-a = foo()
-b = add(a, 1)
+a := foo()
+b := add(a, 1)
 print_zero()
 print_int(a+b)
 
