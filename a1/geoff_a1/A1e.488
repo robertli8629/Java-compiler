@@ -77,5 +77,14 @@
         result run_bad_shell_func()
     }
 
+    var fib : integer
+    var bool : boolean
+
+    repeat_hello(4)
+    run_bad_shell()
+
+    fib := get_fibonacci(10)
+    bool := run_bad_shell_func()
+
 }
 
