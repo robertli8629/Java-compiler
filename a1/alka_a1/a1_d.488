@@ -1,9 +1,62 @@
 {
-	
 
+	func sum_ascending( beg : integer, end : integer ) : integer 
+	{
+		var sum : integer
+		var count : integer
+		var index : integer
+		var next : integer
 
+		sum := beg
+		next := beg + 1
+		index := 0
+		count := end - beg
 
+		if ( beg > end )
+		then
+			result -1
+		fi
 
+		while ( index < count )
+		do
+			sum := sum + next
+			next := next + 1 
+			index := index + 1
+		end
+				
+		result sum	
+	}
 
+	proc print_ascending( beg : integer, end : integer )
+	{
+
+		if ( beg > end )
+		then 
+			put -1
+		fi
+
+		while ( beg < end )
+		do
+			put beg
+			put " "
+			beg := beg + 1
+		end
+
+		put beg
+	}
+
+	proc print_hello_world()
+	{
+
+		put "Hello World!"
+
+	}
+
+	func sum_of_first_five_fibonacci_numbers() : integer
+	{
+		
+		result 12		
+
+	}
 
 }
