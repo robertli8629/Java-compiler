@@ -1,0 +1,19 @@
+{
+var x:integer
+var y:integer
+var z:integer
+
+x:=2
+y:=3
+z:=(x>y?x:y)
+
+if (x<y) then put (x+y) else put (x-y) fi
+if (x*2)>y then put (x/2) fi
+if (x<y and (x+2)>y) then put x fi
+if (x<y or x>y) then put y fi
+if not(x<=y or x>=y) then put 1 fi
+if ((x+1)=y) then put 2 fi
+if (x not = y) then put 3 fi
+if (true or false) then put "true"
+
+}
