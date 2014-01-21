@@ -6,6 +6,7 @@
     % These loops essentially decrement/increment values until exit conditions are met.
     %
     % Author: g0haugan
+    % Group 7: g1liyuch, g1minmin, g0haugan, g0sharma
 
     var x : integer
 

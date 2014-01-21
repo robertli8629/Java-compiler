@@ -9,6 +9,7 @@
     % get_fibbonacci computes a term in the fibonacci sequence.
     %
     % Author: g0haugan
+    % Group 7: g1liyuch, g1minmin, g0haugan, g0sharma
 
     proc repeat_hello(times : integer) {
 
