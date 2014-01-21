@@ -3,7 +3,8 @@
 	% CSC488 A1 part d
 	% A program using non-recursive functions and procedures with and
 	% without parameters.
-	% Author: g1liyuch
+	% Author: g1liyuch - Yuchen Li
+	% Group 7: g1liyuch, g1minmin, g0haugan, g0sharma
 
 	func foo():integer {
 		result 0
