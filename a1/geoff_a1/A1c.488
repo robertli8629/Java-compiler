@@ -1,6 +1,10 @@
 {
     % CSC488 A1c
-    % A program using all loop building and loop exit constructs.
+    %
+    % A program using all loop building and loop exit constructs, including
+    % the while and repeat loops along with the exit and exit when statements.
+    % These loops essentially decrement/increment values until exit conditions are met.
+    %
     % Author: g0haugan
 
     var x : integer
