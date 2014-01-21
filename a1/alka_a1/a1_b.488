@@ -5,9 +5,9 @@
 	% Author: g0sharma - Alka Sharma
 	% Group Number: 7
 	% Group Members: g1liyuch - Yuchen Li
-	%				 g1minmin - Minmin Liu
-	%				 g0haugan - Geoff Haugan
-	% 			     g0sharma - Alka Sharma
+	%                g1minmin - Minmin Liu
+	%                g0haugan - Geoff Haugan
+	%                g0sharma - Alka Sharma
 
 	var arr_1D[-2..2] : integer
 	var arr_2D[4,4] : integer 
