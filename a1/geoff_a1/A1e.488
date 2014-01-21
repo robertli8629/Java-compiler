@@ -1,8 +1,15 @@
 {
     % CSC488 A1e
+    %
     % A program using recursive functions and procedures, with and without
     % parameters. Includes a nested procedure and function declaration.
+    %
+    % These routines mostly repeatly output something or repeatedly read
+    % input until a certain value is seen. They are not practical.
+    % get_fibbonacci computes a term in the fibonacci sequence.
+    %
     % Author: g0haugan
+    % Group 7: g1liyuch, g1minmin, g0haugan, g0sharma
 
     proc repeat_hello(times : integer) {
 
