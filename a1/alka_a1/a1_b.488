@@ -14,7 +14,7 @@
 	var num : integer
 
 	num := -2
-	while ( num < 3 )
+	while (num < 3)
 	do {
 		arr_1D[num] := num
 		num := num + 1
