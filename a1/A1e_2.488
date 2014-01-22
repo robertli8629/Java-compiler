@@ -68,7 +68,7 @@
 
     func print_five_times_func() : boolean {
     
-    	var bool : boolean
+        var bool : boolean
     
         func print_hello_func() : boolean {
             put "Hello", newline
