@@ -32,7 +32,7 @@
 
     proc print_five_times() {
     
-    	proc print_hello() {
+        proc print_hello() {
             put "Hello", newline
             return
         }
@@ -41,8 +41,8 @@
         then {
             return
         } else {
-        	counter := counter + 1
-        	print_hello()
+            counter := counter + 1
+            print_hello()
             print_five_times()
         }
         fi
@@ -68,7 +68,7 @@
 
     func print_five_times_func() : boolean {
     
-    	func print_hello_func() : boolean {
+        func print_hello_func() : boolean {
             put "Hello", newline
             result true
         }
@@ -77,8 +77,8 @@
         then {
             result true
         } else {
-        	counter := counter + 1
-        	print_hello_func()
+            counter := counter + 1
+            print_hello_func()
             result print_five_times_func()
         }
         fi

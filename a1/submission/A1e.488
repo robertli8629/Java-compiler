@@ -92,4 +92,3 @@
     fib := get_fibonacci(10)
     bool := run_bad_shell_func()
 }
-
