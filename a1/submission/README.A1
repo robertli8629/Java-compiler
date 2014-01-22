@@ -11,7 +11,7 @@ Description of programs:
 	A1a: A program using all arithmetic, logical and conditional operators,
 		plus variable declaration and assignment.
 
-    A1b: A program using variations on array declaration, bounds and
+    A1b: A program using variations on array declaration, bounds 
          and assignment.
 	
 	A1c: A program using all loop building and loop exit constructs,
