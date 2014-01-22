@@ -1,0 +1,42 @@
+{
+    % CSC488 A1c
+    %
+    % A program using all loop building and loop exit constructs, including
+    % the while and repeat loops along with the exit and exit when statements.
+    % These loops essentially decrement/increment values until exit conditions are met.
+    %
+    % Author: g0haugan
+    % Group 7: g1liyuch, g1minmin, g0haugan, g0sharma
+
+    var x : integer
+
+    x := 2
+    while (x > 0)
+    do {
+        x := x - 1
+    }
+    end
+
+    x := 0
+    repeat {
+        x := x + 1
+    } until (x = 4)
+
+    x := 0
+    repeat {
+        x := x + 1
+        if (x = 3)
+        then
+            exit
+        fi
+    } until (false)
+
+    x := 0
+    while (true)
+    do {
+        x := x + 1
+        exit when (x > 4)
+    }
+    end
+}
+
