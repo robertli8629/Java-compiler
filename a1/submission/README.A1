@@ -10,13 +10,18 @@ Description of programs:
 
 	A1a: A program using all arithmetic, logical and conditional operators,
 		plus variable declaration and assignment.
+
+    A1b:
 	
-	A1b:
-	
-	A1c:
+	A1c: A program using all loop building and loop exit constructs,
+        including the while and repeat loops along with the exit and
+        exit when statements.  These loops essentially decrement/increment
+        values until exit conditions are met.
 	
 	A1d: A program using non-recursive functions and procedures with and
 		without parameters.
 	
-	A1e:
-	
+	A1e: A program using recursive functions and procedures, with and without
+        parameters. Includes a nested procedure and function declaration.
+        These routines mostly repeatly output something or repeatedly read
+        input until a certain value is seen.
