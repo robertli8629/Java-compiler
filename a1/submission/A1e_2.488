@@ -68,6 +68,8 @@
 
     func print_five_times_func() : boolean {
     
+    	var bool : boolean
+    
         func print_hello_func() : boolean {
             put "Hello", newline
             result true
@@ -78,7 +80,7 @@
             result true
         } else {
             counter := counter + 1
-            print_hello_func()
+            bool := print_hello_func()
             result print_five_times_func()
         }
         fi
@@ -88,12 +90,12 @@
     var fib : integer
     var bool : boolean
     
-    counter = 0
+    counter := 0
 
     repeat_hello(4)
     print_five_times()
     
-    counter = 0
+    counter := 0
 
     fib := get_fibonacci(10)
     bool := print_five_times_func()
