@@ -3,7 +3,8 @@
     %
     % A program using all loop building and loop exit constructs, including
     % the while and repeat loops along with the exit and exit when statements.
-    % These loops essentially decrement/increment values until exit conditions are met.
+    % These loops essentially decrement/increment values until exit conditions
+    % are met.
     %
     % Author: g0haugan
     % Group 7: g1liyuch, g1minmin, g0haugan, g0sharma
@@ -26,8 +27,9 @@
     repeat {
         x := x + 1
         if (x = 3)
-        then
+        then {
             exit
+        }
         fi
     } until (false)
 
