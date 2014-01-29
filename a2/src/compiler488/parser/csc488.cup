@@ -113,6 +113,8 @@ terminal String  TEXTCONST	;
 // nonterminal xxx
 
 nonterminal	program ;
+nonterminal	scope ;
+nonterminal	statement ;
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
@@ -135,7 +137,7 @@ start with program;
  * reads one more token before it will act on the production.
  */
 
-program		::=	;				// the main program
+program		::=	scope;				// the main program
 
 /*****************************************************************************
 
@@ -144,3 +146,8 @@ program		::=	;				// the main program
     GOES HERE
 
 ****************************************************************************/
+
+scope ::= L_CURLEY statement R_CURLEY;
+statement ::= PLUS
+			| MINUS
+			| statement MINUS;
