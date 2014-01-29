@@ -113,8 +113,47 @@ terminal String  TEXTCONST	;
 // nonterminal xxx
 
 nonterminal	program ;
-nonterminal	scope ;
 nonterminal	statement ;
+nonterminal	scope ;
+nonterminal	declaration ;
+nonterminal	functionHead ;
+nonterminal	variablenames ;
+nonterminal	bound ;
+nonterminal	generalBound ;
+nonterminal	type ;
+nonterminal	output ;
+nonterminal	input ;
+nonterminal	argumentList ;
+nonterminal	arguments ;
+nonterminal	parameterList ;
+nonterminal	variable ;
+nonterminal	expression ;
+nonterminal	variablename ;
+nonterminal	arrayname ;
+nonterminal	functionname ;
+nonterminal	parametername ;
+nonterminal	procedurename ;
+
+nonterminal	asmtStat ;
+nonterminal	condStat ;
+nonterminal	condelStat ;
+nonterminal	whileStat ;
+nonterminal	repStat ;
+nonterminal	exitStat ;
+nonterminal	exitwhStat ;
+nonterminal	resStat ;
+nonterminal	retStat ;
+nonterminal	putStat ;
+nonterminal	getStat ;
+nonterminal	proStat ;
+nonterminal	scopStat ;
+
+nonterminal	varDecl ;
+nonterminal	funDecl ;
+nonterminal	proDecl ;
+nonterminal	forDecl ;
+nonterminal	forproDecl ;
+
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
@@ -137,17 +176,160 @@ start with program;
  * reads one more token before it will act on the production.
  */
 
-program		::=	scope;				// the main program
+program		::= scope	;							//the main program
+
+statement	::= asmtStat statement
+		  | asmtStat
+		  | condStat statement
+		  | condStat
+		  | condelStat statement
+		  | condelStat
+		  | whileStat statement
+		  | whileStat
+		  | repStat statement
+		  | repStat
+		  | exitStat statement
+		  | exitwhStat
+		  | exitwhStat statement
+		  | exitwhStat
+		  | resStat statement
+		  | resStat
+		  | retStat statement
+		  | retStat
+		  | putStat statement
+		  | putStat
+		  | getStat statement
+		  | getStat
+		  | proStat statement
+		  | proStat
+		  | scopStat statement
+		  | scopStat
+		  ;
+		  
+asmtStat	::= variable COLON EQUAL expression;					//assignment
+condStat	::= IF expression THEN statement FI;					//conditional statement
+condelStat	::= IF expression THEN statement ELSE statement FI;			//conditional statement
+whileStat	::= WHILE expression DO statement END;					//loop while expression is true
+repStat		::= REPEAT statement UNTIL expression;					//loop until expression is true
+exitStat	::= EXIT;								//exit from containing loop
+exitwhStat	::= EXIT WHEN expression;						//exit from containing loop when expression is ture
+resStat		::= RESULT expression;							//return from function
+retStat		::= RETURN; 								//return from a procedure
+putStat		::= PUT output; 								//ptint to standard output
+getStat		::= GET input;								//input from standard input
+proStat		::= procedurename L_PAREN argumentList R_PAREN;				//call procedure
+scopStat	::= scope;								//embedded scope
+
+scope		::= L_CURLEY declaration statement R_CURLEY				//define new scope
+		  | L_CURLEY statement R_CURLEY
+		  | L_CURLEY R_CURLEY 							//empty scope
+		  ;
+
+declaration	::= varDecl declaration
+		  | varDecl
+		  | funDecl declaration
+		  | funDecl
+		  | proDecl declaration
+		  | proDecl
+		  | forDecl declaration
+		  | forDecl
+		  | forproDecl declaration
+		  | forproDecl
+		  ;
+
+varDecl		::= VAR variablenames COLON type;					//declare variables
+funDecl		::= functionHead scope;							//declare function
+proDecl		::= procedureHead scope;						//declare function
+forDecl		::= FORWARD functionHead;						//forward function declarations
+forproDecl	::= FORWARD procedureHead;						//forward procedure declaration
+
+functionHead	::= FUNC functionname L_PAREN parameterList R_PAREN COLON type	;	//declare function head
+
+procedureHead	::= PROC procedurename L_PAREN parameterList R_PAREN;			//declare procedure head
+
+variablenames	::= variablename							//declare scalar variable
+		  | variablename L_SQUARE bound R_SQUARE				//declare one dimensional array
+		  | variablename L_SQUARE bound COMMA bound R_SQUARE			//declare two dimensional array
+		  | variablenames COMMA variablenames					//declare multiple variables
+		  ;
+		  
+		  
+bound		::= INTCONST								//bound 1 .. integer inclusive
+		  | generalBound DOT DOT generalBound					//bounds left boud .. right bound inclusive
+		  ;
+
+generalBound	::= INTCONST								//positive integer bound
+		  | MINUS INTCONST							//negative integer bound
+		  ;
+
+type		::= INTEGER								//integer type
+		  | BOOLEAN								//Boolean type
+		  ;
+
+output 		::= expression								//integer expression to be printed
+		  | TEXTCONST								//string constant to be printed
+		  | NEWLINE								//skip to new line
+		  | outout COMMA output							//output sequence
+		  ;
+		
+input		::= variable								//input to this integer variable
+		  | input COMMA output							//input sequence
+		  ;
+
+argumentList	::= arguments								//arguements to function/procedure
+		  | //EMPTY
+		  ;
+		 
+arguments	::= expression								//actual parameter expression
+		  | arguements COMMA arguements						//actual parameter sequence
+		  ;
+		 
+parameterList	::= parameters								//formal parameters of function/procedure
+		  | //EMPTY
+		  ;
+		  
+parameters	::= parametername COLON type						//declare formal parameter
+		  | parameters COLON parameters						//formal parameter sequence
+		  ;
+		  
+variable	::= variablename							//reference to scalar variable
+		  | parametername							//reference to parameter
+		  | arrayname L_SQUARE expression R_SQUARE				//reference to one dimensional array element
+		  | arrayname L_SQUARE expression COMMA expression R_SQUARE		//reference to two dimensional array element
+		  ;
+		 
+expression	::= INTCONST								//integer literal constant
+		  | MINUS expression							//unary minus
+		  | expression ADD expression						//addition
+		  | expression MINUS expression						//subtraction
+		  | expression TIMES expression						//multiplication
+		  | expression DIVIDE expression					//division
+		  | TRUE								//Boolean constant true
+		  | FALSE								//Boolean constant false
+		  | NOT expression							//Boolean not
+		  | expression AND expression						//Boolean and
+		  | expression OR expression						//Boolean or
+		  | expression EQUAL expression						//equality comparison
+		  | expression NOT EQUAL expression					//inequality comparison
+		  | expression LESS expression						//less than comparison
+		  | expression LESS EQUAL expression					//less than or equal comparison
+		  | expression GREATER expression					//greater than comparison
+		  | expression GREATER EQUAL expression				//greater than or equal comparison
+		  | L_PAREN expression R_PAREN						//conditional expression
+		  | L_PAREN expression QUESTION expression COLON expression R_PAREN
+		  | variable								//reference to variable
+		  | functionname L_PAREN argumentList R_PAREN				//call of a function
+		  ;
+		  
+variablename	::= IDENT	;
+arrayname	::= IDENT	;
+functionname	::= IDENT	;
+parametername	::= IDENT	;
+procedurename	::= IDENT	;
 
 /*****************************************************************************
 
   YOUR CAREFULLY CRAFTED GRAMMAR FOR THE CSC488S SOURCE LANGUAGE
 
     GOES HERE
-
 ****************************************************************************/
-
-scope ::= L_CURLEY statement R_CURLEY;
-statement ::= PLUS
-			| MINUS
-			| statement MINUS;
