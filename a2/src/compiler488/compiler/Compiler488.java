@@ -26,7 +26,6 @@ public class Compiler488 {
 		/* Start the parser */
 		try {
 			System.out.println("Start parsing");
-			System.out.println("debug1");
 			testParser (new File (argv[0]));
 			System.out.println("End parsing");
 		} catch (Exception e) {
