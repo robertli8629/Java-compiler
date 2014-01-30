@@ -117,6 +117,7 @@ nonterminal	statement ;
 nonterminal	scope ;
 nonterminal	declaration ;
 nonterminal	functionHead ;
+nonterminal procedureHead ;
 nonterminal	variablenames ;
 nonterminal	bound ;
 nonterminal	generalBound ;
@@ -154,6 +155,8 @@ nonterminal	proDecl ;
 nonterminal	forDecl ;
 nonterminal	forproDecl ;
 
+nonterminal oneDimArray ;
+nonterminal twoDimArray ;
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
@@ -245,14 +248,18 @@ forproDecl	::= FORWARD procedureHead;						//forward procedure declaration
 
 functionHead	::= FUNC functionname L_PAREN parameterList R_PAREN COLON type	;	//declare function head
 
-procedureHead	::= PROC procedurename L_PAREN parameterList R_PAREN;			//declare procedure head
+procedureHead	::= PROCEDURE procedurename L_PAREN parameterList R_PAREN;			//declare procedure head
 
 variablenames	::= variablename							//declare scalar variable
-		  | variablename L_SQUARE bound R_SQUARE				//declare one dimensional array
-		  | variablename L_SQUARE bound COMMA bound R_SQUARE			//declare two dimensional array
-		  | variablenames COMMA variablenames					//declare multiple variables
+		  | variablename COMMA variablenames
+		  | oneDimArray
+		  | oneDimArray COMMA variablenames
+		  | twoDimArray
+		  | twoDimArray COMMA variablenames
 		  ;
 		  
+oneDimArray ::=  variablename L_SQUARE bound R_SQUARE;				//declare one dimensional array
+twoDimArray ::=   variablename L_SQUARE bound COMMA bound R_SQUARE			//declare two dimensional array	  
 		  
 bound		::= INTCONST								//bound 1 .. integer inclusive
 		  | generalBound DOT DOT generalBound					//bounds left boud .. right bound inclusive
