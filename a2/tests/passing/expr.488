@@ -1,5 +1,9 @@
 {
 test1 := true and false or true
 test2 := true and not false or true
+test3 := (not true)
+test4 := not (true or false and true)
+test5 := (true or false) and (true or false)
+test6 := ((true or false) and (not (true or false)))
 }
 

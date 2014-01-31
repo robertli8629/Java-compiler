@@ -173,7 +173,7 @@ expr ::= expr OR expr1 | expr1 ;
 expr1 ::= expr1 AND expr2 | expr2 ;
 expr2 ::= NOT baseExpr | baseExpr ;
 
-baseExpr ::= TRUE | FALSE ;
+baseExpr ::= TRUE | FALSE | L_PAREN expr R_PAREN ;
 
 /*****************************************************************************
 
