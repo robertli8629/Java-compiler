@@ -4,14 +4,12 @@ var a : integer
 var b,c,d,e[10],f[1..2], g[1,1..5] : boolean
 
 func f (a:integer) : integer {}
-
 func f2 () : integer {}
-
-%func f3 (a:integer,b:boolean) : integer {}
+func f3 (a:integer,b:boolean) : integer {}
 
 proc p (a:integer) {}
-
 proc p2 () {}
+proc p3 (a:integer,b:boolean) {}
 
 forward func f (a:integer) : integer 
 forward proc p2 ()
@@ -42,11 +40,15 @@ aaa[1] := 1
 aaa[2,3] := 2
 
 get a
+get a, b, c, dd
+
 put 1
 put "qwe"
 put newline
+put 1, "df", newline
 
 p2()
 p(1)
+p3(1,2,3,4,5)
 
 }

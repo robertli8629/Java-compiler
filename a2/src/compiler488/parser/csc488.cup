@@ -278,13 +278,15 @@ type		::= INTEGER								//integer type
 		  ;
 
 output 		::= expression								//integer expression to be printed
+		  | expression COMMA output
 		  | TEXTCONST								//string constant to be printed
+		  | TEXTCONST COMMA output
 		  | NEWLINE								//skip to new line
-// 		  | outout COMMA output							//output sequence
+		  | NEWLINE COMMA output
 		  ;
 		
 input		::= variable								//input to this integer variable
-// 		  | input COMMA output							//input sequence
+		  | variable COMMA input
 		  ;
 
 argumentList	::= arguments								//arguements to function/procedure
@@ -292,7 +294,7 @@ argumentList	::= arguments								//arguements to function/procedure
 		  ;
 		 
 arguments	::= expression								//actual parameter expression
-// 		  | arguements COMMA arguements						//actual parameter sequence
+		  | expression COMMA arguments						//actual parameter sequence
 		  ;
 		 
 parameterList	::= parameters								//formal parameters of function/procedure
@@ -300,7 +302,7 @@ parameterList	::= parameters								//formal parameters of function/procedure
 		  ;
 		  
 parameters	::= parametername COLON type						//declare formal parameter
-// 		  | parameters COLON parameters						//formal parameter sequence
+		  | parametername COLON type COMMA parameters						//formal parameter sequence
 		  ;
 		  
 variable	::= variablename							//reference to scalar variable
