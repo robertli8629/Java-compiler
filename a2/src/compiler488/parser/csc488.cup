@@ -117,6 +117,8 @@ nonterminal	ifStmt, ifElseStmt, procStmt, variablename, procedurename ;
 nonterminal baseStmt;
 nonterminal parameterList, parameters, baseParam, parametername, type ;
 
+nonterminal expr, expr1, baseExpr ;
+
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
 
@@ -151,7 +153,7 @@ stmtList ::= stmt | /* empty */ ;
 
 stmt ::= baseStmt stmt | baseStmt ;
 baseStmt ::= assignStmt | ifStmt | ifElseStmt | procStmt ;
-assignStmt ::= variablename COLON EQUAL ;
+assignStmt ::= variablename COLON EQUAL expr ;
 ifStmt ::= IF THEN FI ;
 ifElseStmt ::= IF THEN ELSE FI ;
 
@@ -165,6 +167,12 @@ type ::= INTEGER | BOOLEAN ;
 variablename ::= IDENT ;
 procedurename ::= IDENT ;
 parametername ::= IDENT ;
+
+/* expression */
+expr ::= expr1 OR expr | expr1 ;
+expr1 ::= baseExpr AND expr1 | baseExpr ;
+
+baseExpr ::= TRUE | FALSE ;
 
 /*****************************************************************************
 
