@@ -117,7 +117,7 @@ nonterminal	ifStmt, ifElseStmt, procStmt, variablename, procedurename ;
 nonterminal baseStmt;
 nonterminal parameterList, parameters, baseParam, parametername, type ;
 
-nonterminal expr, expr1, expr2, baseExpr ;
+nonterminal expr, expr1, expr2, expr3, baseExpr ;
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
@@ -171,9 +171,17 @@ parametername ::= IDENT ;
 /* expression */
 expr ::= expr OR expr1 | expr1 ;
 expr1 ::= expr1 AND expr2 | expr2 ;
-expr2 ::= NOT baseExpr | baseExpr ;
+expr2 ::= NOT expr3 | expr3 ;
+expr3 ::= baseExpr EQUAL baseExpr
+        | baseExpr NOT EQUAL baseExpr
+        | baseExpr GREATER baseExpr
+        | baseExpr GREATER EQUAL baseExpr
+        | baseExpr LESS EQUAL baseExpr
+        | baseExpr LESS baseExpr
+        | baseExpr
+        ;
 
-baseExpr ::= TRUE | FALSE | L_PAREN expr R_PAREN ;
+baseExpr ::= TRUE | FALSE | L_PAREN expr R_PAREN | INTCONST;
 
 /*****************************************************************************
 

@@ -1,7 +1,7 @@
 {
-test_var1 :=
-test_var2 :=
-test_var3 :=
+test_var1 := true
+test_var2 := 1
+test_var3 := not (true or false)
 
 if then fi
 if then fi
