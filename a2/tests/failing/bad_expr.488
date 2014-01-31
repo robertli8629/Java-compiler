@@ -1,0 +1,5 @@
+{
+test1 := false and true % not false
+test2 := and false
+}
+

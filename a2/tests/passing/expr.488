@@ -1,4 +1,5 @@
 {
 test1 := true and false or true
+test2 := true and not false or true
 }
 
