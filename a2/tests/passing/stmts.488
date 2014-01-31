@@ -1,0 +1,15 @@
+{
+test_var1 :=
+test_var2 :=
+test_var3 :=
+
+if then fi
+if then fi
+if then else fi
+
+test_proc()
+test2_proc ( )
+test3_proc(param1 : integer )
+test4_proc(param1 : integer, param2 : boolean )
+}
+
