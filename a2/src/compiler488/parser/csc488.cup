@@ -127,6 +127,7 @@ nonterminal	input ;
 nonterminal	argumentList ;
 nonterminal	arguments ;
 nonterminal	parameterList ;
+nonterminal parameters ;
 nonterminal	variable ;
 nonterminal	expression ;
 nonterminal	variablename ;
@@ -181,6 +182,7 @@ start with program;
 
 program		::= scope	;							//the main program
 
+
 statement	::= asmtStat statement
 		  | asmtStat
 		  | condStat statement
@@ -192,7 +194,7 @@ statement	::= asmtStat statement
 		  | repStat statement
 		  | repStat
 		  | exitStat statement
-		  | exitwhStat
+		  | exitStat
 		  | exitwhStat statement
 		  | exitwhStat
 		  | resStat statement
@@ -228,6 +230,7 @@ scope		::= L_CURLEY declaration statement R_CURLEY				//define new scope
 		  | L_CURLEY R_CURLEY 							//empty scope
 		  ;
 
+
 declaration	::= varDecl declaration
 		  | varDecl
 		  | funDecl declaration
@@ -239,6 +242,7 @@ declaration	::= varDecl declaration
 		  | forproDecl declaration
 		  | forproDecl
 		  ;
+
 
 varDecl		::= VAR variablenames COLON type;					//declare variables
 funDecl		::= functionHead scope;							//declare function
@@ -259,7 +263,7 @@ variablenames	::= variablename							//declare scalar variable
 		  ;
 		  
 oneDimArray ::=  variablename L_SQUARE bound R_SQUARE;				//declare one dimensional array
-twoDimArray ::=   variablename L_SQUARE bound COMMA bound R_SQUARE			//declare two dimensional array	  
+twoDimArray ::=   variablename L_SQUARE bound COMMA bound R_SQUARE;			//declare two dimensional array	  
 		  
 bound		::= INTCONST								//bound 1 .. integer inclusive
 		  | generalBound DOT DOT generalBound					//bounds left boud .. right bound inclusive
@@ -276,11 +280,11 @@ type		::= INTEGER								//integer type
 output 		::= expression								//integer expression to be printed
 		  | TEXTCONST								//string constant to be printed
 		  | NEWLINE								//skip to new line
-		  | outout COMMA output							//output sequence
+// 		  | outout COMMA output							//output sequence
 		  ;
 		
 input		::= variable								//input to this integer variable
-		  | input COMMA output							//input sequence
+// 		  | input COMMA output							//input sequence
 		  ;
 
 argumentList	::= arguments								//arguements to function/procedure
@@ -288,7 +292,7 @@ argumentList	::= arguments								//arguements to function/procedure
 		  ;
 		 
 arguments	::= expression								//actual parameter expression
-		  | arguements COMMA arguements						//actual parameter sequence
+// 		  | arguements COMMA arguements						//actual parameter sequence
 		  ;
 		 
 parameterList	::= parameters								//formal parameters of function/procedure
@@ -296,36 +300,46 @@ parameterList	::= parameters								//formal parameters of function/procedure
 		  ;
 		  
 parameters	::= parametername COLON type						//declare formal parameter
-		  | parameters COLON parameters						//formal parameter sequence
+// 		  | parameters COLON parameters						//formal parameter sequence
 		  ;
 		  
 variable	::= variablename							//reference to scalar variable
-		  | parametername							//reference to parameter
+// 		  | parametername							//reference to parameter
 		  | arrayname L_SQUARE expression R_SQUARE				//reference to one dimensional array element
 		  | arrayname L_SQUARE expression COMMA expression R_SQUARE		//reference to two dimensional array element
 		  ;
 		 
+		  
+// warning:
+// 	  [cup] Warning : *** Reduce/Reduce conflict found in state #9
+//       [cup]   between parametername ::= IDENT (*) 
+//       [cup]   and     variablename ::= IDENT (*) 
+//       [cup]   under symbols: {COLON}
+//       [cup]   Resolved in favor of the second production.
+		 
+		 
+		 
 expression	::= INTCONST								//integer literal constant
-		  | MINUS expression							//unary minus
-		  | expression ADD expression						//addition
-		  | expression MINUS expression						//subtraction
-		  | expression TIMES expression						//multiplication
-		  | expression DIVIDE expression					//division
-		  | TRUE								//Boolean constant true
-		  | FALSE								//Boolean constant false
-		  | NOT expression							//Boolean not
-		  | expression AND expression						//Boolean and
-		  | expression OR expression						//Boolean or
-		  | expression EQUAL expression						//equality comparison
-		  | expression NOT EQUAL expression					//inequality comparison
-		  | expression LESS expression						//less than comparison
-		  | expression LESS EQUAL expression					//less than or equal comparison
-		  | expression GREATER expression					//greater than comparison
-		  | expression GREATER EQUAL expression				//greater than or equal comparison
-		  | L_PAREN expression R_PAREN						//conditional expression
-		  | L_PAREN expression QUESTION expression COLON expression R_PAREN
-		  | variable								//reference to variable
-		  | functionname L_PAREN argumentList R_PAREN				//call of a function
+// 		  | MINUS expression							//unary minus
+// 		  | expression ADD expression						//addition
+// 		  | expression MINUS expression						//subtraction
+// 		  | expression TIMES expression						//multiplication
+// 		  | expression DIVIDE expression					//division
+// 		  | TRUE								//Boolean constant true
+// 		  | FALSE								//Boolean constant false
+// 		  | NOT expression							//Boolean not
+// 		  | expression AND expression						//Boolean and
+// 		  | expression OR expression						//Boolean or
+// 		  | expression EQUAL expression						//equality comparison
+// 		  | expression NOT EQUAL expression					//inequality comparison
+// 		  | expression LESS expression						//less than comparison
+// 		  | expression LESS EQUAL expression					//less than or equal comparison
+// 		  | expression GREATER expression					//greater than comparison
+// 		  | expression GREATER EQUAL expression				//greater than or equal comparison
+// 		  | L_PAREN expression R_PAREN						//conditional expression
+// 		  | L_PAREN expression QUESTION expression COLON expression R_PAREN
+// 		  | variable								//reference to variable
+// 		  | functionname L_PAREN argumentList R_PAREN				//call of a function
 		  ;
 		  
 variablename	::= IDENT	;
