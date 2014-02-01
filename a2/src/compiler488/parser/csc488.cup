@@ -117,7 +117,7 @@ nonterminal	ifStmt, ifElseStmt, procStmt, variablename, procedurename ;
 nonterminal baseStmt;
 nonterminal parameterList, parameters, baseParam, parametername, type ;
 
-nonterminal expr, expr1, expr2, expr3, baseExpr ;
+nonterminal expr, expr1, expr2, expr3, expr4, expr5, expr6, baseExpr ;
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
@@ -172,12 +172,27 @@ parametername ::= IDENT ;
 expr ::= expr OR expr1 | expr1 ;
 expr1 ::= expr1 AND expr2 | expr2 ;
 expr2 ::= NOT expr3 | expr3 ;
-expr3 ::= baseExpr EQUAL baseExpr
-        | baseExpr NOT EQUAL baseExpr
-        | baseExpr GREATER baseExpr
-        | baseExpr GREATER EQUAL baseExpr
-        | baseExpr LESS EQUAL baseExpr
-        | baseExpr LESS baseExpr
+expr3 ::= expr4 EQUAL expr4
+        | expr4 NOT EQUAL expr4
+        | expr4 GREATER expr4
+        | expr4 GREATER EQUAL expr4
+        | expr4 LESS EQUAL expr4
+        | expr4 LESS expr4
+        | expr4
+        ;
+expr4 ::= expr4 PLUS expr5
+        | expr4 MINUS expr5
+        | expr5
+        ;
+expr5 ::= expr5 TIMES expr6
+        | expr5 DIVIDE expr6
+        | expr6
+        ;
+
+// TO DO
+// Unspecified how unary - should associate.
+// This will associate right to left, which I think is the usual way.
+expr6 ::= MINUS expr6
         | baseExpr
         ;
 

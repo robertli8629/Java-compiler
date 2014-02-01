@@ -7,7 +7,25 @@ test3 := (not true)
 test4 := not (true or false and true)
 test5 := (true or false) and (true or false)
 test6 := ((true or false) and (not (true or false)))
-test7 := true = false
-test8 := true not= (not (true = false)) 
+
+% Comparison expressions
+test1 := true = false
+test2 := true not= (true = false)
+test3 := true = ((2 < 3) <= 4)
+test4 := false not= ((2 > 3) >= 4)
+
+% Arithmetic expressions
+test1 := 1 + 2
+test2 := 8 * 9
+test3 := 1 / 2 * - (3 + 4) - (10 * 100)
+
+% Mixed expressions
+test1 := not 1 + 2 - 4 - -5 / 4 * (10 < 10) = false
+
+% Base expressions
+test1 := 1
+test2 := (-2)
+test3 := false
+test4 := (true)
 }
 
