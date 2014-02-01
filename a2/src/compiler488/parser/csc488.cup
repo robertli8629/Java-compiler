@@ -114,14 +114,11 @@ terminal String  TEXTCONST	;
 
 nonterminal	program ;
 nonterminal scope ;
-nonterminal statement ;
-nonterminal variable ;
+nonterminal declaration ;
+nonterminal type ;
+nonterminal variablenames ;
 nonterminal variablename ;
-nonterminal identifier ;
-nonterminal output ;
-nonterminal expression ;
-nonterminal subExpression ;
-nonterminal unaryExpression ;
+nonterminal subDeclaration ;
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
@@ -147,29 +144,17 @@ start with program;
 
 program		::= scope	;							// Main program.
 
-scope		::= L_CURLEY statement R_CURLEY
-			| L_CURLEY R_CURLEY	;
+scope		::= L_CURLEY declaration R_CURLEY	
+			| L_CURLEY R_CURLEY	; 
 
-statement	::= variable COLON EQUAL expression	;	
+declaration ::= subDeclaration
+			| declaration subDeclaration	;
 
-output		::= expression
-			| TEXTCONST
-			| NEWLINE ; 
+subDeclaration	::=  VAR variablenames COLON type	; 
 
-variable	::= variablename	;
+type		::= INTEGER
+			| BOOLEAN	;
 
-variablename	::= identifier	;
+variablenames	::= variablename	;
 
-identifier		::= IDENT	;
-
-expression	::= expression PLUS subExpression 
-			| expression MINUS subExpression
-			| subExpression	;
-
-subExpression	::= subExpression TIMES unaryExpression
-				| subExpression DIVIDE unaryExpression
-				| unaryExpression	;
-
-unaryExpression	::= MINUS unaryExpression
-				| L_PAREN expression R_PAREN
-				| INTCONST	; 
+variablename	::= IDENT	;  
