@@ -18,6 +18,9 @@ test4 := false not= ((2 > 3) >= 4)
 test1 := 1 + 2
 test2 := 8 * 9
 test3 := 1 / 2 * - (3 + 4) - (10 * 100)
+test4 := ---5
+test5 := -(-(-(4)))
+test6 := -(1 + 2)
 
 % Mixed expressions
 test1 := not 1 + 2 - 4 - -5 / 4 * (10 < 10) = false
