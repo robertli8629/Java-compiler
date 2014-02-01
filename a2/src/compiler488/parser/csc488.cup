@@ -118,6 +118,7 @@ nonterminal baseStmt;
 nonterminal parameterList, parameters, baseParam, parametername, type ;
 
 nonterminal expr, expr1, expr2, expr3, expr4, expr5, expr6, baseExpr ;
+nonterminal functionname, argumentList, arguments;
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
@@ -167,6 +168,7 @@ type ::= INTEGER | BOOLEAN ;
 variablename ::= IDENT ;
 procedurename ::= IDENT ;
 parametername ::= IDENT ;
+functionname ::= IDENT ;
 
 /* expression */
 expr ::= expr OR expr1 | expr1 ;
@@ -196,7 +198,16 @@ expr6 ::= MINUS expr6
         | baseExpr
         ;
 
-baseExpr ::= TRUE | FALSE | L_PAREN expr R_PAREN | INTCONST;
+baseExpr ::= TRUE
+           | FALSE
+           | INTCONST
+           | L_PAREN expr R_PAREN
+           | L_PAREN expr QUESTION expr COLON expr R_PAREN
+           | functionname L_PAREN argumentList R_PAREN
+           ;
+
+argumentList ::= arguments | /* empty */ ;
+arguments ::= expr COMMA arguments | expr ;
 
 /*****************************************************************************
 

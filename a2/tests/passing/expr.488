@@ -27,5 +27,10 @@ test1 := 1
 test2 := (-2)
 test3 := false
 test4 := (true)
+test5 := (true ? 1 : 2)
+test6 := ((not (true)) ? (1 <= 2) : 2 not= 1)
+test7 := func1()
+test8 := func1(1)
+test9 := func1(not (1 < 2))
 }
 
