@@ -145,21 +145,36 @@ program ::= scope ;							//the main program
 
 scope ::= L_CURLEY stmt R_CURLEY
         | L_CURLEY R_CURLEY ;               // empty scope
+
 /* Stmt alternative
 stmt ::= assignStmt stmtList
        | ifStmt stmtList
        | ifElseStmt stmtList
        | procStmt stmtList ;
+stmtList ::= stmt | empty ;
 */
-stmtList ::= stmt | /* empty */ ;
 
-stmt ::= baseStmt stmt | baseStmt ;
-baseStmt ::= assignStmt | ifStmt | ifElseStmt | procStmt ;
+stmt       ::= baseStmt stmt
+             | baseStmt ;
+baseStmt   ::= assignStmt
+             | ifStmt
+             | ifElseStmt
+             | procStmt
+             | WHILE expr DO stmt END
+             | REPEAT stmt UNTIL expr
+             // TO DO
+             // | GET output
+             // | PUT input
+             | EXIT
+             | EXIT WHEN expr
+             | RESULT expr
+             | RETURN
+             | scope
+             ;
 assignStmt ::= variablename COLON EQUAL expr ;
-ifStmt ::= IF THEN FI ;
-ifElseStmt ::= IF THEN ELSE FI ;
-
-procStmt ::= procedurename L_PAREN argumentList R_PAREN ;
+ifStmt     ::= IF expr THEN stmt FI ;
+ifElseStmt ::= IF expr THEN stmt ELSE stmt FI ;
+procStmt   ::= procedurename L_PAREN argumentList R_PAREN ;
 
 parameterList ::= parameters | /* empty */ ;
 parameters ::= baseParam COMMA parameters | baseParam ;

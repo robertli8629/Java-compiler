@@ -1,11 +1,37 @@
 {
+% Assignment statements
+
 test_var1 := true
 test_var2 := 1
 test_var3 := not (true or false)
+test_var4 := --10 + (true ? 11 : 0) + func1((10))
 
-if then fi
-if then fi
-if then else fi
+% Loop statments
+
+if true then result -(10 * 10) fi
+
+if (not (false))
+then {
+    test_var1 := test_array[20, 10]
+}
+fi
+
+if (1 / 40)
+then {
+    return
+} else {
+    exit
+}
+fi
+
+while (true)
+do {
+    test_var2 := test_var2 + 1
+    exit when ((test_var2 = 10) or (test_proc(test_var1)))
+}
+end
+
+% Procedure calls
 
 test_proc()
 test2_proc ( )
