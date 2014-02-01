@@ -118,7 +118,7 @@ nonterminal baseStmt;
 nonterminal parameterList, parameters, baseParam, parametername, type ;
 
 nonterminal expr, expr1, expr2, expr3, expr4, expr5, expr6, baseExpr ;
-nonterminal functionname, argumentList, arguments;
+nonterminal functionname, argumentList, arguments, variable, arrayname ;
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
@@ -142,9 +142,10 @@ start with program;
  */
 
 program ::= scope ;							//the main program
+
 scope ::= L_CURLEY stmt R_CURLEY
         | L_CURLEY R_CURLEY ;               // empty scope
-/*
+/* Stmt alternative
 stmt ::= assignStmt stmtList
        | ifStmt stmtList
        | ifElseStmt stmtList
@@ -158,56 +159,75 @@ assignStmt ::= variablename COLON EQUAL expr ;
 ifStmt ::= IF THEN FI ;
 ifElseStmt ::= IF THEN ELSE FI ;
 
-/* Should actually be argumentList */
-procStmt ::= procedurename L_PAREN parameterList R_PAREN ;
+procStmt ::= procedurename L_PAREN argumentList R_PAREN ;
+
 parameterList ::= parameters | /* empty */ ;
 parameters ::= baseParam COMMA parameters | baseParam ;
 baseParam ::= parametername COLON type ;
+
 type ::= INTEGER | BOOLEAN ;
 
+// TO DO
+// Problematic defining all of these as IDENT
 variablename ::= IDENT ;
 procedurename ::= IDENT ;
 parametername ::= IDENT ;
 functionname ::= IDENT ;
+arrayname ::= IDENT ;
 
-/* expression */
-expr ::= expr OR expr1 | expr1 ;
-expr1 ::= expr1 AND expr2 | expr2 ;
-expr2 ::= NOT expr3 | expr3 ;
-expr3 ::= expr4 EQUAL expr4
-        | expr4 NOT EQUAL expr4
-        | expr4 GREATER expr4
-        | expr4 GREATER EQUAL expr4
-        | expr4 LESS EQUAL expr4
-        | expr4 LESS expr4
-        | expr4
-        ;
-expr4 ::= expr4 PLUS expr5
-        | expr4 MINUS expr5
-        | expr5
-        ;
-expr5 ::= expr5 TIMES expr6
-        | expr5 DIVIDE expr6
-        | expr6
-        ;
+/* Expression */
+expr     ::= expr OR expr1
+           | expr1
+           ;
+expr1    ::= expr1 AND expr2
+           | expr2
+           ;
+expr2    ::= NOT expr3
+           | expr3
+           ;
+expr3    ::= expr4 EQUAL expr4
+           | expr4 NOT EQUAL expr4
+           | expr4 GREATER expr4
+           | expr4 GREATER EQUAL expr4
+           | expr4 LESS EQUAL expr4
+           | expr4 LESS expr4
+           | expr4
+           ;
+expr4    ::= expr4 PLUS expr5
+           | expr4 MINUS expr5
+           | expr5
+           ;
+expr5    ::= expr5 TIMES expr6
+           | expr5 DIVIDE expr6
+           | expr6
+           ;
 
 // TO DO
 // Unspecified how unary - should associate.
 // This will associate right to left, which I think is the usual way.
-expr6 ::= MINUS expr6
-        | baseExpr
-        ;
-
+expr6    ::= MINUS expr6
+           | baseExpr
+           ;
 baseExpr ::= TRUE
            | FALSE
            | INTCONST
+           | variable
            | L_PAREN expr R_PAREN
            | L_PAREN expr QUESTION expr COLON expr R_PAREN
            | functionname L_PAREN argumentList R_PAREN
            ;
 
-argumentList ::= arguments | /* empty */ ;
-arguments ::= expr COMMA arguments | expr ;
+argumentList ::= arguments
+               | /* empty */
+               ; 
+arguments    ::= expr COMMA arguments
+               | expr
+               ;
+
+variable ::= IDENT
+           | IDENT L_SQUARE expr R_SQUARE
+           | IDENT L_SQUARE expr COMMA expr R_SQUARE
+           ;
 
 /*****************************************************************************
 
