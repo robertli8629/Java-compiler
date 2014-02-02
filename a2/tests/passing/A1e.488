@@ -1,0 +1,94 @@
+{
+    % CSC488 A1e
+    %
+    % A program using recursive functions and procedures, with and without
+    % parameters. Includes a nested procedure and function declaration.
+    %
+    % These routines mostly repeatly output something or repeatedly read
+    % input until a certain value is seen.
+    %
+    % Author: g0haugan
+    % Group 7: g1liyuch, g1minmin, g0haugan, g0sharma
+
+    proc repeat_hello(times : integer) {
+
+        proc print_hello() {
+            put "Hello", newline
+            return
+        }
+
+        if (times <= 0)
+        then {
+            return
+        } else {
+            print_hello()
+            repeat_hello(times - 1)
+            return
+        }
+        fi
+    }
+
+    proc run_bad_shell() {
+        var int : integer
+        get int
+        if (int = 3)
+        then {
+            return
+        } else {
+            run_bad_shell()
+        }
+        fi
+        return
+    }
+
+    func get_fibonacci(element : integer) : integer {
+        if (element < 0)
+        then {
+            put "Element must be >= 0", newline
+            result -1
+        }
+        fi
+
+        if (element = 1 or element = 2)
+        then {
+            result 1
+        } else {
+            result get_fibonacci(element - 1) + get_fibonacci(element - 2)
+        }
+        fi
+    }
+
+    func run_bad_shell_func() : boolean {
+
+        var int : integer
+
+        func is_equal(num1 : integer, num2 : integer) : boolean {
+            if (num1 = num2)
+            then {
+                result true
+            } else {
+                result false
+            }
+            fi
+        }
+
+        get int
+
+        if (is_equal(int, 10))
+        then {
+            result true
+        }
+        fi
+
+        result run_bad_shell_func()
+    }
+
+    var fib : integer
+    var bool : boolean
+
+    repeat_hello(4)
+    run_bad_shell()
+
+    fib := get_fibonacci(10)
+    bool := run_bad_shell_func()
+}
