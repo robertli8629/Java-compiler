@@ -159,6 +159,14 @@ nonterminal	forproDecl ;
 nonterminal oneDimArray ;
 nonterminal twoDimArray ;
 
+nonterminal baseExpr ;
+nonterminal expr1 ;
+nonterminal expr2 ;
+nonterminal expr3 ;
+nonterminal expr4 ;
+nonterminal expr5 ;
+nonterminal expr6 ;
+
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
 
@@ -319,30 +327,49 @@ variable	::= variablename							//reference to scalar variable
 //       [cup]   under symbols: {COLON}
 //       [cup]   Resolved in favor of the second production.
 		 
-		 
-		 
-expression	::= INTCONST								//integer literal constant
-// 		  | MINUS expression							//unary minus
-// 		  | expression ADD expression						//addition
-// 		  | expression MINUS expression						//subtraction
-// 		  | expression TIMES expression						//multiplication
-// 		  | expression DIVIDE expression					//division
-// 		  | TRUE								//Boolean constant true
-// 		  | FALSE								//Boolean constant false
-// 		  | NOT expression							//Boolean not
-// 		  | expression AND expression						//Boolean and
-// 		  | expression OR expression						//Boolean or
-// 		  | expression EQUAL expression						//equality comparison
-// 		  | expression NOT EQUAL expression					//inequality comparison
-// 		  | expression LESS expression						//less than comparison
-// 		  | expression LESS EQUAL expression					//less than or equal comparison
-// 		  | expression GREATER expression					//greater than comparison
-// 		  | expression GREATER EQUAL expression				//greater than or equal comparison
-// 		  | L_PAREN expression R_PAREN						//conditional expression
-// 		  | L_PAREN expression QUESTION expression COLON expression R_PAREN
-// 		  | variable								//reference to variable
-// 		  | functionname L_PAREN argumentList R_PAREN				//call of a function
-		  ;
+		  
+		  
+expression ::= expression OR expr1
+           | expr1
+           ;
+expr1    ::= expr1 AND expr2
+           | expr2
+           ;
+expr2    ::= NOT expr3
+           | expr3
+           ;
+expr3    ::= expr3 EQUAL expr4
+           | expr3 NOT EQUAL expr4
+           | expr3 GREATER expr4
+           | expr3 GREATER EQUAL expr4
+           | expr3 LESS EQUAL expr4
+           | expr3 LESS expr4
+           | expr4
+           ;
+expr4    ::= expr4 PLUS expr5
+           | expr4 MINUS expr5
+           | expr5
+           ;
+expr5    ::= expr5 TIMES expr6
+           | expr5 DIVIDE expr6
+           | expr6
+           ;
+
+// TO DO
+// Unspecified how unary - should associate.
+// This will associate right to left, which I think is the usual way.
+expr6    ::= MINUS expr6
+           | baseExpr
+           ;
+baseExpr ::= TRUE
+           | FALSE
+           | INTCONST
+           | variable
+           | L_PAREN expression R_PAREN
+           | L_PAREN expression QUESTION expression COLON expression R_PAREN
+           | functionname L_PAREN argumentList R_PAREN
+           ;
+           
 		  
 variablename	::= IDENT	;
 arrayname	::= IDENT	;

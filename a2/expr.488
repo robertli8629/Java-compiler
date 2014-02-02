@@ -1,0 +1,53 @@
+{
+
+func f3 (a:integer,b:boolean) : integer {}
+
+% Logical expressions
+
+test1 := true and false or true
+test2 := true and not false or true
+test3 := (not true)
+test4 := not (true or false and true)
+test5 := (true or false) and (true or false)
+test6 := ((true or false) and (not (true or false)))
+
+% Comparison expressions
+test1 := true = false
+test2 := true not= (true = false)
+test3 := true = ((2 < 3) <= 4)
+test4 := false not= ((2 > 3) >= 4)
+
+% Arithmetic expressions
+test1 := 1 + 2
+test2 := 8 * 9
+test3 := 1 / 2 * - (3 + 4) - (10 * 100)
+test4 := ---5
+test5 := -(-(-(4)))
+test6 := -(1 + 2)
+
+% Mixed expressions
+test1 := not 1 + 2 - 4 - -5 / 4 * (10 < 10) = false
+
+% Base expressions
+test1 := 1
+test2 := (-2)
+test3 := false
+test4 := (true)
+test5 := (true ? 1 : 2)
+test6 := ((not (true)) ? (1 <= 2) : 2 not= 1)
+test7 := func1()
+test8 := func1(1)
+test9 := func1(not (1 < 2))
+test10 := test_id
+test11 := test_array[10]
+test12 := test_array[(1 + 3) + 4]
+test13 := test_array[20, 21]
+test14 := test_array[100 + 11, (4 * 12)]
+
+test15 := -1+2-3*4/5 and true or not false = 1 and f3(1,2) not = 1 >1>=1<=1<1
+
+test17 := (1?1:1) > 5
+
+test18 := 1 and 2 and 3
+
+}
