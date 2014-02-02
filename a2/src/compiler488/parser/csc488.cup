@@ -335,7 +335,7 @@ expression ::= expression OR expr1
 expr1    ::= expr1 AND expr2
            | expr2
            ;
-expr2    ::= NOT expr3
+expr2    ::= NOT expr2
            | expr3
            ;
 expr3    ::= expr3 EQUAL expr4
