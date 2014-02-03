@@ -1,0 +1,13 @@
+{
+% Statment appearing before declaration in scope should be rejected
+
+if (true)
+then {
+} else {
+}
+fi
+
+var test_var : integer
+
+}
+

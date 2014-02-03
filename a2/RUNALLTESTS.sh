@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to run all failing parser tests
+# Script to run all parser tests
 
 WHERE=.
 COMPILER=../../dist/compiler488.jar
