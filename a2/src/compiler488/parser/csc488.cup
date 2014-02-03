@@ -249,6 +249,7 @@ declaration	::= varDecl declaration
 		  | forDecl
 		  | forproDecl declaration
 		  | forproDecl
+// 		  | //EMPTY
 		  ;
 
 

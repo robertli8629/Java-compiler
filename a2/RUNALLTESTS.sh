@@ -1,6 +1,7 @@
 #!/bin/bash
 # Script to run all failing parser tests
 
+WHERE=.
 COMPILER=../../dist/compiler488.jar
 
 runtests () {
@@ -12,10 +13,10 @@ do
 done
 }
 
-pushd ./tests/failing > /dev/null
+pushd $WHERE/tests/failing > /dev/null
 runtests
 popd > /dev/null
-pushd ./tests/passing > /dev/null
+pushd $WHERE/tests/passing > /dev/null
 runtests
 popd > /dev/null
 
