@@ -1,0 +1,14 @@
+% Group Number: 7
+% Group Members: g1liyuch - Yuchen Li
+%                g1minmin - Minmin Liu
+%                g0haugan - Geoff Haugan
+%                g0sharma - Alka Sharma
+
+
+# A document describing how you tested your csc488.cups file.
+#    Include an index with a one sentence description of each test case.
+
+
+
+
+

@@ -1,0 +1,15 @@
+% Group Number: 7
+% Group Members: g1liyuch - Yuchen Li
+%                g1minmin - Minmin Liu
+%                g0haugan - Geoff Haugan
+%                g0sharma - Alka Sharma
+
+
+# A design document that describes how you designed your csc488.cups file.
+#    Explain the issues that arose with the source language reference grammar
+#    and how you resolved those issues
+
+
+
+
+
