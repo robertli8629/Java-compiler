@@ -191,31 +191,31 @@ start with program;
 program		::= scope	;							//the main program
 
 
-statement	::= asmtStat statement
+statement	::= statement asmtStat 
 		  | asmtStat
-		  | condStat statement
+		  | statement condStat 
 		  | condStat
-		  | condelStat statement
+		  | statement condelStat 
 		  | condelStat
-		  | whileStat statement
+		  | statement whileStat 
 		  | whileStat
-		  | repStat statement
+		  | statement repStat 
 		  | repStat
-		  | exitStat statement
+		  | statement exitStat 
 		  | exitStat
-		  | exitwhStat statement
+		  | statement exitwhStat 
 		  | exitwhStat
-		  | resStat statement
+		  | statement resStat 
 		  | resStat
-		  | retStat statement
+		  | statement retStat 
 		  | retStat
-		  | putStat statement
+		  | statement putStat 
 		  | putStat
-		  | getStat statement
+		  | statement getStat 
 		  | getStat
-		  | proStat statement
+		  | statement proStat 
 		  | proStat
-		  | scopStat statement
+		  | statement scopStat 
 		  | scopStat
 		  ;
 		  
@@ -239,17 +239,16 @@ scope		::= L_CURLEY declaration statement R_CURLEY				//define new scope
 		  ;
 
 
-declaration	::= varDecl declaration
+declaration	::= declaration varDecl
 		  | varDecl
-		  | funDecl declaration
+		  | declaration funDecl
 		  | funDecl
-		  | proDecl declaration
+		  | declaration proDecl
 		  | proDecl
-		  | forDecl declaration
+		  | declaration forDecl
 		  | forDecl
-		  | forproDecl declaration
+		  | declaration forproDecl
 		  | forproDecl
-// 		  | //EMPTY
 		  ;
 
 
@@ -264,11 +263,11 @@ functionHead	::= FUNC functionname L_PAREN parameterList R_PAREN COLON type	;	//
 procedureHead	::= PROCEDURE procedurename L_PAREN parameterList R_PAREN;			//declare procedure head
 
 variablenames	::= variablename							//declare scalar variable
-		  | variablename COMMA variablenames
+		  | variablenames COMMA variablename
 		  | oneDimArray
-		  | oneDimArray COMMA variablenames
+		  | variablenames COMMA oneDimArray
 		  | twoDimArray
-		  | twoDimArray COMMA variablenames
+		  | variablenames COMMA twoDimArray
 		  ;
 		  
 oneDimArray ::=  variablename L_SQUARE bound R_SQUARE;				//declare one dimensional array
@@ -287,15 +286,15 @@ type		::= INTEGER								//integer type
 		  ;
 
 output 		::= expression								//integer expression to be printed
-		  | expression COMMA output
+		  | output COMMA expression
 		  | TEXTCONST								//string constant to be printed
-		  | TEXTCONST COMMA output
+		  | output COMMA TEXTCONST
 		  | NEWLINE								//skip to new line
-		  | NEWLINE COMMA output
+		  | output COMMA NEWLINE
 		  ;
 		
 input		::= variable								//input to this integer variable
-		  | variable COMMA input
+		  | input COMMA variable
 		  ;
 
 argumentList	::= arguments								//arguements to function/procedure
@@ -303,7 +302,7 @@ argumentList	::= arguments								//arguements to function/procedure
 		  ;
 		 
 arguments	::= expression								//actual parameter expression
-		  | expression COMMA arguments						//actual parameter sequence
+		  | arguments COMMA expression  						//actual parameter sequence
 		  ;
 		 
 parameterList	::= parameters								//formal parameters of function/procedure
@@ -311,7 +310,7 @@ parameterList	::= parameters								//formal parameters of function/procedure
 		  ;
 		  
 parameters	::= parametername COLON type						//declare formal parameter
-		  | parametername COLON type COMMA parameters						//formal parameter sequence
+		  | parameters COMMA parametername COLON type  						//formal parameter sequence
 		  ;
 		  
 variable	::= variablename							//reference to scalar variable
