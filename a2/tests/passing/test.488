@@ -12,10 +12,16 @@ func f (a:integer) : integer {
 
 proc p (a:integer) {}
 proc p2 () {}
-proc p3 (a:integer,b:boolean) {}
+proc p3 (a:integer,b:boolean) {
+	if 1 then
+		{}
+	else 
+		{}
+	fi
+}
 
 forward func f (a:integer) : integer 
-forward proc p2 ()
+forward proc p2 (i : integer)
 
 if 1 then
 {}
