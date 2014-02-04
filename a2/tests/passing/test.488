@@ -1,16 +1,25 @@
 {
 
+% rest of the general testing for combining things together
+
 var a : integer
 var b,c,d,e[10],f[1..2], g[1,1..5] : boolean
 
-func f (a:integer) : integer {}
+forward func f (a:integer) : integer 
+forward proc p2 (i : integer)
+
+func f (a:integer) : integer {
+    result 1
+}
 func f2 () : integer {}
 func f3 (a:integer,b:boolean) : integer {}
 func f (a:integer) : integer {
 	result a + 1
 }
 
-proc p (a:integer) {}
+proc p (a:integer) {
+    return
+}
 proc p2 () {}
 proc p3 (a:integer,b:boolean) {
 	if 1 then
@@ -20,29 +29,19 @@ proc p3 (a:integer,b:boolean) {
 	fi
 }
 
-forward func f (a:integer) : integer 
-forward proc p2 (i : integer)
-
-if 1 then
-{}
-else 
-{}
-fi
-
 if 1 then
 {}
 fi
 
+while 1 do {
+    if 1 then
+	{exit}
+    else 
+	{exit when 1}
+    fi
+} end
 
-while 1 do {} end
 repeat {} until 1
-
-exit
-
-exit when 1
-
-result 1
-return
 
 aaa := 12
 aaa[1] := 1
@@ -59,5 +58,6 @@ put 1, "df", newline
 p2()
 p(1)
 p3(1,2,3,4,5)
+
 
 }

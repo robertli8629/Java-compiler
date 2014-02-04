@@ -4,10 +4,10 @@
     % A program using recursive functions and procedures, with and without
     % parameters. Includes a nested procedure and function declaration.
     %
-    % These routines mostly repeatly output something or repeatedly read
-    % input until a certain value is seen.
+    % This file contains recursive function that does not uses get statement.
+    % This is done by using a global variable.
     %
-    % Author: g0haugan
+    % Author: g1liyuch
     % Group 7: g1liyuch, g1minmin, g0haugan, g0sharma
 
     proc repeat_hello(times : integer) {

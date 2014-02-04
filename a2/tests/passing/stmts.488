@@ -37,5 +37,6 @@ test_proc()
 test2_proc ( )
 test3_proc(1, arg1)
 test4_proc(1 * 2, array_arg1[10], array_arg2[10, 4])
+
 }
 
