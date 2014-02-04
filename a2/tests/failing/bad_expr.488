@@ -1,4 +1,4 @@
 {
-test := false and true not false
+    test := false and true not false
 }
 

@@ -1,0 +1,7 @@
+{
+    var a:integer var b:integer
+    a:=3 
+    b:=4 
+    a=b+1 %expression cannot be a statement.
+
+}

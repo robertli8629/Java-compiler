@@ -1,0 +1,8 @@
+{
+    var a:integer
+    a:=3
+    if {a<4} %scope can only contain statement not expression.
+    then {put "output"}
+    fi
+
+}

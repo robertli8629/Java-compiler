@@ -1,6 +1,6 @@
 {
-% Comparison operators should not associate
+    % Comparison operators should not associate
 
-test := true = true <= false
+    test := true = true <= false
 }
 

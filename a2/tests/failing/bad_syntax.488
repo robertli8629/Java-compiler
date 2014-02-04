@@ -1,0 +1,7 @@
+{
+    var a:integer
+    a:=3
+    while(a<10)
+	then{a:=a+1} %while loop must follow by do
+    end
+}
