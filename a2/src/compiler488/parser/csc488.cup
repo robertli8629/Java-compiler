@@ -339,12 +339,12 @@ expr1    ::= expr1 AND expr2
 expr2    ::= NOT expr2
            | expr3
            ;
-expr3    ::= expr3 EQUAL expr4
-           | expr3 NOT EQUAL expr4
-           | expr3 GREATER expr4
-           | expr3 GREATER EQUAL expr4
-           | expr3 LESS EQUAL expr4
-           | expr3 LESS expr4
+expr3    ::= expr4 EQUAL expr4
+           | expr4 NOT EQUAL expr4
+           | expr4 GREATER expr4
+           | expr4 GREATER EQUAL expr4
+           | expr4 LESS EQUAL expr4
+           | expr4 LESS expr4
            | expr4
            ;
 expr4    ::= expr4 PLUS expr5
