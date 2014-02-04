@@ -2,8 +2,8 @@
 % Forward declartions and mutually recursive procedures
 % May only need to forward declare proc2
 
-%forward proc proc1(i : integer)
-%forward proc proc2(i : integer)
+forward proc proc1(i : integer)
+forward proc proc2(i : integer)
 
 proc proc1(i : integer) {
     if (i >= 10)
