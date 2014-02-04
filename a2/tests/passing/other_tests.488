@@ -29,11 +29,11 @@ proc p3 (a:integer,b:boolean) {
 	fi
 }
 
-if 1 then
+if (1<2 or 3>4) then
 {}
 fi
 
-while 1 do {
+while ((1+2)=(3+5)) do {
     if 1 then
 	{exit}
     else 
