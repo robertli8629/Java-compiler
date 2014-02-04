@@ -356,9 +356,6 @@ expr5    ::= expr5 TIMES expr6
            | expr6
            ;
 
-// TO DO
-// Unspecified how unary - should associate.
-// This will associate right to left, which I think is the usual way.
 expr6    ::= MINUS expr6
            | baseExpr
            ;

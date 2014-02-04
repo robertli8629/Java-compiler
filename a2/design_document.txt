@@ -13,3 +13,16 @@
 
 
 
+We design our csc488.cup file to follow the rules of reference grammar for most 
+of the part. However, there are few issues with the reference grammar. One of them
+is that some grammar has both left and right recursion like the rules in statement
+where a statement can become multiple statements or the rules in expressions.
+
+The way we deal with both left and right recursion is to try to reduce it so that
+only left recursion appears in grammar. The way we did with multiple statements,
+for example, is to declare a non-terminal A for every rule the statement can reduce
+to and specify two rules in our grammar: statement ::= A | statement ::= statement A.
+This way we only have the left recursion in our grammar and it has the same meaning as
+before.
+
+
