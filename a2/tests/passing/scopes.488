@@ -1,0 +1,42 @@
+{
+
+var i:integer
+
+{
+  var i:integer
+  i:=5
+}
+
+{
+  var i:integer
+  i:=10
+}
+
+{ put "hello world" }
+
+{}
+
+i := 1
+while(i<100)
+do {
+  i:=i+1
+}
+end
+put i
+
+i := 1
+repeat {
+  i:=i+1
+} until(i<100)
+put i
+
+i := 10
+if (i < 11)
+then {
+  put i
+} else {
+  put "error!"
+}
+fi
+
+}
