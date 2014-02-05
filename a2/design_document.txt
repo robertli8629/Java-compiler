@@ -21,8 +21,9 @@ where a statement can become multiple statements or the rules in expressions.
 The way we deal with both left and right recursion is to try to reduce it so that
 only left recursion appears in grammar. The way we did with multiple statements,
 for example, is to declare a non-terminal A for every rule the statement can reduce
-to and specify two rules in our grammar: statement ::= A | statement ::= statement A.
+to. After that we add two rules in our grammar for each of such rule A: 
+		statement ::= A | statement ::= statement A.
 This way we only have the left recursion in our grammar which has the same meaning as
-before.
+using statement ::= statement statement.
 
 
