@@ -13,17 +13,63 @@
 
 
 
-We design our csc488.cup file to follow the rules of reference grammar for most 
-of the part. However, there are few issues with the reference grammar. One of them
-is that some grammar has both left and right recursion like the rules in statements
-where a statement can become multiple statements or the rules in expressions.
+We designed our csc488.cup file to follow the rules of the reference grammar for the 
+most part. However, there are a few issues with the reference grammar. One of them
+is that some non-terminals are both left and right recursive, leading to ambiguity.
+An example of this is the statement, as a statement can become multiple statements,
+or a specific type of statement. There are a number of non-terminals with the same
+problem.
 
 The way we deal with both left and right recursion is to try to reduce it so that
-only left recursion appears in grammar. The way we did with multiple statements,
+only left recursion appears in the grammar. The way we did this with multiple statements,
 for example, is to declare a non-terminal A for every rule the statement can reduce
-to. After that we add two rules in our grammar for each of such rule A: 
-		statement ::= A | statement ::= statement A.
-This way we only have the left recursion in our grammar which has the same meaning as
-using statement ::= statement statement.
+to. After that, we added two rules in our grammar for each such A: 
 
+		statement ::= A | statement A
+
+This way we only have the left recursion in our grammar which has the same meaning as
+using statement ::= statement statement. Essentially, the parser is forced to match
+more specific statement types in a certain order, eliminating the possibility of doing
+it in more than one way.
+
+This same approach worked for all non-terminals in the reference grammar that were
+ambiguous in this way, including declarations, output, input, arguments and
+parameters.
+
+Designing expressions also required enforcing precedence and associativity.
+We first separated the expression rules into those we considered "base"
+expressions, those not incorporating operators, and those that did have
+operators and would require a certain level of precedence. To enforce
+higher precedence we constructed grammar rules matching these operators
+and their operands deeper in the parse tree, meaning they would need to
+be evaluated first before expressions higher in the parse tree could be
+evaluated.
+
+This required a hierarchy of non-terminals with the expression non-terminal
+itself at the top. Logical operator expressions are produced first,
+with each at the appropriate level. Comparison expressions come next, followed
+finally by the highest precedence arithmetic expressions. This produces the
+desired parse tree with lower precedence operators residing closer to the
+initial expression symbol and higher precedence operators deeper in the parse
+tree. 
+
+Within each rule, associativity is determined by whether the production rule
+is either left or right recursive. Left recursion causes subsequent expressions
+at the same precedence level to be generated to the left of the original
+expression, thus putting these expressions deeper in the parse tree. As with
+our precedence hierarchy, this causes these expressions to be evaluated first.
+
+All rules are left-associative with the exceptions of the comparison operators,
+which are not associative, and the unary operators that right-associate.
+
+Right-associative expressions have rules that are right recursive. The
+rules for the comparision operators are not recursive at all, so lists
+of expressions containing these operators (e.g. a = b = c) cannot be
+generated.
+
+One final issue that arose involved the reference grammar's use of a number of
+non-terminals for identifiers. This makes the reference grammar easier to read
+and understand, but also creates conflicts in the parser since all these non-
+terminals are defined to be the same token. To solve this, we condensed the
+conflicting non-terminals into a single one.
 
