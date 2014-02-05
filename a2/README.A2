@@ -12,14 +12,12 @@ Team responsibilities:
 	g1minmin - Minmin Liu:
 		Initial grammar building, writing all other grammar rules, testing, documentation
 	g0haugan - Geoff Haugan:
-	
+        Resolving ambiguity of reference grammar, expression grammar, passing/failing expression tests, test script, documentation
 	g0sharma - Alka Sharma:
-
+        Arithmetic expression grammar, lists of declarations, additional test cases, documentation
 
 Other documents:
 
 	design: design_document.txt
 	testing: testing_document.txt
-	
-	
 	
