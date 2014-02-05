@@ -50,15 +50,15 @@ passing test cases:
 failing test cases:
 
 	bad_expr:
-
+            Incorrect number of operands for unary/binary logical operators.
 	bad_expr2:
-
+            Incorrect number of operands for binary logical operator.
 	bad_expr3:
-
+            Unbalanced parenthesis in a complex expression.
 	bad_expr4:
-
+            Attempt to associate comparison operators.
 	bad_expr5:
-
+            Ill-formed two-dimensional array argument.
 	bad_stmt_before_decl:
 			Statment appearing before declaration in scope should be rejected.
 	bad_stmt:
