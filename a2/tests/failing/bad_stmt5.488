@@ -2,6 +2,6 @@
     func printnum(a : integer) : integer {
 	result 1 
     }
-    %cannot have only declaration without statement.
+    % cannot have only declaration without statement.
 
 }

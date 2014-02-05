@@ -9,6 +9,73 @@
 #    Include an index with a one sentence description of each test case.
 
 
+passing test cases:
 
+	A1a:
+		 A program using all arithmetic, logical and conditional operators,
+		 plus variable declaration and assignment.
+	A1b:
+		A program using variations on array declaration, bounds 
+		and assignment.
+	A1c:
+		A program using all loop building and loop exit constructs,
+		including the while and repeat loops along with the exit and
+		exit when statements.  These loops essentially decrement/increment
+		values until exit conditions are met.
+	A1d:
+		A program using non-recursive functions and procedures with and
+		without parameters.
+	A1e:
+		 A program using recursive functions and procedures, with and without
+		parameters. Includes a nested procedure and function declaration.
+		These routines mostly repeatly output something or repeatedly read
+		input until a certain value is seen.
+	A1e_2:
+		Same as A1e but the recursive function does not contain the get statement.
+		This is done by using a global variable.
+	declarations:
+		Testing file with all test cases of declarations.
+	expr:
+		Testing file with all test cases of expressions.
+	scope:
+		Testing file with all test cases of scopes.
+	stmts:
+		Testing file with all test cases of statements.
+	mutual_recursion:
+		Testing file with test cases of mutual recursive procedures.
+	other_tests:
+		Testing file where all features of grammar combined together.
+
+
+failing test cases:
+
+	bad_expr:
+
+	bad_expr2:
+
+	bad_expr3:
+
+	bad_expr4:
+
+	bad_expr5:
+
+	bad_stmt_before_decl:
+			Statment appearing before declaration in scope should be rejected.
+	bad_stmt:
+			Misuse of statement as expression.
+	bad_stmt2:
+			Misuse of statement as expression.
+	bad_stmt3:
+			Misuse of curly brackets.
+	bad_stmt4:
+			Misuse of compare operator.
+	bad_stmt5:
+			Cannot have only declaration without statement.
+	bad_stmt6:
+			Misuse of function as a statement.
+	bad_syntax:
+			Missing do in a while statement.
+	bad_var_name:
+			Testing invalid variablenames.
 
 

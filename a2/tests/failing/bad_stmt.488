@@ -1,6 +1,6 @@
 {
     var a:integer
-    if(a:=3) %if must follow by a expression
+    if (a:=3) % if must follow by a expression
     then{put "output"}
     fi
 

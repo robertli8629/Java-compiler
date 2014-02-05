@@ -1,7 +1,7 @@
 {
     var a:integer
     a:=3
-    if {a<4} %scope can only contain statement not expression.
+    if {a<4} % misuse of curly brackets
     then {put "output"}
     fi
 
