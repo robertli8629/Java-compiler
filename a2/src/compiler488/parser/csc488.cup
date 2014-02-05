@@ -313,21 +313,11 @@ parameters	::= parametername COLON type						//declare formal parameter
 		  | parameters COMMA parametername COLON type  						//formal parameter sequence
 		  ;
 		  
-variable	::= variablename							//reference to scalar variable
-// 		  | parametername							//reference to parameter
+variable	::= variablename							//reference to scalar variable/parameter
 		  | arrayname L_SQUARE expression R_SQUARE				//reference to one dimensional array element
 		  | arrayname L_SQUARE expression COMMA expression R_SQUARE		//reference to two dimensional array element
 		  ;
 		 
-		  
-// warning:
-// 	  [cup] Warning : *** Reduce/Reduce conflict found in state #9
-//       [cup]   between parametername ::= IDENT (*) 
-//       [cup]   and     variablename ::= IDENT (*) 
-//       [cup]   under symbols: {COLON}
-//       [cup]   Resolved in favor of the second production.
-		 
-		  
 		  
 expression ::= expression OR expr1
            | expr1
