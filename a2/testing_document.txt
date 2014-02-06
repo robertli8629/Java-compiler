@@ -65,6 +65,8 @@ failing test cases:
 			Incorrect association of binary arithmetic operator.
 	bad_expr8:
 			Testing invalid variable name in arithmetic expression.
+	bad_get_stmt:
+			Misuse of get statement.
 	bad_stmt_before_decl:
 			Statement appearing before declaration in scope should be rejected.
 	bad_stmt:
