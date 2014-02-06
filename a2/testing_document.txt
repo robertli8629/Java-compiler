@@ -5,14 +5,12 @@
 %                g0sharma - Alka Sharma
 
 
-# A document describing how you tested your csc488.cups file.
-#    Include an index with a one sentence description of each test case.
 
 
 passing test cases:
 
 	A1a:
-		 A program using all arithmetic, logical and conditional operators,
+		A program using all arithmetic, logical and conditional operators,
 		 plus variable declaration and assignment.
 	A1b:
 		A program using variations on array declaration, bounds 
@@ -50,44 +48,44 @@ passing test cases:
 failing test cases:
 
 	bad_expr:
-            Incorrect number of operands for unary/binary logical operators.
+		Incorrect number of operands for unary/binary logical operators.
 	bad_expr2:
-            Incorrect number of operands for binary logical operator.
+        Incorrect number of operands for binary logical operator.
 	bad_expr3:
-            Unbalanced parenthesis in a complex expression.
+        Unbalanced parenthesis in a complex expression.
 	bad_expr4:
-            Attempt to associate comparison operators.
+        Attempt to associate comparison operators.
 	bad_expr5:
-            Ill-formed two-dimensional array argument.
+        Ill-formed two-dimensional array argument.
 	bad_expr6:
-			Incorrect number of operands for arithmetic operator.
+		Incorrect number of operands for arithmetic operator.
 	bad_expr7:
-			Incorrect association of binary arithmetic operator.
+		Incorrect association of binary arithmetic operator.
 	bad_expr8:
-			Testing invalid variable name in arithmetic expression.
+		Testing invalid variable name in arithmetic expression.
 	bad_assign_stmt:
-			Misuse of assignment statement.
+		Misuse of assignment statement.
 	bad_func_decl:
-			Misuse of function declaration.
+		Misuse of function declaration.
 	bad_get_stmt:
-			Misuse of get statement.
+		Misuse of get statement.
 	bad_stmt_before_decl:
-			Statement appearing before declaration in scope should be rejected.
+		Statement appearing before declaration in scope should be rejected.
 	bad_stmt:
-			Misuse of statement as expression.
+		Misuse of statement as expression.
 	bad_stmt2:
-			Misuse of statement as expression.
+		Misuse of statement as expression.
 	bad_stmt3:
-			Misuse of curly brackets.
+		Misuse of curly brackets.
 	bad_stmt4:
-			Misuse of compare operator.
+		Misuse of compare operator.
 	bad_stmt5:
-			Cannot have only declaration without statement.
+		Cannot have only declaration without statement.
 	bad_stmt6:
-			Misuse of function as a statement.
+		Misuse of function as a statement.
 	bad_syntax:
-			Missing do in a while statement.
+		Missing do in a while statement.
 	bad_var_name:
-			Testing invalid variablenames.
+		Testing invalid variablenames.
 
 

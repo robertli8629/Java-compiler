@@ -5,12 +5,6 @@
 %                g0sharma - Alka Sharma
 
 
-# A design document that describes how you designed your csc488.cups file.
-#    Explain the issues that arose with the source language reference grammar
-#    and how you resolved those issues
-
-
-
 
 
 We designed our csc488.cup file to follow the rules of the reference grammar for the 
