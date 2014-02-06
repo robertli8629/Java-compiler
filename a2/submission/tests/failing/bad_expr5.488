@@ -1,0 +1,6 @@
+{
+    % Bad arguments
+
+    test := func(array_arg[10,])
+}
+

@@ -1,0 +1,3 @@
+{
+	test := * 2		% '*' is not an unary operator
+}

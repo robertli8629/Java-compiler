@@ -1,0 +1,10 @@
+{
+    func addone(a:integer):integer{
+	    return a+1
+    }
+    var a:integer 
+    var b:integer
+    a:=3 
+    addone(a) %function is not a statement.
+
+}

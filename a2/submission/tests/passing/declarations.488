@@ -1,0 +1,44 @@
+{
+
+var x:boolean
+
+forward proc testproc()
+forward proc testproc2(a : integer)
+forward func testfunc3(a:integer, b:integer) : integer
+
+func testfunc():integer {
+  result 1
+}
+
+func testfunc2(a:integer):integer {
+  result a+1
+}
+
+func testfunc3(a:integer, b:integer):integer {
+  result a+b
+}
+
+proc testproc() {
+  var i:integer
+  i:=1
+  while(i<100)
+  do{
+    i:=i+1
+  }
+  end
+  put i
+}
+
+proc testproc2(a:integer) {
+  put a
+  return
+}
+
+proc testproc3(a:integer, b:integer) {
+  put a+b
+  return
+}
+
+{}
+
+}

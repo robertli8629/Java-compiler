@@ -1,0 +1,372 @@
+//
+// Package and import specifications section.
+
+package compiler488.parser;
+
+import java_cup.runtime.*;		// Must always import this.
+
+/* User code components 1: action code components.
+ * Code to be used inside the actions triggered when productions are matched.
+ * If any common code is needed for more than one action , put it here.
+ */
+// action code {:
+// your code goes HERE
+//:};
+
+/* User code components 2: parser code components. 
+ * Modifications to the default generated parser
+ */
+parser code {:
+
+	String lastError;
+	
+    /** Override the report_error method so it will display the line and
+     * column of where the error occurred in the input as well as the
+     * reason for the error which is passed into the method in the
+     * String 'message'.
+     * @param message  error message to print
+     * @param info     symbol containing line/column numbers
+     */
+    public void report_error(String message, Object info)
+	{
+	String st =  "Error";
+   
+        if (info instanceof java_cup.runtime.Symbol)
+	    {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+
+	    /* s.left is supposed to hold the line number of the error.
+	     * s.right is supposed to hold the column number.
+             * If either is < 0 the parser may have run off the end of the program
+             * and a Syntax Error message without line number may be printed.
+	     */
+   
+            if (s.left >= 0)				// Check line number.
+		{
+                st += " in line " + (s.left + 1);
+                if (s.right >= 0)			// Check column number.
+                    st += ", column " + (s.right + 1);
+		}
+            else
+               st += " at end of input " ;
+           }
+	    st += ": " + message;
+        System.err.println (st);
+        lastError = st;
+	}
+   
+    /** Override the report_fatal_error method to use the report_error method. */
+    /** @throws SyntaxErrorException						*/
+    public void report_fatal_error (String message, Object info) throws SyntaxErrorException
+	{
+        report_error (message, info);
+        throw new SyntaxErrorException (lastError); 
+	}
+   
+:};
+
+/* User code components 3: initialization code.
+ * If you want some code to be executed before the parser asks for the first
+ * token, add it here.
+ */
+init with {:
+:};
+
+/* User code components 4: scanner specification code.
+ * If you need to override the way the parser asks the scanner for the
+ * next token, put your preferred method here.  Uncomment the line following
+ * this comment, replace the line after that with your code, and uncomment
+ * the line after that.
+ */
+// scan with {:
+// your code goes here
+// :};
+
+/* Symbol lists section.
+ * The names of terminals and non-terminals are not allowed to be CUP
+ * reserved words.  These include "code", "action", "parser", "terminal",
+ * "non", "nonterminal", "init", "scan", "with", "start", "precedence",
+ * "left", "right", "nonassoc", "import", and "package".
+ */
+
+// DEFINITIONS for CSC488S Source Language  Winter  2013/2014 
+
+// Terminals returned by the scanner with no value attached.  
+terminal 	BOOLEAN,	INTEGER,	DO	;
+terminal	ELSE,	END,	EXIT,   FI,	FORWARD, FUNC	;
+terminal	IF,	GET, 	PROCEDURE,	PUT	;
+terminal	WHILE,	REPEAT,	UNTIL,	VAR,	NEWLINE	;
+terminal	RESULT,	RETURN,	THEN,	WHEN	;
+
+// Special-character terminals, no value attached
+terminal	AND,	OR,	NOT,	TRUE,	FALSE	;
+terminal	L_PAREN	,R_PAREN,L_SQUARE, R_SQUARE, L_CURLEY, R_CURLEY  	;
+terminal	EQUAL,	GREATER,LESS,	COMMA,  DOT, COLON	;
+terminal	PLUS,	MINUS,	TIMES,  DIVIDE, QUESTION	;
+
+// Terminals returned by the scanner with a value.
+terminal String  IDENT	;
+terminal Integer INTCONST	;
+terminal String  TEXTCONST	;
+
+// Non-terminals that have no value.
+// nonterminal xxx
+
+nonterminal	program ;
+nonterminal	statement ;
+nonterminal	scope ;
+nonterminal	declaration ;
+nonterminal	functionHead ;
+nonterminal procedureHead ;
+nonterminal	variablenames ;
+nonterminal	bound ;
+nonterminal	generalBound ;
+nonterminal	type ;
+nonterminal	output ;
+nonterminal	input ;
+nonterminal	argumentList ;
+nonterminal	arguments ;
+nonterminal	parameterList ;
+nonterminal parameters ;
+nonterminal	variable ;
+nonterminal	expression ;
+nonterminal	variablename ;
+nonterminal	arrayname ;
+nonterminal	functionname ;
+nonterminal	parametername ;
+nonterminal	procedurename ;
+
+nonterminal	asmtStat ;
+nonterminal	condStat ;
+nonterminal	condelStat ;
+nonterminal	whileStat ;
+nonterminal	repStat ;
+nonterminal	exitStat ;
+nonterminal	exitwhStat ;
+nonterminal	resStat ;
+nonterminal	retStat ;
+nonterminal	putStat ;
+nonterminal	getStat ;
+nonterminal	proStat ;
+nonterminal	scopStat ;
+
+nonterminal	varDecl ;
+nonterminal	funDecl ;
+nonterminal	proDecl ;
+nonterminal	forDecl ;
+nonterminal	forproDecl ;
+
+nonterminal oneDimArray ;
+nonterminal twoDimArray ;
+
+nonterminal baseExpr ;
+nonterminal expr1 ;
+nonterminal expr2 ;
+nonterminal expr3 ;
+nonterminal expr4 ;
+nonterminal expr5 ;
+nonterminal expr6 ;
+
+// Non-terminals that have a value.
+// nonterminal type  nameList ;
+
+// CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
+// feature of java-cup. The lines below should remain
+// commented.
+//
+//precedence left PLUS, MINUS;
+//precedence left TIMES, DIVIDE;		// Higher precedence.
+
+// The grammar section.
+
+// This specifies the initial symbol of the grammar.
+start with program;
+
+/* Notice that sometimes the action must be inside the production rule,
+ * not after it.  This is a subtle yet significant difference from YACC.
+ * This is because the CUP parser is looking ahead one token.  It ALWAYS
+ * reads one more token before it will act on the production.
+ */
+
+program		::= scope	;							//the main program
+
+
+statement	::= statement asmtStat 
+		  | asmtStat
+		  | statement condStat 
+		  | condStat
+		  | statement condelStat 
+		  | condelStat
+		  | statement whileStat 
+		  | whileStat
+		  | statement repStat 
+		  | repStat
+		  | statement exitStat 
+		  | exitStat
+		  | statement exitwhStat 
+		  | exitwhStat
+		  | statement resStat 
+		  | resStat
+		  | statement retStat 
+		  | retStat
+		  | statement putStat 
+		  | putStat
+		  | statement getStat 
+		  | getStat
+		  | statement proStat 
+		  | proStat
+		  | statement scopStat 
+		  | scopStat
+		  ;
+		  
+asmtStat	::= variable COLON EQUAL expression;					//assignment
+condStat	::= IF expression THEN statement FI;					//conditional statement
+condelStat	::= IF expression THEN statement ELSE statement FI;			//conditional statement
+whileStat	::= WHILE expression DO statement END;					//loop while expression is true
+repStat		::= REPEAT statement UNTIL expression;					//loop until expression is true
+exitStat	::= EXIT;								//exit from containing loop
+exitwhStat	::= EXIT WHEN expression;						//exit from containing loop when expression is ture
+resStat		::= RESULT expression;							//return from function
+retStat		::= RETURN; 								//return from a procedure
+putStat		::= PUT output; 								//ptint to standard output
+getStat		::= GET input;								//input from standard input
+proStat		::= procedurename L_PAREN argumentList R_PAREN;				//call procedure
+scopStat	::= scope;								//embedded scope
+
+scope		::= L_CURLEY declaration statement R_CURLEY				//define new scope
+		  | L_CURLEY statement R_CURLEY
+		  | L_CURLEY R_CURLEY 							//empty scope
+		  ;
+
+
+declaration	::= declaration varDecl
+		  | varDecl
+		  | declaration funDecl
+		  | funDecl
+		  | declaration proDecl
+		  | proDecl
+		  | declaration forDecl
+		  | forDecl
+		  | declaration forproDecl
+		  | forproDecl
+		  ;
+
+
+varDecl		::= VAR variablenames COLON type;					//declare variables
+funDecl		::= functionHead scope;							//declare function
+proDecl		::= procedureHead scope;						//declare function
+forDecl		::= FORWARD functionHead;						//forward function declarations
+forproDecl	::= FORWARD procedureHead;						//forward procedure declaration
+
+functionHead	::= FUNC functionname L_PAREN parameterList R_PAREN COLON type	;	//declare function head
+
+procedureHead	::= PROCEDURE procedurename L_PAREN parameterList R_PAREN;			//declare procedure head
+
+variablenames	::= variablename							//declare scalar variable
+		  | variablenames COMMA variablename
+		  | oneDimArray
+		  | variablenames COMMA oneDimArray
+		  | twoDimArray
+		  | variablenames COMMA twoDimArray
+		  ;
+		  
+oneDimArray ::=  variablename L_SQUARE bound R_SQUARE;				//declare one dimensional array
+twoDimArray ::=   variablename L_SQUARE bound COMMA bound R_SQUARE;			//declare two dimensional array	  
+		  
+bound		::= INTCONST								//bound 1 .. integer inclusive
+		  | generalBound DOT DOT generalBound					//bounds left boud .. right bound inclusive
+		  ;
+
+generalBound	::= INTCONST								//positive integer bound
+		  | MINUS INTCONST							//negative integer bound
+		  ;
+
+type		::= INTEGER								//integer type
+		  | BOOLEAN								//Boolean type
+		  ;
+
+output 		::= expression								//integer expression to be printed
+		  | output COMMA expression
+		  | TEXTCONST								//string constant to be printed
+		  | output COMMA TEXTCONST
+		  | NEWLINE								//skip to new line
+		  | output COMMA NEWLINE
+		  ;
+		
+input		::= variable								//input to this integer variable
+		  | input COMMA variable
+		  ;
+
+argumentList	::= arguments								//arguements to function/procedure
+		  | //EMPTY
+		  ;
+		 
+arguments	::= expression								//actual parameter expression
+		  | arguments COMMA expression  						//actual parameter sequence
+		  ;
+		 
+parameterList	::= parameters								//formal parameters of function/procedure
+		  | //EMPTY
+		  ;
+		  
+parameters	::= parametername COLON type						//declare formal parameter
+		  | parameters COMMA parametername COLON type  						//formal parameter sequence
+		  ;
+		  
+variable	::= variablename							//reference to scalar variable/parameter
+		  | arrayname L_SQUARE expression R_SQUARE				//reference to one dimensional array element
+		  | arrayname L_SQUARE expression COMMA expression R_SQUARE		//reference to two dimensional array element
+		  ;
+		 
+		  
+expression ::= expression OR expr1
+           | expr1
+           ;
+expr1    ::= expr1 AND expr2
+           | expr2
+           ;
+expr2    ::= NOT expr2
+           | expr3
+           ;
+expr3    ::= expr4 EQUAL expr4
+           | expr4 NOT EQUAL expr4
+           | expr4 GREATER expr4
+           | expr4 GREATER EQUAL expr4
+           | expr4 LESS EQUAL expr4
+           | expr4 LESS expr4
+           | expr4
+           ;
+expr4    ::= expr4 PLUS expr5
+           | expr4 MINUS expr5
+           | expr5
+           ;
+expr5    ::= expr5 TIMES expr6
+           | expr5 DIVIDE expr6
+           | expr6
+           ;
+
+expr6    ::= MINUS expr6
+           | baseExpr
+           ;
+baseExpr ::= TRUE
+           | FALSE
+           | INTCONST
+           | variable
+           | L_PAREN expression R_PAREN
+           | L_PAREN expression QUESTION expression COLON expression R_PAREN
+           | functionname L_PAREN argumentList R_PAREN
+           ;
+           
+		  
+variablename	::= IDENT	;
+arrayname	::= IDENT	;
+functionname	::= IDENT	;
+parametername	::= IDENT	;
+procedurename	::= IDENT	;
+
+/*****************************************************************************
+
+  YOUR CAREFULLY CRAFTED GRAMMAR FOR THE CSC488S SOURCE LANGUAGE
+
+    GOES HERE
+****************************************************************************/
