@@ -59,8 +59,14 @@ failing test cases:
             Attempt to associate comparison operators.
 	bad_expr5:
             Ill-formed two-dimensional array argument.
+	bad_expr6:
+			Incorrect number of operands for arithmetic operator.
+	bad_expr7:
+			Incorrect association of binary arithmetic operator.
+	bad_expr8:
+			Testing invalid variable name in arithmetic expression.
 	bad_stmt_before_decl:
-			Statment appearing before declaration in scope should be rejected.
+			Statement appearing before declaration in scope should be rejected.
 	bad_stmt:
 			Misuse of statement as expression.
 	bad_stmt2:
