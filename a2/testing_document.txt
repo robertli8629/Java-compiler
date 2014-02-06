@@ -50,13 +50,13 @@ failing test cases:
 	bad_expr:
 		Incorrect number of operands for unary/binary logical operators.
 	bad_expr2:
-        Incorrect number of operands for binary logical operator.
+		Incorrect number of operands for binary logical operator.
 	bad_expr3:
-        Unbalanced parenthesis in a complex expression.
+		Unbalanced parenthesis in a complex expression.
 	bad_expr4:
-        Attempt to associate comparison operators.
+		Attempt to associate comparison operators.
 	bad_expr5:
-        Ill-formed two-dimensional array argument.
+		Ill-formed two-dimensional array argument.
 	bad_expr6:
 		Incorrect number of operands for arithmetic operator.
 	bad_expr7:
