@@ -67,6 +67,8 @@ failing test cases:
 			Testing invalid variable name in arithmetic expression.
 	bad_assign_stmt:
 			Misuse of assignment statement.
+	bad_func_decl:
+			Misuse of function declaration.
 	bad_get_stmt:
 			Misuse of get statement.
 	bad_stmt_before_decl:
