@@ -1,0 +1,3 @@
+{
+	test := _bad_ident + 3
+}
