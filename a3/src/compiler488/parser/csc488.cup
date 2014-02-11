@@ -1,5 +1,7 @@
 // CSC488S Winter 2013/2014  
 //
+// File:  csc488.cup
+//
 // Package and import specifications section.
 
 package compiler488.parser;
@@ -61,7 +63,7 @@ parser code {:
     public void report_fatal_error (String message, Object info) throws SyntaxErrorException
 	{
         report_error (message, info);
-/*        throw new SyntaxErrorException (lastError); */
+        throw new SyntaxErrorException (lastError); 
 	}
    
 :};
@@ -116,7 +118,16 @@ terminal String  TEXTCONST	;
 // Non-terminals that have no value.
 // nonterminal xxx
 
-nonterminal	program  ;
+nonterminal	program,	statement,	statements,	scope	;
+nonterminal	declarations,	declaration,	type,	bound, generalBound 	;
+nonterminal	variablenames,	variablename,	functionHead,	procedureHead	;
+nonterminal	parameterList,  argumentList			;
+nonterminal	arguments,	parameter,	parameters	;
+nonterminal	inputs,		output,		outputs ;
+nonterminal 	expression,	conjunction,	negation,	compareExpn ;
+nonterminal	arithExpn,	term,    	factor		;
+nonterminal	primary,	constant,	variable	;
+
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
@@ -139,12 +150,156 @@ start with program;
  * reads one more token before it will act on the production.
  */
 
-program		::=	;				// the main program
+program		::=	scope	;				// the main program
 
-/*************************************************************************
- *  
- *  You didn't really think we'd provide a solution to Assignment 2
- *  here  DID YOU?
- *
- ************************************************************************/
+scope		::=	L_CURLEY declarations statements R_CURLEY 
+							// scope with declarations and statements
+		|	L_CURLEY statements  R_CURLEY 		// scope with statments only
+		|	L_CURLEY  R_CURLEY			// empty scope
+		;
+
+statements	::=	statement				// sequence of statements
+		|	statements statement
+		;
+
+declarations	::=	declaration				// sequence of declarations
+		|	declarations declaration
+		;
+
+
+statement	::=	variable COLON EQUAL expression		// assignment statement
+		|	IF expression THEN statements FI 	// if statements
+		|	IF expression THEN statements ELSE statements FI	
+		|	WHILE expression DO statements END	// while statement 
+		|       REPEAT statements UNTIL expression	// repeat statement
+		|	EXIT					// exit statements
+		|	EXIT WHEN expression
+		|	RESULT expression 			// return from function
+		|	RETURN 					// return from procedure
+		|	PUT outputs				// output statment
+		|	GET  inputs				// input statement
+		|	IDENT L_PAREN  argumentList  R_PAREN 	// call procedure 
+		|	scope					// embedded scope
+		;
+
+declaration	::=	VAR variablenames COLON type		// declare scalar/array variables
+		|	functionHead  scope			// function declaration
+		|	procedureHead  scope			// procedure delcaration
+		|       FORWARD  functionHead			// forward function declaration
+		|	FORWARD  procedureHead			// forward procedure declaration
+		;
+
+variablenames	::=	variablename  				// list of variables being declared
+		|	variablenames COMMA variablename 
+		;
+
+variablename	::=	IDENT 					// scalar variable
+		|	IDENT L_SQUARE bound R_SQUARE		// 1 dimensional array
+		|	IDENT L_SQUARE bound COMMA bound  R_SQUARE // 2 dimensional array
+		;
+
+bound		::=     INTCONST				// integer array bound
+		|       generalBound DOT DOT generalBound	// explicit lower/upper bounds
+		;
+
+generalBound	::=	INTCONST			// positive array bound
+		|	MINUS INTCONST			// negative array bound
+		;
+
+type		::=	INTEGER				// integer type
+		|	BOOLEAN				// boolean type
+		;
+
+functionHead	::=	FUNC IDENT L_PAREN parameterList R_PAREN COLON type	// function head
+		;
+
+procedureHead	::=	PROCEDURE  IDENT L_PAREN parameterList  R_PAREN		// procedure head
+		;
+
+outputs		::=	output			// list of output expressions
+		|	outputs COMMA output
+		;
+
+output		::=	expression		// integer expression
+		|	TEXTCONST		// text constant
+		|	NEWLINE			// newline constant
+		;
+
+inputs		::=	variable		// list of variables being read into
+		|	inputs COMMA variable
+		;
+
+argumentList	::=	arguments		//  function/procedure arguments
+		|	//  EMPTY
+		;
+
+arguments	::=	expression		// list of function/procedure arguments
+		|	arguments COMMA expression
+		;
+
+parameterList	::=	parameters		//  function/procedure formal parameters
+		|	//  EMPTY
+		;
+
+parameters	::=	parameter			// list of function/procedure formal parameters
+		|	parameters COMMA parameter
+		;
+
+parameter	::=	IDENT COLON type		// declare one parameter
+		;
+
+expression	::=	conjunction			// disjunctions, associate left-to-right
+		|	expression OR conjunction
+		;
+
+conjunction	::=	negation			// conjunctions, associate left-to-right
+		|	conjunction AND negation
+		;
+
+negation	::=	compareExpn 			// negations
+		|	NOT negation
+		;
+
+compareExpn	::=	arithExpn			// comparisons, do not associate
+		|	arithExpn EQUAL arithExpn
+		| 	arithExpn NOT EQUAL arithExpn
+		|	arithExpn LESS arithExpn
+		|	arithExpn LESS EQUAL arithExpn
+		|	arithExpn GREATER arithExpn
+		|	arithExpn GREATER EQUAL arithExpn
+		;
+
+arithExpn	::=	term				// expressions, associate + , - left-to-right
+		|	arithExpn  PLUS  term
+		|	arithExpn  MINUS term
+		;
+
+term		::=	factor				// terms, associate * , /   left-to-right
+		|	term TIMES factor
+		|	term DIVIDE factor
+		;
+
+factor		::=	primary				
+		|	MINUS factor			// unary minus
+		;
+
+primary		::=	constant				// integer or boolean constant
+		|	variable				// scalar, array element 
+		| 	L_PAREN  expression  R_PAREN		// parenthesized expression
+		|	L_PAREN  expression QUESTION expression COLON expression R_PAREN
+								// conditional expression
+		|	IDENT L_PAREN argumentList R_PAREN 	// function call
+		;
+
+constant	::=	INTCONST	// integer constant
+		|	TRUE		// constant true
+		|	FALSE		// constant false
+		;
+
+variable	::=	IDENT					// scalar variable or parameter
+		|	IDENT L_SQUARE expression R_SQUARE	// element of 1 dimensional array
+		|       IDENT L_SQUARE expression COMMA expression R_SQUARE
+								// element of 2 dimensional array
+		;
+
 
