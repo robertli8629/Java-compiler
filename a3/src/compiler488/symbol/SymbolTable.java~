@@ -80,7 +80,7 @@ public class SymbolTable {
 				if (iterator.hasNext()){
 				      while (iterator.hasNext()){
 					      Declaration decl = (Declaration)iterator_stmt.next();
-					      SymbolType s_type=new SymbolType("decl.getType()", "");  // first var is decl.getType()
+					      SymbolType s_type=new SymbolType("decl.getType()", "");
 					      Symbol sym=new Symbol(decl.getName(), "decl.kind",0 , s_type); // second var is decl.kind
 					      symboltable.put(decl.getName(),sym);
 				      }

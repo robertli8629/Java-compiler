@@ -28,6 +28,10 @@ public class ASTList<E> extends AST {
 		ll = new LinkedList<E>();
 		ll.addLast(ast);
 	}
+	
+	public LinkedList<E> get_list() {
+		return this.ll;
+	}
 
 	/**
 	 * The number of elements in the list.
