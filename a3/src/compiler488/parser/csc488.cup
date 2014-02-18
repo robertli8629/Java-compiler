@@ -7,14 +7,15 @@
 package compiler488.parser;
 
 import java_cup.runtime.*;		// Must always import this.
+import compiler488.ast.expn.*;
 
 /* User code components 1: action code components.
  * Code to be used inside the actions triggered when productions are matched.
  * If any common code is needed for more than one action , put it here.
  */
-// action code {:
-// your code goes HERE
-//:};
+action code {:
+
+:};
 
 /* User code components 2: parser code components. 
  * Modifications to the default generated parser
@@ -283,7 +284,8 @@ factor		::=	primary
 		|	MINUS factor			// unary minus
 		;
 
-primary		::=	constant				// integer or boolean constant
+primary		::=	constant:constExpn				// integer or boolean constant
+				{: RESULT = constExpn; :}
 		|	variable				// scalar, array element 
 		| 	L_PAREN  expression  R_PAREN		// parenthesized expression
 		|	L_PAREN  expression QUESTION expression COLON expression R_PAREN
@@ -291,12 +293,28 @@ primary		::=	constant				// integer or boolean constant
 		|	IDENT L_PAREN argumentList R_PAREN 	// function call
 		;
 
-constant	::=	INTCONST	// integer constant
+constant	::=	INTCONST:intconst	// integer constant
+				{:	IntConstExpn intConst = new IntConstExpn();  
+					Integer in = new Integer(intconst);
+					intConst.setValue(in);
+					RESULT = intConst; 
+				:}
 		|	TRUE		// constant true
+			{:	BoolConstExpn boolConst1 = new BoolConstExpn();
+			  	boolConst1.setValue(true);
+			 	RESULT = boolConst1; 
+			:}
 		|	FALSE		// constant false
+			{:  BoolConstExpn boolConst2 = new BoolConstExpn();
+				boolConst2.setValue(false); 
+				RESULT = boolConst2; 
+			:}
 		;
 
-variable	::=	IDENT					// scalar variable or parameter
+variable	::=	IDENT:identVar					// scalar variable or parameter
+				{: 
+					RESULT 
+				:}
 		|	IDENT L_SQUARE expression R_SQUARE	// element of 1 dimensional array
 		|       IDENT L_SQUARE expression COMMA expression R_SQUARE
 								// element of 2 dimensional array
