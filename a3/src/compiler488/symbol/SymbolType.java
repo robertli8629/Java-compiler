@@ -24,6 +24,10 @@ public class SymbolType {
 	
 	}
 	
+	public String getType() {
+	    return this.type;
+	}
+	
 	@Override
 	public String toString() {
 		return   "type: " + type + ", link : " + link ;

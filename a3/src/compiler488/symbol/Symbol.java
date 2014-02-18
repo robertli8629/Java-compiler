@@ -29,6 +29,10 @@ public class Symbol {
 	public String toString() {
 		return   "name: " + name + ", kind : " + kind + ", value : " + Integer.toString(value) + ", type: " + type.toString();
 	}
+	
+	public SymbolType getType() {
+	    return this.type;
+	}
 
 	/** The rest of Symbol Table
 	 *  Data structures, public and private functions
