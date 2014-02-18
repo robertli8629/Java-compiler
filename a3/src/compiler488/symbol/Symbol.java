@@ -24,6 +24,11 @@ public class Symbol {
 	    this.value=value;
 	    this.type=type;
 	}
+	
+	@Override
+	public String toString() {
+		return   "name: " + name + ", kind : " + kind + ", value : " + Integer.toString(value) + ", type: " + type.toString();
+	}
 
 	/** The rest of Symbol Table
 	 *  Data structures, public and private functions

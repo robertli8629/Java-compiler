@@ -10,6 +10,11 @@ import compiler488.symbol.SymbolTable;
 import compiler488.codegen.CodeGen;
 import compiler488.runtime.*;
 
+import compiler488.ast.decl.*;
+import compiler488.ast.stmt.*;
+import compiler488.ast.type.*;
+import compiler488.ast.ASTList;
+
 /** This class serves as the main driver for the CSC488S compiler.<BR>
  *  It accepts user options and coordinates overall control flow.
  *  The main flow of control includes the following activities: 
@@ -58,6 +63,9 @@ public class Main {
   public static boolean dumpCode  = false;
   /** User option -- dump symbol table after semantic analysis */
   public static boolean dumpSymbolTable   = false;
+  
+  /** User option -- build fake testing AST */
+  public static boolean testingAST   = false;
 
   /* TRACE options switches */
   /** User option -- trace lexical analysis */
@@ -147,6 +155,9 @@ public class Main {
 	    for(i = 0; i < length; i++){
 		if (arguments[i].equals("-X"))
 		    supressExecution = true;
+		else if (arguments[i].equals("-F")) { // debug mode
+		    testingAST = true;
+		}
 		else if (arguments[i].equals("-D")) {
 		    i++;	// advance to next argument
 		    argTmp = arguments[ i ] ;
@@ -402,6 +413,53 @@ public class Main {
 	    else
 	         parserResult = p.parse().value;
 	    programAST = (Program) parserResult ;
+	    
+	    if (testingAST) {
+		System.out.println("use fake testing AST");
+		Program fakeProgram = new Program();
+		
+		// add Declarations
+		ASTList<Declaration> declLst = new ASTList<Declaration>();
+		
+		Declaration decl1 = new ScalarDecl();
+		decl1.setName("v1");
+		decl1.setType(new BooleanType());
+		
+		Declaration decl2 = new ScalarDecl();
+		decl2.setName("v12");
+		decl2.setType(new IntegerType());
+		
+		declLst.addLast(decl1);
+		declLst.addLast(decl2);
+		
+		// add Statements
+		ASTList<Stmt> stmtLst = new ASTList<Stmt>();
+		
+		
+		Stmt stmt1 = new Scope();
+		
+		Declaration decl3 = new ScalarDecl();
+		decl3.setName("v3");
+		decl3.setType(new IntegerType());
+		ASTList<Declaration> declLst2 = new ASTList<Declaration>();
+		declLst2.addLast(decl3);
+		((Scope)stmt1).setDeclarations(declLst2);
+		
+		stmtLst.addLast(stmt1);
+		
+		
+		fakeProgram.setDeclarations(declLst);
+		fakeProgram.setStatements(stmtLst);
+		
+		programAST = fakeProgram;
+		
+		System.out.println(fakeProgram);
+		SymbolTable st = new SymbolTable();
+		st.Initialize(fakeProgram);
+		
+		System.out.println(fakeProgram);
+	    }
+	    
 	    }
         catch (SyntaxErrorException e)
             {  // parser has already printed an error message

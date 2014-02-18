@@ -23,6 +23,11 @@ public class SymbolType {
 	  this.link=link;
 	
 	}
+	
+	@Override
+	public String toString() {
+		return   "type: " + type + ", link : " + link ;
+	}
 
 	/** The rest of Symbol Table
 	 *  Data structures, public and private functions
