@@ -7,9 +7,9 @@
 package compiler488.parser;
 
 import java_cup.runtime.*;		// Must always import this.
-import compiler488.ast.stmt.*;       // AST classes
-import compiler488.ast.expn.*;       // AST classes
-import compiler488.ast.ASTList;       // AST classes
+import compiler488.ast.stmt.*;
+import compiler488.ast.expn.*;
+import compiler488.ast.ASTList;
 
 /* User code components 1: action code components.
  * Code to be used inside the actions triggered when productions are matched.
@@ -118,22 +118,22 @@ terminal String  TEXTCONST	;
 // Non-terminals that have no value.
 // nonterminal xxx
 
-// Non-terminals that have no value.
-// nonterminal xxx
-
-nonterminal	program,	statement,	statements,	scope	;
 nonterminal	declarations,	declaration,	type,	bound, generalBound 	;
 nonterminal	variablenames,	variablename,	functionHead,	procedureHead	;
 nonterminal	parameterList,  argumentList			;
 nonterminal	arguments,	parameter,	parameters	;
 nonterminal	inputs,		output,		outputs ;
-nonterminal 	expression,	conjunction,	negation,	compareExpn ;
-nonterminal	arithExpn,	term,    	factor		;
-nonterminal	primary,	constant,	variable	;
 
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
+
+nonterminal Program program;
+nonterminal Scope scope;
+nonterminal Expn constant, primary, factor, term, arithExpn, compareExpn ;
+nonterminal Expn negation, conjunction, expression, variable ;
+nonterminal ASTList<Stmt> statements;
+nonterminal Stmt statement;
 
 // CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
 // feature of java-cup. The lines below should remain
@@ -154,27 +154,21 @@ start with program;
  */
 
 program		::=	scope:s          // the main program
-                {: Program p = new Program();
-                   p.setDeclarations(((Scope) s).getDeclarations());
-                   p.setStatements(((Scope) s).getStatements());
-                   RESULT = p; :}
+                {: RESULT = new Program(s); :}
                 ;
 
 scope		::=	L_CURLEY declarations statements R_CURLEY 
 							// scope with declarations and statements
 		|	L_CURLEY statements:s  R_CURLEY 		// scope with statments only
-            {: Scope scope = new Scope();
-               scope.setStatements((ASTList<Stmt>) s);
-               RESULT = scope; :}
+            {: RESULT = new Scope(s); :}
 		|	L_CURLEY  R_CURLEY			// empty scope
+            {: RESULT = new Scope(); :}
 		;
 
 statements	::=	statement:s				// sequence of statements
-                {: ASTList<Stmt> ast = new ASTList<Stmt>((Stmt) s);
-                   RESULT = ast; :}
+                {: RESULT = new ASTList<Stmt>(s); :}
 		|	statements:stmtList statement:stmt
-            {: ((ASTList<Stmt>) stmtList).addLast((Stmt) stmt);
-               RESULT = stmtList; :}
+            {: RESULT = stmtList.addLast(stmt); :}
 		;
 
 declarations	::=	declaration				// sequence of declarations
@@ -182,11 +176,8 @@ declarations	::=	declaration				// sequence of declarations
 		;
 
 
-statement	::=	variable:v COLON EQUAL expression:e		// assignment statement
-            {: AssignStmt stmt = new AssignStmt();
-               stmt.setLval((Expn) v);
-               stmt.setRval((Expn) e);
-               RESULT = stmt; :}
+statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
+                {: RESULT = new AssignStmt(e1, e2); :}
 
 		|	IF expression THEN statements FI 	// if statements
 		|	IF expression THEN statements ELSE statements FI	
@@ -319,20 +310,15 @@ primary		::=	constant:c				// integer or boolean constant
 		;
 
 constant	::=	INTCONST:i	// integer constant
-                {: IntConstExpn intConst = new IntConstExpn();
-                   intConst.setValue(i);
-                   RESULT = intConst; :}
+                {: RESULT = new IntConstExpn(i); :}
 		|	TRUE		// constant true
 		|	FALSE		// constant false
 		;
 
-variable	::=	IDENT:id					// scalar variable or parameter
-                {: IdentExpn ident = new IdentExpn();
-                   ident.setIdent(id);
-                   RESULT = ident;
-                :}
+variable	::=	IDENT:id			// scalar variable or parameter
+                {: RESULT = new IdentExpn(id); :}
 		|	IDENT L_SQUARE expression R_SQUARE	// element of 1 dimensional array
-		|       IDENT L_SQUARE expression COMMA expression R_SQUARE
+		|   IDENT L_SQUARE expression COMMA expression R_SQUARE
 								// element of 2 dimensional array
 		;
 
