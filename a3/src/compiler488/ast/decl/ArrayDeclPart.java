@@ -6,12 +6,27 @@ package compiler488.ast.decl;
 public class ArrayDeclPart extends DeclarationPart {
 
 	/* The lower and upper boundaries of the array. */
-        private Integer lb1, ub1, lb2, ub2;
+    private Integer lb1, ub1, lb2, ub2;
 	private Boolean isTwoDimensional = false ;
 
 
 	/* The number of objects the array holds. */
 	private Integer size;
+
+	public ArrayDeclPart(Integer lb1, Integer ub1) {
+		this(lb1, ub1, null, null);
+	}
+
+	public ArrayDeclPart(Integer lb1, Integer ub1, Integer lb2, Integer ub2) {
+		this.lb1 = lb1;
+		this.ub1 = ub1;
+		this.lb2 = lb2;
+		this.ub2 = ub2;
+
+		if (this.lb2 != null && this.ub2 != null) {
+			isTwoDimensional = true;
+		}
+	}
 
 	/**
 	 * Returns a string that describes the array.

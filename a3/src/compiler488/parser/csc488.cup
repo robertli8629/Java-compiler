@@ -204,17 +204,24 @@ variablenames	::=	variablename  				// list of variables being declared
 		|	variablenames COMMA variablename 
 		;
 
-variablename	::=	IDENT 					// scalar variable
-		|	IDENT L_SQUARE bound R_SQUARE		// 1 dimensional array
+variablename	::=	IDENT:id 					// scalar variable
+					{: RESULT = new IdentExpn(id); :}
+		|	IDENT L_SQUARE bound:b1 R_SQUARE		// 1 dimensional array
 		|	IDENT L_SQUARE bound COMMA bound  R_SQUARE // 2 dimensional array
 		;
 
-bound		::=     INTCONST				// integer array bound
-		|       generalBound DOT DOT generalBound	// explicit lower/upper bounds
+bound		::=     INTCONST:i				// integer array bound
+					{: RESULT = new IntConstExpn(i); :}
+		|       generalBound:g1 DOT DOT generalBound:g2	// explicit lower/upper bounds
+				{: RESULT = new ArrayDeclPart(g1, g2); :}
 		;
 
-generalBound	::=	INTCONST			// positive array bound
-		|	MINUS INTCONST			// negative array bound
+generalBound	::=	INTCONST:i1			// positive array bound
+					{: RESULT = new IntConstExpn(i1); :}
+		|	MINUS INTCONST:i2			// negative array bound
+			{:  IntConstExpn intConst = new IntConstExpn(i2);
+				RESULT = new UnaryMinusExpn(intConst, "-"); 
+			:}
 		;
 
 type		::=	INTEGER				// integer type
@@ -313,15 +320,9 @@ primary		::=	constant:c				// integer or boolean constant
 constant	::=	INTCONST:i	// integer constant
                 {: RESULT = new IntConstExpn(i); :}
 		|	TRUE		// constant true
-			{:	BoolConstExpn boolConst1 = new BoolConstExpn();
-			  	boolConst1.setValue(true);
-			 	RESULT = boolConst1; 
-			:}
+				{:	RESULT = new BoolConstExpn(true); :}
 		|	FALSE		// constant false
-			{:  BoolConstExpn boolConst2 = new BoolConstExpn();
-				boolConst2.setValue(false); 
-				RESULT = boolConst2; 
-			:}
+				{:  RESULT = new BoolConstExpn(false); :}
 		;
 
 variable	::=	IDENT:id			// scalar variable or parameter
