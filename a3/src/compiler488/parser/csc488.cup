@@ -7,7 +7,9 @@
 package compiler488.parser;
 
 import java_cup.runtime.*;		// Must always import this.
+import compiler488.ast.stmt.*;
 import compiler488.ast.expn.*;
+import compiler488.ast.ASTList;
 
 /* User code components 1: action code components.
  * Code to be used inside the actions triggered when productions are matched.
@@ -116,22 +118,22 @@ terminal String  TEXTCONST	;
 // Non-terminals that have no value.
 // nonterminal xxx
 
-// Non-terminals that have no value.
-// nonterminal xxx
-
-nonterminal	program,	statement,	statements,	scope	;
 nonterminal	declarations,	declaration,	type,	bound, generalBound 	;
 nonterminal	variablenames,	variablename,	functionHead,	procedureHead	;
 nonterminal	parameterList,  argumentList			;
 nonterminal	arguments,	parameter,	parameters	;
 nonterminal	inputs,		output,		outputs ;
-nonterminal 	expression,	conjunction,	negation,	compareExpn ;
-nonterminal	arithExpn,	term,    	factor		;
-nonterminal	primary,	constant,	variable	;
 
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
+
+nonterminal Program program;
+nonterminal Scope scope;
+nonterminal Expn constant, primary, factor, term, arithExpn, compareExpn ;
+nonterminal Expn negation, conjunction, expression, variable ;
+nonterminal ASTList<Stmt> statements;
+nonterminal Stmt statement;
 
 // CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
 // feature of java-cup. The lines below should remain
@@ -151,16 +153,22 @@ start with program;
  * reads one more token before it will act on the production.
  */
 
-program		::=	scope	;				// the main program
+program		::=	scope:s          // the main program
+                {: RESULT = new Program(s); :}
+                ;
 
 scope		::=	L_CURLEY declarations statements R_CURLEY 
 							// scope with declarations and statements
-		|	L_CURLEY statements  R_CURLEY 		// scope with statments only
+		|	L_CURLEY statements:s  R_CURLEY 		// scope with statments only
+            {: RESULT = new Scope(s); :}
 		|	L_CURLEY  R_CURLEY			// empty scope
+            {: RESULT = new Scope(); :}
 		;
 
-statements	::=	statement				// sequence of statements
-		|	statements statement
+statements	::=	statement:s				// sequence of statements
+                {: RESULT = new ASTList<Stmt>(s); :}
+		|	statements:stmtList statement:stmt
+            {: RESULT = stmtList.addLast(stmt); :}
 		;
 
 declarations	::=	declaration				// sequence of declarations
@@ -168,7 +176,9 @@ declarations	::=	declaration				// sequence of declarations
 		;
 
 
-statement	::=	variable COLON EQUAL expression		// assignment statement
+statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
+                {: RESULT = new AssignStmt(e1, e2); :}
+
 		|	IF expression THEN statements FI 	// if statements
 		|	IF expression THEN statements ELSE statements FI	
 		|	WHILE expression DO statements END	// while statement 
@@ -249,19 +259,23 @@ parameters	::=	parameter			// list of function/procedure formal parameters
 parameter	::=	IDENT COLON type		// declare one parameter
 		;
 
-expression	::=	conjunction			// disjunctions, associate left-to-right
+expression	::=	conjunction:c			// disjunctions, associate left-to-right
+            {: RESULT = c; :}
 		|	expression OR conjunction
 		;
 
-conjunction	::=	negation			// conjunctions, associate left-to-right
+conjunction	::=	negation:n			// conjunctions, associate left-to-right
+            {: RESULT = n; :}
 		|	conjunction AND negation
 		;
 
-negation	::=	compareExpn 			// negations
+negation	::=	compareExpn:c 			// negations
+                {: RESULT = c; :}
 		|	NOT negation
 		;
 
-compareExpn	::=	arithExpn			// comparisons, do not associate
+compareExpn	::=	arithExpn:a			// comparisons, do not associate
+                {: RESULT = a; :}
 		|	arithExpn EQUAL arithExpn
 		| 	arithExpn NOT EQUAL arithExpn
 		|	arithExpn LESS arithExpn
@@ -270,22 +284,25 @@ compareExpn	::=	arithExpn			// comparisons, do not associate
 		|	arithExpn GREATER EQUAL arithExpn
 		;
 
-arithExpn	::=	term				// expressions, associate + , - left-to-right
+arithExpn	::=	term:t				// expressions, associate + , - left-to-right
+                {: RESULT = t; :}
 		|	arithExpn  PLUS  term
 		|	arithExpn  MINUS term
 		;
 
-term		::=	factor				// terms, associate * , /   left-to-right
+term		::=	factor:f 		// terms, associate * , /   left-to-right
+            {: RESULT = f; :}
 		|	term TIMES factor
 		|	term DIVIDE factor
 		;
 
-factor		::=	primary				
+factor		::=	primary:p
+                {: RESULT = p; :}				
 		|	MINUS factor			// unary minus
 		;
 
-primary		::=	constant:constExpn				// integer or boolean constant
-				{: RESULT = constExpn; :}
+primary		::=	constant:c				// integer or boolean constant
+                {: RESULT = c; :}
 		|	variable				// scalar, array element 
 		| 	L_PAREN  expression  R_PAREN		// parenthesized expression
 		|	L_PAREN  expression QUESTION expression COLON expression R_PAREN
@@ -293,12 +310,8 @@ primary		::=	constant:constExpn				// integer or boolean constant
 		|	IDENT L_PAREN argumentList R_PAREN 	// function call
 		;
 
-constant	::=	INTCONST:intconst	// integer constant
-				{:	IntConstExpn intConst = new IntConstExpn();  
-					Integer in = new Integer(intconst);
-					intConst.setValue(in);
-					RESULT = intConst; 
-				:}
+constant	::=	INTCONST:i	// integer constant
+                {: RESULT = new IntConstExpn(i); :}
 		|	TRUE		// constant true
 			{:	BoolConstExpn boolConst1 = new BoolConstExpn();
 			  	boolConst1.setValue(true);
@@ -311,12 +324,10 @@ constant	::=	INTCONST:intconst	// integer constant
 			:}
 		;
 
-variable	::=	IDENT:identVar					// scalar variable or parameter
-				{: 
-					RESULT 
-				:}
+variable	::=	IDENT:id			// scalar variable or parameter
+                {: RESULT = new IdentExpn(id); :}
 		|	IDENT L_SQUARE expression R_SQUARE	// element of 1 dimensional array
-		|       IDENT L_SQUARE expression COMMA expression R_SQUARE
+		|   IDENT L_SQUARE expression COMMA expression R_SQUARE
 								// element of 2 dimensional array
 		;
 

@@ -6,4 +6,8 @@ package compiler488.ast.stmt;
  */
 public class Program extends Scope {
 
+    public Program(Scope s) {
+        declarations = s.getDeclarations();
+        statements = s.getStatements();
+    }
 }

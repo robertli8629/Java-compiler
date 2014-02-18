@@ -10,14 +10,19 @@ import compiler488.ast.decl.Declaration;
  * Represents the declarations and instructions of a scope construct.
  */
 public class Scope extends Stmt {
-	private ASTList<Declaration> declarations; // The declarations at the top.
+	protected ASTList<Declaration> declarations; // The declarations at the top.
 
-	private ASTList<Stmt> statements; // The statements to execute.
+	protected ASTList<Stmt> statements; // The statements to execute.
 
 	public Scope() {
 		declarations = new ASTList<Declaration>();
 		statements = new ASTList<Stmt>();
 	}
+
+    public Scope(ASTList<Stmt> stmts) {
+        declarations = new ASTList<Declaration>();
+        statements = stmts;
+    }
 
 	/**
 	 * Print a description of the <b>scope</b> construct.
