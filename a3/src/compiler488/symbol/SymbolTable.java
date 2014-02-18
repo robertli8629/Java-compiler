@@ -65,31 +65,41 @@ public class SymbolTable {
 	
 	
 	private void traverse(Scope s){
-		ASTList<Stmt> AST_stat=s.getStatements();
-	   LinkedList<Stmt> stmt_ll=AST_stat.get_list();
-	   ListIterator iterator_stmt = stmt_ll.listIterator();
-	   if (iterator_stmt.hasNext()){
+	
+	    Hashtable<String,Symbol> symboltable=new Hashtable();
+				  
+	    ASTList<Declaration> AST_dcl=s.getDeclarations();
+	    LinkedList<Declaration> ll=AST_dcl.get_list();
+	    ListIterator iterator = ll.listIterator();
+	    
+	    if (iterator.hasNext()){
+		while (iterator.hasNext()){
+			Declaration decl = (Declaration)iterator.next();
+			SymbolType s_type=new SymbolType("decl.getType()", "");  // first var is decl.getType()
+			Symbol sym=new Symbol(decl.getName(), "decl.kind",0 , s_type); // second var is decl.kind
+			symboltable.put(decl.getName(),sym);
+		}
+	    }
+	    symbolstack.push(symboltable);
+	  
+	    // recursion
+	    ASTList<Stmt> AST_stat=s.getStatements();
+	    LinkedList<Stmt> stmt_ll=AST_stat.get_list();
+	    ListIterator iterator_stmt = stmt_ll.listIterator();
+	    if (iterator_stmt.hasNext()){
 		while (iterator_stmt.hasNext()){
 			Stmt stmt = (Stmt)iterator_stmt.next();
 			if(stmt instanceof Scope){
-				Scope scope = (Scope) stmt;
-				Hashtable<String,Symbol> symboltable=new Hashtable();
-				ASTList<Declaration> AST_dcl=scope.getDeclarations();
-				LinkedList<Declaration> ll=AST_dcl.get_list();
-				ListIterator iterator = ll.listIterator();
-				if (iterator.hasNext()){
-				      while (iterator.hasNext()){
-					      Declaration decl = (Declaration)iterator_stmt.next();
-					      SymbolType s_type=new SymbolType("decl.getType()", "");  // first var is decl.getType()
-					      Symbol sym=new Symbol(decl.getName(), "decl.kind",0 , s_type); // second var is decl.kind
-					      symboltable.put(decl.getName(),sym);
-				      }
-				}
-				symbolstack.push(symboltable);
+				Scope scope = (Scope) stmt; // find the scope from stmtlist
+				
+				
 				traverse(scope);
-				symbolstack.pop();
+				
 			}
 		}
-	   }
+	    }
+	    
+	    symbolstack.pop();
+	   
 	}
 }
