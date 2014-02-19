@@ -9,9 +9,15 @@ public class ArrayDeclPart extends DeclarationPart {
     private Integer lb1, ub1, lb2, ub2;
 	private Boolean isTwoDimensional = false ;
 
-
 	/* The number of objects the array holds. */
 	private Integer size;
+
+	public ArrayDeclPart() { }
+
+	public ArrayDeclPart(Integer ub1) {
+		Integer lb1 = new Integer(1);
+		this(lb1, ub1);
+	}
 
 	public ArrayDeclPart(Integer lb1, Integer ub1) {
 		this(lb1, ub1, null, null);
@@ -42,6 +48,9 @@ public class ArrayDeclPart extends DeclarationPart {
 		return size;
 	}
 
+	public setIsTwoDimensional() {
+
+	}
 
 	public Integer getLowerBoundary1() {
 		return lb1;
@@ -51,11 +60,11 @@ public class ArrayDeclPart extends DeclarationPart {
 		return ub1;
 	}
 
-        public void setLowerBoundary1(Integer lb1) {
+    public void setLowerBoundary1(Integer lb1) {
 		this.lb1 = lb1;
 	}
 
-        public void setUpperBoundary1(Integer ub1) {
+    public void setUpperBoundary1(Integer ub1) {
 		this.ub1 = ub1;
 	}
 
@@ -69,13 +78,13 @@ public class ArrayDeclPart extends DeclarationPart {
 		return ub2;
 	}
 
-        public void setLowerBoundary2(Integer lb2) {
-                this.isTwoDimensional = true ;
+    public void setLowerBoundary2(Integer lb2) {
+        this.isTwoDimensional = true ;
 		this.lb2 = lb2;
 	}
 
-        public void setUpperBoundary2(Integer ub2) {
-	        this.isTwoDimensional = true ;
+    public void setUpperBoundary2(Integer ub2) {
+	    this.isTwoDimensional = true ;
 		this.ub2 = ub2 ;
 	}
 
