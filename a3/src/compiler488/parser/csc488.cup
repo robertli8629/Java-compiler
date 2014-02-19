@@ -382,14 +382,28 @@ parameter	::=	IDENT:id COLON type:t		// declare one parameter
                 :}
 		;
 
-expression	::=	conjunction:c			// disjunctions, associate left-to-right
-            {: RESULT = c; :}
-		|	expression OR conjunction
+expression	::=	conjunction:c1			// disjunctions, associate left-to-right
+            {: RESULT = c1; :}
+		|	expression:e OR conjunction:c2
+			{:
+				BoolExpn bExp = new BoolExpn();
+				bExp.setOpSymbol("or");
+				bExp.setLeft(e);
+				bExp.setRight(c2);
+				RESULT = bExp;
+			:}
 		;
 
 conjunction	::=	negation:n1			// conjunctions, associate left-to-right
             {: RESULT = n1; :}
-		|	conjunction AND negation
+		|	conjunction:c AND negation:n2
+			{:
+				BoolExpn bExp = new BoolExpn();
+				bExp.setOpSymbol("and");
+				bExp.setLeft(c);
+				bExp.setRight(n2);
+				RESULT = bExp;
+			:}
 		;
 
 negation	::=	compareExpn:c 			// negations
