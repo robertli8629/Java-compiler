@@ -397,14 +397,56 @@ negation	::=	compareExpn:c 			// negations
 		|	NOT negation
 		;
 
-compareExpn	::=	arithExpn:a			// comparisons, do not associate
-                {: RESULT = a; :}
-		|	arithExpn EQUAL arithExpn
-		| 	arithExpn NOT EQUAL arithExpn
-		|	arithExpn LESS arithExpn
-		|	arithExpn LESS EQUAL arithExpn
-		|	arithExpn GREATER arithExpn
-		|	arithExpn GREATER EQUAL arithExpn
+compareExpn	::=	arithExpn:a1			// comparisons, do not associate
+                {: RESULT = a1; :}
+		|	arithExpn:a2 EQUAL arithExpn:a3
+			{:
+				CompareExpn coExp1 = new CompareExpn();
+				coExp1.setOpSymbol("=");
+				coExp1.setLeft(a2);
+				coExp1.setRight(a3);
+				RESULT = coExp1;	
+			:}
+		| 	arithExpn:a4 NOT EQUAL arithExpn:a5
+			{:
+				CompareExpn coExp2 = new CompareExpn();
+				coExp2.setOpSymbol("not=");
+				coExp2.setLeft(a4);
+				coExp2.setRight(a5);
+				RESULT = coExp2;
+			:}
+		|	arithExpn:a6 LESS arithExpn:a7
+			{:
+				CompareExpn coExp3 = new CompareExpn();
+				coExp3.setOpSymbol("<");
+				coExp3.setLeft(a6);
+				coExp3.setRight(a7);
+				RESULT = coExp3;
+			:}
+		|	arithExpn:a8 LESS EQUAL arithExpn:a9
+			{:
+				CompareExpn coExp4 = new CompareExpn();
+				coExp4.setOpSymbol("<=");
+				coExp4.setLeft(a8);
+				coExp4.setRight(a9);
+				RESULT = coExp4;
+			:}
+		|	arithExpn:a10 GREATER arithExpn:a11
+			{:
+				CompareExpn coExp5 = new CompareExpn();
+				coExp5.setOpSymbol(">");
+				coExp5.setLeft(a10);
+				coExp5.setRight(a11);
+				RESULT = coExp5;
+			:}
+		|	arithExpn:12 GREATER EQUAL arithExpn:13
+			{:
+				CompareExpn coExp6 = new CompareExpn();
+				coExp6.setOpSymbol(">=");
+				coExp6.setLeft(a12);
+				coExp6.setRight(a13);
+				RESULT = coExp6;
+			:}
 		;
 
 arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
@@ -420,6 +462,9 @@ arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
 		|	arithExpn:a2  MINUS term:t3
 			{:
 				ArithExpn ae2 = new ArithExpn();
+				ae2.setOpSymbol("-");
+				ae2.setLeft(a2);
+				ae2.setRight(t3);
 				RESULT = ae2;
 			:}
 		;
