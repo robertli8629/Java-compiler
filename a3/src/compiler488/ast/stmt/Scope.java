@@ -15,12 +15,15 @@ public class Scope extends Stmt {
 	protected ASTList<Stmt> statements; // The statements to execute.
 
 	public Scope() {
-		declarations = new ASTList<Declaration>();
-		statements = new ASTList<Stmt>();
+	    this(new ASTList<Declaration>(), new ASTList<Stmt>());
 	}
 
     public Scope(ASTList<Stmt> stmts) {
-        declarations = new ASTList<Declaration>();
+        this(new ASTList<Declaration>(), stmts);
+    }
+
+    public Scope(ASTList<Declaration> decls, ASTList<Stmt> stmts) {
+        declarations = decls;
         statements = stmts;
     }
 
