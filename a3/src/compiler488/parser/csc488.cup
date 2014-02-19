@@ -121,9 +121,9 @@ terminal String  TEXTCONST	;
 // nonterminal xxx
 
 nonterminal	declarations,	declaration ;
-nonterminal	variablenames, functionHead,	procedureHead	;
-nonterminal	parameterList,  argumentList			;
-nonterminal	arguments,	parameter,	parameters	;
+nonterminal	variablenames, procedureHead	; // functionHead was here
+nonterminal	argumentList			; // parameterList was here
+nonterminal	arguments	; // parameter(s) was here
 nonterminal	inputs,		output,		outputs ;
 
 
@@ -140,6 +140,10 @@ nonterminal Type type;
 nonterminal DeclarationPart variablename ;
 nonterminal ArrayDeclPart bound ;
 nonterminal IntConstExpn generalBound;
+nonterminal RoutineDecl functionHead;
+nonterminal ScalarDecl parameter;
+nonterminal ASTList<ScalarDecl> parameters;
+nonterminal RoutineBody parameterList;
 
 // CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
 // feature of java-cup. The lines below should remain
@@ -201,8 +205,8 @@ statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
 
 declaration	::=	VAR variablenames COLON type		// declare scalar/array variables
 		|	functionHead  scope			// function declaration
-		|	procedureHead  scope			// procedure delcaration
-		|       FORWARD  functionHead			// forward function declaration
+		|	procedureHead  scope			// procedure declaration
+		|   FORWARD  functionHead			// forward function declaration
 		|	FORWARD  procedureHead			// forward procedure declaration
 		;
 
@@ -212,11 +216,13 @@ variablenames	::=	variablename  				// list of variables being declared
 
 variablename	::=	IDENT:id1 					// scalar variable
 				    {: ScalarDeclPart decl = new ScalarDeclPart();
-                       decl.setName(id1); :}	
+                       decl.setName(id1); 
+					:}	
 
 		|	IDENT:id2 L_SQUARE bound:b1 R_SQUARE		// 1 dimensional array
 		    {: b1.setName(id2);
-		       RESULT = b1; :}	
+		       RESULT = b1; 
+			:}	
 
 		|	IDENT:id3 L_SQUARE bound:b2 COMMA bound:b3 R_SQUARE // 2 dimensional array
 			{: b2.setName(id3);
@@ -232,14 +238,16 @@ bound		::=     INTCONST:i				// integer array bound
                        decl.setLowerBoundary1(1);
                        decl.setUpperBoundary1(i);
                        decl.setSize(i);
-                       RESULT = decl; :}
+                       RESULT = decl; 
+					:}
 
 		|       generalBound:g1 DOT DOT generalBound:g2	// explicit lower/upper bounds
                 {: ArrayDeclPart decl = new ArrayDeclPart();
                    decl.setLowerBoundary1(g1.getValue());
                    decl.setUpperBoundary1(g2.getValue());
                    decl.setSize((g1.getValue() - g2.getValue()) + 1);
-                   RESULT = decl; :}
+                   RESULT = decl; 
+				:}
 		;
 
 generalBound	::=	INTCONST:i1			// positive array bound
@@ -256,7 +264,13 @@ type		::=	INTEGER				// integer type
             {: RESULT = new BooleanType(); :}
 		;
 
-functionHead	::=	FUNC IDENT L_PAREN parameterList R_PAREN COLON type	// function head
+functionHead	::=	FUNC IDENT:id L_PAREN parameterList:pl R_PAREN COLON type:t	// function head
+					{: 	RoutineDecl routine = new RoutineDecl(); 
+						routine.setType(t);
+						routine.setName(id);
+						routine.setRoutineBody(pl);
+						RESULT = routine;
+					:}
 		;
 
 procedureHead	::=	PROCEDURE  IDENT L_PAREN parameterList  R_PAREN		// procedure head
@@ -283,15 +297,29 @@ arguments	::=	expression		// list of function/procedure arguments
 		|	arguments COMMA expression
 		;
 
-parameterList	::=	parameters		//  function/procedure formal parameters
+parameterList	::=	parameters:plist		//  function/procedure formal parameters
+					{:	
+						RoutineBody routbody = new RoutineBody();
+						routbody.setParameters(plist);
+						RESULT = routbody;
+					:}
 		|	//  EMPTY
 		;
 
-parameters	::=	parameter			// list of function/procedure formal parameters
-		|	parameters COMMA parameter
+parameters	::=	parameter:p1			// list of function/procedure formal parameters
+				{:	RESULT = new ASTList<ScalarDecl>(p1); :}
+		|	parameters:plist COMMA parameter:p2
+			{: 	plist.addLast(p2); 
+				RESULT = plist;
+			:}	
 		;
 
-parameter	::=	IDENT COLON type		// declare one parameter
+parameter	::=	IDENT:id COLON type:t		// declare one parameter
+				{:	ScalarDecl param = new ScalarDecl();   
+					param.setType(t);
+					param.setName(id);
+					RESULT = param;
+				:}
 		;
 
 expression	::=	conjunction:c			// disjunctions, associate left-to-right
@@ -342,7 +370,11 @@ primary		::=	constant:c				// integer or boolean constant
 		| 	L_PAREN  expression  R_PAREN		// parenthesized expression
 		|	L_PAREN  expression QUESTION expression COLON expression R_PAREN
 								// conditional expression
-		|	IDENT L_PAREN argumentList R_PAREN 	// function call
+		|	IDENT:id L_PAREN argumentList R_PAREN 	// function call
+			{:	FunctionCallExpn func = new FunctionCallExpn(); 
+			   	func.setIdent(id);
+				RESULT = func;
+			:}
 		;
 
 constant	::=	INTCONST:i	// integer constant
@@ -356,8 +388,7 @@ constant	::=	INTCONST:i	// integer constant
 variable	::=	IDENT:id			// scalar variable or parameter
                 {: RESULT = new IdentExpn(id); :}
 		|	IDENT L_SQUARE expression R_SQUARE	// element of 1 dimensional array
-		|   IDENT L_SQUARE expression COMMA expression R_SQUARE
-								// element of 2 dimensional array
+		|   IDENT L_SQUARE expression COMMA expression R_SQUARE	// element of 2 dimensional array
 		;
 
 
