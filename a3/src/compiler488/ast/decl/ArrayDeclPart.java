@@ -15,8 +15,7 @@ public class ArrayDeclPart extends DeclarationPart {
 	public ArrayDeclPart() { }
 
 	public ArrayDeclPart(Integer ub1) {
-		Integer lb1 = new Integer(1);
-		this(lb1, ub1);
+		this(new Integer(lb1), ub1);
 	}
 
 	public ArrayDeclPart(Integer lb1, Integer ub1) {
