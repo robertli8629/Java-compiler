@@ -120,7 +120,7 @@ terminal String  TEXTCONST	;
 // Non-terminals that have no value.
 // nonterminal xxx
 
-nonterminal	declarations,	declaration ;
+nonterminal	declarations ; // declaration was here
 nonterminal	variablenames, procedureHead	; // functionHead was here
 nonterminal	argumentList			; // parameterList was here
 nonterminal	arguments	; // parameter(s) was here
@@ -144,6 +144,7 @@ nonterminal RoutineDecl functionHead;
 nonterminal ScalarDecl parameter;
 nonterminal ASTList<ScalarDecl> parameters;
 nonterminal RoutineBody parameterList;
+nonterminal Declaration declaration;
 
 // CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
 // feature of java-cup. The lines below should remain
@@ -204,9 +205,14 @@ statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
 		;
 
 declaration	::=	VAR variablenames COLON type		// declare scalar/array variables
-		|	functionHead  scope			// function declaration
+		|	functionHead:fh1  scope:sc1			// function declaration
+			{:	RoutineBody rb = fh1.getRoutineBody(); 
+				rb.setBody(sc1);
+				RESULT = fh1;
+			 :}
 		|	procedureHead  scope			// procedure declaration
-		|   FORWARD  functionHead			// forward function declaration
+		|   FORWARD  functionHead:fh2			// forward function declaration
+			{:	RESULT = fh2; :}
 		|	FORWARD  procedureHead			// forward procedure declaration
 		;
 
