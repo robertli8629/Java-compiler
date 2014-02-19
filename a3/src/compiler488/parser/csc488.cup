@@ -429,46 +429,140 @@ parameter	::=	IDENT:id COLON type:t		// declare one parameter
                 :}
 		;
 
-expression	::=	conjunction:c			// disjunctions, associate left-to-right
-            {: RESULT = c; :}
-		|	expression OR conjunction
+expression	::=	conjunction:c1			// disjunctions, associate left-to-right
+            {: RESULT = c1; :}
+		|	expression:e OR conjunction:c2
+			{:
+				BoolExpn bExp = new BoolExpn();
+				bExp.setOpSymbol("or");
+				bExp.setLeft(e);
+				bExp.setRight(c2);
+				RESULT = bExp;
+			:}
 		;
 
-conjunction	::=	negation:n			// conjunctions, associate left-to-right
-            {: RESULT = n; :}
-		|	conjunction AND negation
+conjunction	::=	negation:n1			// conjunctions, associate left-to-right
+            {: RESULT = n1; :}
+		|	conjunction:c AND negation:n2
+			{:
+				BoolExpn bExp = new BoolExpn();
+				bExp.setOpSymbol("and");
+				bExp.setLeft(c);
+				bExp.setRight(n2);
+				RESULT = bExp;
+			:}
 		;
 
 negation	::=	compareExpn:c 			// negations
                 {: RESULT = c; :}
-		|	NOT negation
+		|	NOT negation:n
+			{: 
+				NotExpn ne = new NotExpn();
+				ne.setOpSymbol("not");
+				ne.setOperand(n);
+				RESULT = ne;
+			:}
 		;
 
-compareExpn	::=	arithExpn:a			// comparisons, do not associate
-                {: RESULT = a; :}
-		|	arithExpn EQUAL arithExpn
-		| 	arithExpn NOT EQUAL arithExpn
-		|	arithExpn LESS arithExpn
-		|	arithExpn LESS EQUAL arithExpn
-		|	arithExpn GREATER arithExpn
-		|	arithExpn GREATER EQUAL arithExpn
+compareExpn	::=	arithExpn:a1			// comparisons, do not associate
+                {: RESULT = a1; :}
+		|	arithExpn:a2 EQUAL arithExpn:a3
+			{:
+				EqualsExpn eqExp1 = new EqualsExpn();
+				eqExp1.setOpSymbol("=");
+				eqExp1.setLeft(a2);
+				eqExp1.setRight(a3);
+				RESULT = eqExp1;	
+			:}
+		| 	arithExpn:a4 NOT EQUAL arithExpn:a5
+			{:
+				EqualsExpn eqExp2 = new EqualsExpn();
+				eqExp2.setOpSymbol("not=");
+				eqExp2.setLeft(a4);
+				eqExp2.setRight(a5);
+				RESULT = eqExp2;
+			:}
+		|	arithExpn:a6 LESS arithExpn:a7
+			{:
+				CompareExpn coExp3 = new CompareExpn();
+				coExp3.setOpSymbol("<");
+				coExp3.setLeft(a6);
+				coExp3.setRight(a7);
+				RESULT = coExp3;
+			:}
+		|	arithExpn:a8 LESS EQUAL arithExpn:a9
+			{:
+				CompareExpn coExp4 = new CompareExpn();
+				coExp4.setOpSymbol("<=");
+				coExp4.setLeft(a8);
+				coExp4.setRight(a9);
+				RESULT = coExp4;
+			:}
+		|	arithExpn:a10 GREATER arithExpn:a11
+			{:
+				CompareExpn coExp5 = new CompareExpn();
+				coExp5.setOpSymbol(">");
+				coExp5.setLeft(a10);
+				coExp5.setRight(a11);
+				RESULT = coExp5;
+			:}
+		|	arithExpn:a12 GREATER EQUAL arithExpn:a13
+			{:
+				CompareExpn coExp6 = new CompareExpn();
+				coExp6.setOpSymbol(">=");
+				coExp6.setLeft(a12);
+				coExp6.setRight(a13);
+				RESULT = coExp6;
+			:}
 		;
 
-arithExpn	::=	term:t				// expressions, associate + , - left-to-right
-                {: RESULT = t; :}
-		|	arithExpn  PLUS  term
-		|	arithExpn  MINUS term
+arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
+                {: RESULT = t1; :}
+		|	arithExpn:a1  PLUS  term:t2
+			{:
+				ArithExpn ae1 = new ArithExpn();
+				ae1.setOpSymbol("+");
+				ae1.setRight(t2);
+				ae1.setLeft(a1);
+				RESULT = ae1;
+			:}
+		|	arithExpn:a2  MINUS term:t3
+			{:
+				ArithExpn ae2 = new ArithExpn();
+				ae2.setOpSymbol("-");
+				ae2.setLeft(a2);
+				ae2.setRight(t3);
+				RESULT = ae2;
+			:}
 		;
 
-term		::=	factor:f 		// terms, associate * , /   left-to-right
-            {: RESULT = f; :}
-		|	term TIMES factor
-		|	term DIVIDE factor
+term		::=	factor:f1 		// terms, associate * , /   left-to-right
+            {: RESULT = f1; :}
+		|	term:t1 TIMES factor:f2
+			{:
+				ArithExpn ae1 = new ArithExpn();
+				ae1.setLeft(t1);
+				ae1.setRight(f2);
+				ae1.setOpSymbol("*");
+				RESULT = ae1;
+			:}
+		|	term:t2 DIVIDE factor:f3
+			{:
+				ArithExpn ae2 = new ArithExpn();
+				ae2.setLeft(t2);
+				ae2.setRight(f3);
+				ae2.setOpSymbol("/");
+				RESULT = ae2;	
+			:}
 		;
 
 factor		::=	primary:p
                 {: RESULT = p; :}				
-		|	MINUS factor			// unary minus
+		|	MINUS factor:f			// unary minus
+			{:
+				UnaryMinusExpn mf = new UnaryMinusExpn(f);
+				RESULT = mf;
+			:}
 		;
 
 primary		::=	constant:c				// integer or boolean constant
@@ -477,15 +571,17 @@ primary		::=	constant:c				// integer or boolean constant
 		| 	L_PAREN  expression  R_PAREN		// parenthesized expression
 		|	L_PAREN  expression QUESTION expression COLON expression R_PAREN
 								// conditional expression
-		|	IDENT:id L_PAREN argumentList R_PAREN 	// function call
-			{:	FunctionCallExpn func = new FunctionCallExpn(); 
+		|	IDENT:id L_PAREN argumentList:al R_PAREN 	// function call
+			{:	
+				FunctionCallExpn func = new FunctionCallExpn(); 
 			   	func.setIdent(id);
+				func.setArguments(al);
 				RESULT = func;
 			:}
 		;
 
 constant	::=	INTCONST:i	// integer constant
-                {: RESULT = new IntConstExpn(i); :}
+                {:	RESULT = new IntConstExpn(i); :}
 		|	TRUE		// constant true
 				{:	RESULT = new BoolConstExpn(true); :}
 		|	FALSE		// constant false
