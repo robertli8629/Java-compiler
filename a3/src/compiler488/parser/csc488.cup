@@ -196,10 +196,35 @@ declarations	::=	declaration:d		// sequence of declarations
 statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
                 {: RESULT = new AssignStmt(e1, e2); :}
 
-		|	IF expression THEN statements FI 	// if statements
-		|	IF expression THEN statements ELSE statements FI	
-		|	WHILE expression DO statements END	// while statement 
-		|       REPEAT statements UNTIL expression	// repeat statement
+		|	IF expression:e3 THEN statements:s1 FI 	// if statements
+			//{:
+				//IfStmt if1 = new IfStmt();
+				//if1.setCondition(e3);
+				//if1.setWhenTrue(s1);
+				//RESULT = if1;
+			//:}
+		|	IF expression:e4 THEN statements:s3 ELSE statements:s3a FI
+			//{:
+				//IfStmt if2 = new IfStmt();
+				//if2.setCondition(e4);
+				//if2.setWhenTrue(s3);
+				//if2.setWhenFalse(s3a);
+				//RESULT = if2;
+			//:}	
+		|	WHILE expression:e5 DO statements:s3 END	// while statement 
+			{:
+				WhileDoStmt wstmt = new WhileDoStmt();
+				wstmt.setExpn(e5);
+				wstmt.setBody(s3);
+				RESULT = wstmt;
+			:}
+		|   REPEAT statements:s4 UNTIL expression:e6	// repeat statement
+			{:
+				RepeatUntilStmt rstmt = new RepeatUntilStmt();
+				rstmt.setExpn(e6);
+				rstmt.setBody(s4);
+				RESULT = rstmt;
+			:}
 		|	EXIT					// exit statements
 		|	EXIT WHEN expression
 		|	RESULT expression 			// return from function
