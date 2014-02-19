@@ -11,6 +11,7 @@ import compiler488.ast.stmt.*;
 import compiler488.ast.expn.*;
 import compiler488.ast.decl.*;
 import compiler488.ast.type.*;
+import compiler488.ast.Readable;
 import compiler488.ast.ASTList;
 
 /* User code components 1: action code components.
@@ -120,31 +121,31 @@ terminal String  TEXTCONST	;
 // Non-terminals that have no value.
 // nonterminal xxx
 
-nonterminal	argumentList			; // parameterList was here
-nonterminal	arguments	; // parameter(s) was here
-nonterminal	inputs,		output,		outputs ;
+nonterminal output,		outputs ;
 
 
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
 
-nonterminal Program program;
-nonterminal Scope scope;
+nonterminal Program program ;
+nonterminal Scope scope ;
 nonterminal Expn constant, primary, factor, term, arithExpn, compareExpn ;
 nonterminal Expn negation, conjunction, expression, variable ;
-nonterminal ASTList<Stmt> statements;
-nonterminal Stmt statement;
-nonterminal Type type;
+nonterminal ASTList<Stmt> statements ;
+nonterminal Stmt statement ;
+nonterminal Type type ;
 nonterminal DeclarationPart variablename ;
 nonterminal ArrayDeclPart bound ;
-nonterminal IntConstExpn generalBound;
+nonterminal IntConstExpn generalBound ;
 nonterminal ASTList<DeclarationPart> variablenames ;
 nonterminal Declaration declaration ;
 nonterminal ASTList<Declaration> declarations ;
 nonterminal RoutineDecl functionHead, procedureHead ;
-nonterminal ScalarDecl parameter;
-nonterminal ASTList<ScalarDecl> parameters;
-nonterminal RoutineBody parameterList;
+nonterminal ScalarDecl parameter ;
+nonterminal ASTList<ScalarDecl> parameters ;
+nonterminal RoutineBody parameterList ;
+nonterminal ASTList<Expn> argumentList, arguments ;
+nonterminal ASTList<Readable> inputs ;
 
 // CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
 // feature of java-cup. The lines below should remain
@@ -206,8 +207,21 @@ statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
 		|	RESULT expression 			// return from function
 		|	RETURN 					// return from procedure
 		|	PUT outputs				// output statment
-		|	GET  inputs				// input statement
-		|	IDENT L_PAREN  argumentList  R_PAREN 	// call procedure 
+		|	GET  inputs:ins				// input statement
+            {:
+                GetStmt get = new GetStmt();
+                get.setInputs(ins);
+                RESULT = get;
+            :}
+
+		|	IDENT:id L_PAREN  argumentList:argList  R_PAREN 	// call procedure 
+            {:
+                ProcedureCallStmt proc = new ProcedureCallStmt();
+                proc.setArguments(argList);
+                proc.setName(id);
+                RESULT = proc;
+            :}
+
 		|	scope:s					// embedded scope
             {: RESULT = s; :}
 		;
@@ -335,16 +349,25 @@ output		::=	expression		// integer expression
 		|	NEWLINE			// newline constant
 		;
 
-inputs		::=	variable		// list of variables being read into
-		|	inputs COMMA variable
+inputs		::=	variable:v1		// list of variables being read into
+                {: RESULT = new ASTList<Readable>((Readable) v1); :}
+
+		|	inputs:inputList COMMA variable:v2
+            {: RESULT = inputList.addLast((Readable) v2); :}
 		;
 
-argumentList	::=	arguments		//  function/procedure arguments
+argumentList	::=	arguments:args		//  function/procedure arguments
+                    {: RESULT = args; :}
+
 		|	//  EMPTY
+            {: RESULT = new ASTList<Expn>(); :}
 		;
 
-arguments	::=	expression		// list of function/procedure arguments
-		|	arguments COMMA expression
+arguments	::=	expression:e		// list of function/procedure arguments
+                {: RESULT = new ASTList<Expn>(e); :}
+
+		|	arguments:argList COMMA expression:exp
+            {: RESULT = argList.addLast(exp); :}
 		;
 
 parameterList	::=	parameters:plist		//  function/procedure formal parameters
@@ -435,10 +458,21 @@ constant	::=	INTCONST:i	// integer constant
 				{:  RESULT = new BoolConstExpn(false); :}
 		;
 
-variable	::=	IDENT:id			// scalar variable or parameter
-                {: RESULT = new IdentExpn(id); :}
-		|	IDENT L_SQUARE expression R_SQUARE	// element of 1 dimensional array
-		|   IDENT L_SQUARE expression COMMA expression R_SQUARE	// element of 2 dimensional array
-		;
+variable	::=	IDENT:id1			// scalar variable or parameter
+                {: RESULT = new IdentExpn(id1); :}
 
+		|	IDENT:id2 L_SQUARE expression:e1 R_SQUARE	// element of 1 dimensional array
+            {:
+                SubsExpn sub = new SubsExpn(e1, null);
+                sub.setVariable(id2);
+                RESULT = sub;
+            :}
+                
+		|   IDENT:id3 L_SQUARE expression:e2 COMMA expression:e3 R_SQUARE	// element of 2 dimensional array
+            {:
+                SubsExpn sub = new SubsExpn(e2, e3);
+                sub.setVariable(id3);
+                RESULT = sub;
+            :}
+		;
 
