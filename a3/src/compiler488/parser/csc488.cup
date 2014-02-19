@@ -121,8 +121,6 @@ terminal String  TEXTCONST	;
 // nonterminal xxx
 
 nonterminal	procedureHead	; // functionHead was here
-nonterminal	argumentList			; // parameterList was here
-nonterminal	arguments	; // parameter(s) was here
 nonterminal	inputs,		output,		outputs ;
 
 
@@ -146,6 +144,8 @@ nonterminal RoutineDecl functionHead;
 nonterminal ScalarDecl parameter;
 nonterminal ASTList<ScalarDecl> parameters;
 nonterminal RoutineBody parameterList;
+nonterminal ASTList<Expn> argumentList, arguments;
+
 
 // CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
 // feature of java-cup. The lines below should remain
@@ -309,12 +309,23 @@ inputs		::=	variable		// list of variables being read into
 		|	inputs COMMA variable
 		;
 
-argumentList	::=	arguments		//  function/procedure arguments
+argumentList	::=	arguments:a		//  function/procedure arguments
+					{:
+						RESULT = a;
+					:}
 		|	//  EMPTY
 		;
 
-arguments	::=	expression		// list of function/procedure arguments
-		|	arguments COMMA expression
+arguments	::=	expression:exp1		// list of function/procedure arguments
+				{:
+					ASTList<Expn> alist = new ASTList<Expn>(exp1);
+					RESULT = alist;
+				:}
+		|	arguments:a COMMA expression:exp2
+			{:
+				a.addLast(exp2);
+				RESULT = a;
+			:}
 		;
 
 parameterList	::=	parameters:plist		//  function/procedure formal parameters
@@ -367,21 +378,50 @@ compareExpn	::=	arithExpn:a			// comparisons, do not associate
 		|	arithExpn GREATER EQUAL arithExpn
 		;
 
-arithExpn	::=	term:t				// expressions, associate + , - left-to-right
-                {: RESULT = t; :}
-		|	arithExpn  PLUS  term
-		|	arithExpn  MINUS term
+arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
+                {: RESULT = t1; :}
+		|	arithExpn:a1  PLUS  term:t2
+			{:
+				ArithExpn ae1 = new ArithExpn();
+				ae1.setOpSymbol("+");
+				ae1.setRight(t2);
+				ae1.setLeft(a1);
+				RESULT = ae1;
+			:}
+		|	arithExpn:a2  MINUS term:t3
+			{:
+				ArithExpn ae2 = new ArithExpn();
+				RESULT = ae2;
+			:}
 		;
 
-term		::=	factor:f 		// terms, associate * , /   left-to-right
-            {: RESULT = f; :}
-		|	term TIMES factor
-		|	term DIVIDE factor
+term		::=	factor:f1 		// terms, associate * , /   left-to-right
+            {: RESULT = f1; :}
+		|	term:t1 TIMES factor:f2
+			{:
+				ArithExpn ae1 = new ArithExpn();
+				ae1.setLeft(t1);
+				ae1.setRight(f2);
+				ae1.setOpSymbol("*");
+				RESULT = ae1;
+			:}
+		|	term:t2 DIVIDE factor:f3
+			{:
+				ArithExpn ae2 = new ArithExpn();
+				ae2.setLeft(t2);
+				ae2.setRight(f3);
+				ae2.setOpSymbol("/");
+				RESULT = ae2;	
+			:}
 		;
 
 factor		::=	primary:p
                 {: RESULT = p; :}				
-		|	MINUS factor			// unary minus
+		|	MINUS factor:f			// unary minus
+			{:
+				UnaryMinusExpn mf = new UnaryMinusExpn(f);
+				RESULT = mf;
+			:}
 		;
 
 primary		::=	constant:c				// integer or boolean constant
@@ -390,15 +430,17 @@ primary		::=	constant:c				// integer or boolean constant
 		| 	L_PAREN  expression  R_PAREN		// parenthesized expression
 		|	L_PAREN  expression QUESTION expression COLON expression R_PAREN
 								// conditional expression
-		|	IDENT:id L_PAREN argumentList R_PAREN 	// function call
-			{:	FunctionCallExpn func = new FunctionCallExpn(); 
+		|	IDENT:id L_PAREN argumentList:al R_PAREN 	// function call
+			{:	
+				FunctionCallExpn func = new FunctionCallExpn(); 
 			   	func.setIdent(id);
+				func.setArguments(al);
 				RESULT = func;
 			:}
 		;
 
 constant	::=	INTCONST:i	// integer constant
-                {: RESULT = new IntConstExpn(i); :}
+                {:	RESULT = new IntConstExpn(i); :}
 		|	TRUE		// constant true
 				{:	RESULT = new BoolConstExpn(true); :}
 		|	FALSE		// constant false
