@@ -1,4 +1,6 @@
 package compiler488.ast.decl;
+import compiler488.ast.type.Type;
+
 
 /**
  *	Represents the declaration of an array variable.	
