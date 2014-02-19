@@ -387,33 +387,39 @@ expression	::=	conjunction:c			// disjunctions, associate left-to-right
 		|	expression OR conjunction
 		;
 
-conjunction	::=	negation:n			// conjunctions, associate left-to-right
-            {: RESULT = n; :}
+conjunction	::=	negation:n1			// conjunctions, associate left-to-right
+            {: RESULT = n1; :}
 		|	conjunction AND negation
 		;
 
 negation	::=	compareExpn:c 			// negations
                 {: RESULT = c; :}
-		|	NOT negation
+		|	NOT negation:n
+			{: 
+				NotExpn ne = new NotExpn();
+				ne.setOpSymbol("not");
+				ne.setOperand(n);
+				RESULT = ne;
+			:}
 		;
 
 compareExpn	::=	arithExpn:a1			// comparisons, do not associate
                 {: RESULT = a1; :}
 		|	arithExpn:a2 EQUAL arithExpn:a3
 			{:
-				CompareExpn coExp1 = new CompareExpn();
-				coExp1.setOpSymbol("=");
-				coExp1.setLeft(a2);
-				coExp1.setRight(a3);
-				RESULT = coExp1;	
+				EqualsExpn eqExp1 = new EqualsExpn();
+				eqExp1.setOpSymbol("=");
+				eqExp1.setLeft(a2);
+				eqExp1.setRight(a3);
+				RESULT = eqExp1;	
 			:}
 		| 	arithExpn:a4 NOT EQUAL arithExpn:a5
 			{:
-				CompareExpn coExp2 = new CompareExpn();
-				coExp2.setOpSymbol("not=");
-				coExp2.setLeft(a4);
-				coExp2.setRight(a5);
-				RESULT = coExp2;
+				EqualsExpn eqExp2 = new EqualsExpn();
+				eqExp2.setOpSymbol("not=");
+				eqExp2.setLeft(a4);
+				eqExp2.setRight(a5);
+				RESULT = eqExp2;
 			:}
 		|	arithExpn:a6 LESS arithExpn:a7
 			{:
@@ -439,7 +445,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp5.setRight(a11);
 				RESULT = coExp5;
 			:}
-		|	arithExpn:12 GREATER EQUAL arithExpn:13
+		|	arithExpn:a12 GREATER EQUAL arithExpn:a13
 			{:
 				CompareExpn coExp6 = new CompareExpn();
 				coExp6.setOpSymbol(">=");
