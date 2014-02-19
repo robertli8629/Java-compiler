@@ -7,6 +7,7 @@ var c[-1..10], d[10,4..11] : boolean
 
 func test_func1(x : integer, y : boolean) : integer {
     y := 10
+    result y
 }
 
 func test_func2() : integer {}
@@ -18,6 +19,7 @@ proc test_proc2() {}
 proc test_proc3(size : integer) {
     proc test_proc4() {}
     size := 1
+    return
 }
 
 forward func test1() : boolean

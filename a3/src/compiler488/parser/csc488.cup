@@ -203,9 +203,25 @@ statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
 		|	WHILE expression DO statements END	// while statement 
 		|       REPEAT statements UNTIL expression	// repeat statement
 		|	EXIT					// exit statements
-		|	EXIT WHEN expression
-		|	RESULT expression 			// return from function
+            {: RESULT = new ExitStmt(); :}
+
+		|	EXIT WHEN expression:e6
+            {:
+                ExitStmt ex = new ExitStmt();
+                ex.setExpn(e6);
+                RESULT = ex;
+            :}
+
+		|	RESULT expression:e7 	// return from function
+            {:
+                ResultStmt res = new ResultStmt();
+                res.setValue(e7);
+                RESULT = res;
+            :}
+
 		|	RETURN 					// return from procedure
+            {: RESULT = new ReturnStmt(); :}
+
 		|	PUT outputs:outs			// output statment
             {:
                 PutStmt put = new PutStmt();
