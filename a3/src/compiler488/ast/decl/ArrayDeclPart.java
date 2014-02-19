@@ -48,10 +48,6 @@ public class ArrayDeclPart extends DeclarationPart {
 		return size;
 	}
 
-	public setIsTwoDimensional() {
-
-	}
-
 	public Integer getLowerBoundary1() {
 		return lb1;
 	}
