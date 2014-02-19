@@ -12,6 +12,7 @@ import compiler488.ast.expn.*;
 import compiler488.ast.decl.*;
 import compiler488.ast.type.*;
 import compiler488.ast.Readable;
+import compiler488.ast.Printable;
 import compiler488.ast.ASTList;
 
 /* User code components 1: action code components.
@@ -121,9 +122,6 @@ terminal String  TEXTCONST	;
 // Non-terminals that have no value.
 // nonterminal xxx
 
-nonterminal output,		outputs ;
-
-
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
 
@@ -146,6 +144,8 @@ nonterminal ASTList<ScalarDecl> parameters ;
 nonterminal RoutineBody parameterList ;
 nonterminal ASTList<Expn> argumentList, arguments ;
 nonterminal ASTList<Readable> inputs ;
+nonterminal Printable output ;
+nonterminal ASTList<Printable> outputs ;
 
 // CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
 // feature of java-cup. The lines below should remain
@@ -206,7 +206,13 @@ statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
 		|	EXIT WHEN expression
 		|	RESULT expression 			// return from function
 		|	RETURN 					// return from procedure
-		|	PUT outputs				// output statment
+		|	PUT outputs:outs			// output statment
+            {:
+                PutStmt put = new PutStmt();
+                put.setOutputs(outs);
+                RESULT = put;
+            :}
+
 		|	GET  inputs:ins				// input statement
             {:
                 GetStmt get = new GetStmt();
@@ -340,13 +346,25 @@ procedureHead	::=	PROCEDURE  IDENT:id L_PAREN parameterList:pl  R_PAREN
                     :}
 		;
 
-outputs		::=	output			// list of output expressions
-		|	outputs COMMA output
+outputs		::=	output:out1			// list of output expressions
+                {: RESULT = new ASTList<Printable>(out1); :}
+
+		|	outputs:outList COMMA output:out2
+            {: RESULT = outList.addLast(out2); :}
 		;
 
-output		::=	expression		// integer expression
-		|	TEXTCONST		// text constant
+output		::=	expression:e	// integer expression
+                {: RESULT = e; :}
+
+		|	TEXTCONST:t		// text constant
+            {:
+                TextConstExpn text = new TextConstExpn();
+                text.setValue(t);
+                RESULT = text;
+            :}
+
 		|	NEWLINE			// newline constant
+            {: RESULT = new NewlineConstExpn(); :}
 		;
 
 inputs		::=	variable:v1		// list of variables being read into
