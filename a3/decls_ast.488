@@ -4,6 +4,13 @@ var y : boolean
 var w,z : integer
 var a, b[10] : integer
 var c[-1..10], d[10,4..11] : boolean
+
+func test_func(x : integer, y : boolean) : integer {
+    y := x + 10
+}
+
+forward func test2(x : boolean) : boolean
+
 x := 1
 y := true
 }
