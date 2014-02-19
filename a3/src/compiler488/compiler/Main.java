@@ -468,11 +468,8 @@ public class Main {
 		
 		programAST = fakeProgram;
 		
-		System.out.println(fakeProgram);
-		SymbolTable st = new SymbolTable();
-		st.Initialize(fakeProgram);
 		
-		System.out.println(fakeProgram);
+		
 	    }
 	    
 	    }
@@ -503,8 +500,12 @@ public class Main {
 		    if( ! dumpAST2 )		// finished with dump stream
 		    	dumpStream.close();
 	        }
-                else 
+                else {
 		    programAST.printOn( saveSysOut  , 0 );
+		}
+		// do semantic analysis
+		SymbolTable st = new SymbolTable();
+		st.Initialize(programAST);
 	   }
            catch( Exception e) 
 	       {

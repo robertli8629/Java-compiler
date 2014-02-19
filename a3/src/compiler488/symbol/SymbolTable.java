@@ -12,6 +12,7 @@ import compiler488.ast.ASTList;
 import compiler488.ast.stmt.*;
 import compiler488.ast.decl.*;
 import compiler488.ast.expn.*;
+import compiler488.ast.type.*;
 
 
 /** Symbol Table
@@ -92,6 +93,16 @@ public class SymbolTable {
 			    check_if_declared(symboltable, decl.getName());
 			}
 			
+			if (decl instanceof MultiDeclarations) {
+			    ASTList<DeclarationPart> decl_list = ((MultiDeclarations)decl).getElements();
+			    LinkedList<DeclarationPart> ll_part=decl_list.get_list();
+			    
+			    for (DeclarationPart dp : ll_part) {
+				add_to_symboltable(dp, symboltable, decl.getType());
+			    }
+			    continue;
+			}
+			
 			// Semantic analysis S54: associate params if any with scope
 			if (decl instanceof RoutineDecl) {
 			    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
@@ -139,21 +150,35 @@ public class SymbolTable {
 	    String kind = "unknown";
 	    if (decl instanceof ScalarDecl) {
 		kind = "var";
-	    } else if (decl instanceof ScalarDecl) {
+	    } else if (decl instanceof RoutineDecl) {
 		kind = "func";
 	    }
 	    Symbol sym=new Symbol(decl.getName(), kind,0 , s_type); 
 	    symboltable.put(decl.getName(),sym);
 	}
 	
+	private void add_to_symboltable(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type) {
+	    SymbolType s_type=new SymbolType(type.toString(), "");  
+	    String kind = "unknown";
+	    if (dp instanceof ScalarDeclPart) {
+		kind = "var";
+	    } 
+	    Symbol sym=new Symbol(dp.getName(), kind,0 , s_type); 
+	    symboltable.put(dp.getName(),sym);
+	}
+	
+	
+	
 	
 	private void printHash(Hashtable<String,Symbol> ht) {
+// 	    System.out.println("printHash");
 	    Set<String> keyset = ht.keySet();
 	    for (String s : keyset) {
 		System.out.println(s+" :");
 		Symbol sym = ht.get(s);
 		System.out.println(sym.toString());
 	    }
+// 	    System.out.println("end printHash");
 	}
 	
 	
