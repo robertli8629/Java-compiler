@@ -9,6 +9,8 @@ package compiler488.parser;
 import java_cup.runtime.*;		// Must always import this.
 import compiler488.ast.stmt.*;
 import compiler488.ast.expn.*;
+import compiler488.ast.decl.*;
+import compiler488.ast.type.*;
 import compiler488.ast.ASTList;
 
 /* User code components 1: action code components.
@@ -118,8 +120,8 @@ terminal String  TEXTCONST	;
 // Non-terminals that have no value.
 // nonterminal xxx
 
-nonterminal	declarations,	declaration,	type,	bound, generalBound 	;
-nonterminal	variablenames,	variablename,	functionHead,	procedureHead	;
+nonterminal	declarations,	declaration ;
+nonterminal	variablenames, functionHead,	procedureHead	;
 nonterminal	parameterList,  argumentList			;
 nonterminal	arguments,	parameter,	parameters	;
 nonterminal	inputs,		output,		outputs ;
@@ -134,6 +136,10 @@ nonterminal Expn constant, primary, factor, term, arithExpn, compareExpn ;
 nonterminal Expn negation, conjunction, expression, variable ;
 nonterminal ASTList<Stmt> statements;
 nonterminal Stmt statement;
+nonterminal Type type;
+nonterminal DeclarationPart variablename ;
+nonterminal ArrayDeclPart bound ;
+nonterminal IntConstExpn generalBound;
 
 // CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
 // feature of java-cup. The lines below should remain
@@ -205,32 +211,49 @@ variablenames	::=	variablename  				// list of variables being declared
 		;
 
 variablename	::=	IDENT:id1 					// scalar variable
-					
+				    {: ScalarDeclPart decl = new ScalarDeclPart();
+                       decl.setName(id1); :}	
+
 		|	IDENT:id2 L_SQUARE bound:b1 R_SQUARE		// 1 dimensional array
-		    {: RESULT = new ArrayDeclPart(); :}	
+		    {: b1.setName(id2);
+		       RESULT = b1; :}	
+
 		|	IDENT:id3 L_SQUARE bound:b2 COMMA bound:b3 R_SQUARE // 2 dimensional array
-			{: RESULT = new ArrayDeclPart(); :}
+			{: b2.setName(id3);
+               b2.setLowerBoundary2(b3.getLowerBoundary1());
+               b2.setUpperBoundary2(b3.getUpperBoundary1());
+               b2.setSize(b2.getSize() * b3.getSize()); // Correct size calculation?
+               RESULT = b2;
+            :}
 		;
 
 bound		::=     INTCONST:i				// integer array bound
-					{: IntConstExpn ub = new IntConstExpn(i);
-					   IntConstExpn lb = new IntConstExpn(1);
-					   RESULT = new BoundDecl(); 
-					:}
+                    {: ArrayDeclPart decl = new ArrayDeclPart();
+                       decl.setLowerBoundary1(1);
+                       decl.setUpperBoundary1(i);
+                       decl.setSize(i);
+                       RESULT = decl; :}
+
 		|       generalBound:g1 DOT DOT generalBound:g2	// explicit lower/upper bounds
-				{: RESULT = BoundDecl(); :}
+                {: ArrayDeclPart decl = new ArrayDeclPart();
+                   decl.setLowerBoundary1(g1.getValue());
+                   decl.setUpperBoundary1(g2.getValue());
+                   decl.setSize((g1.getValue() - g2.getValue()) + 1);
+                   RESULT = decl; :}
 		;
 
 generalBound	::=	INTCONST:i1			// positive array bound
 					{: RESULT = new IntConstExpn(i1); :}
+
 		|	MINUS INTCONST:i2			// negative array bound
-			{:  IntConstExpn intConst = new IntConstExpn(i2);
-				RESULT = new UnaryMinusExpn(intConst); 
-			:}
+		    {: RESULT = new IntConstExpn(-i2); :}
 		;
 
 type		::=	INTEGER				// integer type
+                {: RESULT = new IntegerType(); :}
+
 		|	BOOLEAN				// boolean type
+            {: RESULT = new BooleanType(); :}
 		;
 
 functionHead	::=	FUNC IDENT L_PAREN parameterList R_PAREN COLON type	// function head
