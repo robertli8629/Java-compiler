@@ -146,7 +146,6 @@ nonterminal RoutineDecl functionHead;
 nonterminal ScalarDecl parameter;
 nonterminal ASTList<ScalarDecl> parameters;
 nonterminal RoutineBody parameterList;
-nonterminal Declaration declaration;
 
 // CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
 // feature of java-cup. The lines below should remain
