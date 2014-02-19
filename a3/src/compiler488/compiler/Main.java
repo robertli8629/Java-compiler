@@ -426,11 +426,24 @@ public class Main {
 		decl1.setType(new BooleanType());
 		
 		Declaration decl2 = new ScalarDecl();
-		decl2.setName("v12");
-		decl2.setType(new IntegerType());
+		decl2.setName("v1");
+		decl2.setType(new BooleanType());
+		
+		Declaration func = new RoutineDecl(); // function declaration
+		func.setName("foo");
+		func.setType(new IntegerType());
+		RoutineBody rb = new RoutineBody();
+		rb.setBody(new Scope());
+		Declaration param1 = new ScalarDecl();
+		param1.setName("p1");
+		param1.setType(new BooleanType());
+		ASTList<ScalarDecl> params = new ASTList<ScalarDecl>((ScalarDecl)param1);
+		rb.setParameters(params);
+		((RoutineDecl)func).setRoutineBody(rb);
 		
 		declLst.addLast(decl1);
 		declLst.addLast(decl2);
+		declLst.addLast(func);
 		
 		// add Statements
 		ASTList<Stmt> stmtLst = new ASTList<Stmt>();
@@ -439,7 +452,7 @@ public class Main {
 		Stmt stmt1 = new Scope();
 		
 		Declaration decl3 = new ScalarDecl();
-		decl3.setName("v3");
+		decl3.setName("v1");
 		decl3.setType(new IntegerType());
 		ASTList<Declaration> declLst2 = new ASTList<Declaration>();
 		declLst2.addLast(decl3);

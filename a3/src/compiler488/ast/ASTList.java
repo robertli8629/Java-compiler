@@ -29,6 +29,9 @@ public class ASTList<E> extends AST {
 		ll.addLast(ast);
 	}
 	
+	/**
+	 * return its ll.
+	 */
 	public LinkedList<E> get_list() {
 		return this.ll;
 	}

@@ -44,7 +44,7 @@ public class SymbolTable {
 	    *	Any additional symbol table initialization
 	    *  GOES HERE                                	
 	    */
-	    this.traverse((Scope) p);
+	    this.traverse((Scope) p, null);
 	}
 
 	/**  Finalize - called once by Semantics at the end of compilation
@@ -67,33 +67,43 @@ public class SymbolTable {
 	private Stack<Hashtable<String,Symbol>> symbolstack;
 	
 	
-	private void traverse(Scope s){
-// 	    System.out.println("1");
+	// second parameter is only used when entering a function scope with parameters
+	private void traverse(Scope s, ASTList<ScalarDecl> arg){
+	    System.out.println("enter traverse");
 	    Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
-// 	    System.out.println("2");
+
 	    ASTList<Declaration> AST_dcl=s.getDeclarations();
-// 	    System.out.println(AST_dcl);
 	    LinkedList<Declaration> ll=AST_dcl.get_list();
 	    
-// 	    System.out.println("3");
+	    if (arg != null) {
+		add_params(symboltable, arg);
+	    }
+	    
 	    if (ll != null){
 		ListIterator iterator = ll.listIterator();
 		while (iterator.hasNext()){
 			Declaration decl = (Declaration)iterator.next();
-			SymbolType s_type=new SymbolType(decl.getType().toString(), "");  
-			String kind = "unknown";
+			
+			// Semantic analysis S10: check whether variable is declared in currect scope
 			if (decl instanceof ScalarDecl) {
-			    kind = "var";
-			} else if (decl instanceof ScalarDecl) {
-			    kind = "func";
+			    check_if_declared(symboltable, decl.getName());
 			}
-			Symbol sym=new Symbol(decl.getName(), kind,0 , s_type); 
-			symboltable.put(decl.getName(),sym);
+			
+			// Semantic analysis S54: associate params if any with scope
+			if (decl instanceof RoutineDecl) {
+			    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
+			    Scope routine_scope = rb.getBody();
+			    ASTList<ScalarDecl> params = rb.getParameters();
+			    traverse(routine_scope, params);
+			    
+			}
+			
+			// add it to symbol table
+			add_to_symboltable(decl, symboltable);
 		}
 	    }
 	    printHash(symboltable);
 	    symbolstack.push(symboltable);
-// 	    System.out.println("4");
 
 	    // recursion
 	    ASTList<Stmt> AST_stat=s.getStatements();
@@ -106,14 +116,27 @@ public class SymbolTable {
 				Scope scope = (Scope) stmt; // find the scope from stmtlist
 				
 				
-				traverse(scope);
+				traverse(scope, null);
 				
 			}
 		}
 	    }
-// 	    System.out.println("4.5");
+	    
 	    symbolstack.pop();
-// 	    System.out.println("5");
+	    System.out.println("exit traverse");
+	}
+	
+	
+	private void add_to_symboltable(Declaration decl, Hashtable<String,Symbol> symboltable) {
+	    SymbolType s_type=new SymbolType(decl.getType().toString(), "");  
+	    String kind = "unknown";
+	    if (decl instanceof ScalarDecl) {
+		kind = "var";
+	    } else if (decl instanceof ScalarDecl) {
+		kind = "func";
+	    }
+	    Symbol sym=new Symbol(decl.getName(), kind,0 , s_type); 
+	    symboltable.put(decl.getName(),sym);
 	}
 	
 	
@@ -127,6 +150,27 @@ public class SymbolTable {
 	}
 	
 	
+	// check whether name is declared in ht
+	private void check_if_declared(Hashtable<String,Symbol> ht, String name) {
+// 	    Hashtable<String,Symbol> ht = this.symbolstack.peek();
+	    Set<String> keyset = ht.keySet();
+	    if (keyset.contains(name)) {
+		System.out.println("name \"" + name + "\" is already defined in the scope");
+	    }
+	    
+	}
+	
+	// Semantic analysis S54: associate params if any with scope
+	private void add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params) {
+	    System.out.println("add_params");
+	    if (params != null) {
+		LinkedList<ScalarDecl> l = params.get_list();
+		for (ScalarDecl d : l) {
+    // 		System.out.println(d);
+		    add_to_symboltable(d, ht);
+		}
+	    }
+	}
 	
 	
 	// check if the var is defined and if two vars have the same type
