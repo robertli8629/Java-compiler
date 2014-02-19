@@ -44,7 +44,7 @@ public class SymbolTable {
 	    *	Any additional symbol table initialization
 	    *  GOES HERE                                	
 	    */
-	    this.traverse((Scope) p, null);
+	    this.traverse((Scope) p, null, ScopeType.MAJOR);
 	}
 
 	/**  Finalize - called once by Semantics at the end of compilation
@@ -66,9 +66,12 @@ public class SymbolTable {
 	 */
 	private Stack<Hashtable<String,Symbol>> symbolstack;
 	
+	private enum ScopeType {
+	    MAJOR, FUNCTION, PROCEDURE, LOOP, MINOR
+	}
 	
 	// second parameter is only used when entering a function scope with parameters
-	private void traverse(Scope s, ASTList<ScalarDecl> arg){
+	private void traverse(Scope s, ASTList<ScalarDecl> arg, ScopeType scope_type){
 	    System.out.println("enter traverse");
 	    Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
 
@@ -94,7 +97,11 @@ public class SymbolTable {
 			    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
 			    Scope routine_scope = rb.getBody();
 			    ASTList<ScalarDecl> params = rb.getParameters();
-			    traverse(routine_scope, params);
+			    if (decl.getType() == null) {
+				traverse(routine_scope, params, ScopeType.PROCEDURE);
+			    } else {
+				traverse(routine_scope, params, ScopeType.FUNCTION);
+			    }
 			    
 			}
 			
@@ -116,7 +123,7 @@ public class SymbolTable {
 				Scope scope = (Scope) stmt; // find the scope from stmtlist
 				
 				
-				traverse(scope, null);
+				traverse(scope, null, ScopeType.MINOR);
 				
 			}
 		}
@@ -157,7 +164,6 @@ public class SymbolTable {
 	    if (keyset.contains(name)) {
 		System.out.println("name \"" + name + "\" is already defined in the scope");
 	    }
-	    
 	}
 	
 	// Semantic analysis S54: associate params if any with scope

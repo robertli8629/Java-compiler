@@ -64,7 +64,7 @@ public class Main {
   /** User option -- dump symbol table after semantic analysis */
   public static boolean dumpSymbolTable   = false;
   
-  /** User option -- build fake testing AST */
+  /** User option -- build dummy testing AST */
   public static boolean testingAST   = false;
 
   /* TRACE options switches */
@@ -415,7 +415,7 @@ public class Main {
 	    programAST = (Program) parserResult ;
 	    
 	    if (testingAST) {
-		System.out.println("use fake testing AST");
+		System.out.println("use dummy testing AST");
 		Program fakeProgram = new Program();
 		
 		// add Declarations
