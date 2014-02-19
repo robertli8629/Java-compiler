@@ -5,7 +5,7 @@ package compiler488.ast.expn;
  */
 public class UnaryMinusExpn extends UnaryExpn {
 
-	public UnaryMinusExpn(Expn operand, String opSymbol) {
-		super(operand, operator);
+	public UnaryMinusExpn(Expn operand) {
+		super(operand, "-");
 	}
 }

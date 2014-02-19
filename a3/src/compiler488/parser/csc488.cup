@@ -204,23 +204,28 @@ variablenames	::=	variablename  				// list of variables being declared
 		|	variablenames COMMA variablename 
 		;
 
-variablename	::=	IDENT:id 					// scalar variable
-					{: RESULT = new IdentExpn(id); :}
-		|	IDENT L_SQUARE bound:b1 R_SQUARE		// 1 dimensional array
-		|	IDENT L_SQUARE bound COMMA bound  R_SQUARE // 2 dimensional array
+variablename	::=	IDENT:id1 					// scalar variable
+					
+		|	IDENT:id2 L_SQUARE bound:b1 R_SQUARE		// 1 dimensional array
+		    {: RESULT = new ArrayDeclPart(); :}	
+		|	IDENT:id3 L_SQUARE bound:b2 COMMA bound:b3 R_SQUARE // 2 dimensional array
+			{: RESULT = new ArrayDeclPart(); :}
 		;
 
 bound		::=     INTCONST:i				// integer array bound
-					{: RESULT = new IntConstExpn(i); :}
+					{: IntConstExpn ub = new IntConstExpn(i);
+					   IntConstExpn lb = new IntConstExpn(1);
+					   RESULT = new BoundDecl(); 
+					:}
 		|       generalBound:g1 DOT DOT generalBound:g2	// explicit lower/upper bounds
-				{: RESULT = new ArrayDeclPart(g1, g2); :}
+				{: RESULT = BoundDecl(); :}
 		;
 
 generalBound	::=	INTCONST:i1			// positive array bound
 					{: RESULT = new IntConstExpn(i1); :}
 		|	MINUS INTCONST:i2			// negative array bound
 			{:  IntConstExpn intConst = new IntConstExpn(i2);
-				RESULT = new UnaryMinusExpn(intConst, "-"); 
+				RESULT = new UnaryMinusExpn(intConst); 
 			:}
 		;
 
