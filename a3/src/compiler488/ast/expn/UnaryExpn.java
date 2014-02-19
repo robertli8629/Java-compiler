@@ -9,6 +9,14 @@ public class UnaryExpn extends Expn
     Expn  operand ;	/* operand of the unary  operator. */
     String opSymbol;	/* Name of the operator. */
 
+    public UnaryExpn() {
+    }
+
+	public UnaryExpn(Expn oper, String opSym) {
+		operand = oper;
+		opSymbol = opSym;
+	}
+
     /** Returns a string that represents the unary expression. */
     @Override
 	public String toString ()

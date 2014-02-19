@@ -1,0 +1,31 @@
+{
+var x : integer
+var y : boolean
+var w,z : integer
+var a, b[10] : integer
+var c[-1..10], d[10,4..11] : boolean
+
+func test_func1(x : integer, y : boolean) : integer {
+    y := 10
+}
+
+func test_func2() : integer {}
+ 
+proc test_proc1(y : boolean) {}
+
+proc test_proc2() {}
+
+proc test_proc3(size : integer) {
+    proc test_proc4() {}
+    size := 1
+}
+
+forward func test1() : boolean
+forward func test2(x : boolean) : boolean
+forward proc test3()
+forward proc test4(t : integer)
+
+x := 1
+y := true
+}
+

@@ -30,7 +30,8 @@ public class RoutineBody extends Indentable {
 			out.println("(" + parameters + ")");
 		else
 			out.println(" ( ) ");
-		body.printOn(out, depth);
+		if (body != null)
+			body.printOn(out, depth);
 	}
 
 	public Scope getBody() {

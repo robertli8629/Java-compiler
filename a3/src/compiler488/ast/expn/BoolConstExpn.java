@@ -7,6 +7,10 @@ public class BoolConstExpn extends ConstExpn
     {
     private boolean  value ;	/* value of the constant */
 
+	public BoolConstExpn(boolean val) {
+		this.value = val;
+	}
+
     /** Returns the value of the boolean constant */
     @Override
 	public String toString () { 

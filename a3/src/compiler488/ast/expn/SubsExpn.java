@@ -10,7 +10,12 @@ public class SubsExpn extends Expn implements Readable {
 
 	private String variable; // name of the array variable
 	private Expn   subscript1  ;	 // first subscript
-        private Expn   subscript2 = null ;	// second subscript (if any)
+    private Expn   subscript2 = null ;	// second subscript (if any)
+
+	public SubsExpn(Expn subscr1, Expn subscr2) {
+		this.subscript1 = subscr1;
+		this.subscript2 = subscr2;
+	}
 
 	/** Returns a string that represents the array subscript. */
 	@Override

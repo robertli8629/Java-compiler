@@ -7,6 +7,10 @@ public class IntConstExpn extends ConstExpn
     {
     private Integer value;	// The value of this literal.
 
+    public IntConstExpn(Integer i) {
+        value = i;
+    }
+
     /** Returns a string representing the value of the literal. */
     @Override
 	public String toString () { return value.toString (); }
