@@ -120,7 +120,6 @@ terminal String  TEXTCONST	;
 // Non-terminals that have no value.
 // nonterminal xxx
 
-nonterminal	procedureHead	; // functionHead was here
 nonterminal	argumentList			; // parameterList was here
 nonterminal	arguments	; // parameter(s) was here
 nonterminal	inputs,		output,		outputs ;
@@ -142,7 +141,7 @@ nonterminal IntConstExpn generalBound;
 nonterminal ASTList<DeclarationPart> variablenames ;
 nonterminal Declaration declaration ;
 nonterminal ASTList<Declaration> declarations ;
-nonterminal RoutineDecl functionHead;
+nonterminal RoutineDecl functionHead, procedureHead ;
 nonterminal ScalarDecl parameter;
 nonterminal ASTList<ScalarDecl> parameters;
 nonterminal RoutineBody parameterList;
@@ -209,52 +208,73 @@ statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
 		|	PUT outputs				// output statment
 		|	GET  inputs				// input statement
 		|	IDENT L_PAREN  argumentList  R_PAREN 	// call procedure 
-		|	scope					// embedded scope
+		|	scope:s					// embedded scope
+            {: RESULT = s; :}
 		;
 
 declaration	::=	VAR variablenames:var COLON type:t		// declare scalar/array variables
-                {: MultiDeclarations decl = new MultiDeclarations();
+                {:
+                   MultiDeclarations decl = new MultiDeclarations();
                    decl.setElements(var);
                    decl.setType(t);
-                   RESULT = decl; :}
+                   RESULT = decl;
+                :}
+
 		|	functionHead:fh1  scope:sc1			// function declaration
-			{:	RoutineBody rb = fh1.getRoutineBody(); 
-				rb.setBody(sc1);
-				RESULT = fh1;
-			 :}
-		|	procedureHead  scope			// procedure declaration
+			{:
+               RoutineBody rb = fh1.getRoutineBody(); 
+		       rb.setBody(sc1);
+		       RESULT = fh1;
+            :}
+
+		|	procedureHead:ph1  scope:sc2			// procedure declaration
+            {:
+                RoutineBody rb = ph1.getRoutineBody();
+                rb.setBody(sc2);
+                RESULT = ph1;
+            :}
+                
+
 		|   FORWARD  functionHead:fh2			// forward function declaration
-			{:	RESULT = fh2; :}
-		|	FORWARD  procedureHead			// forward procedure declaration
+			{: RESULT = fh2; :}
+
+		|	FORWARD  procedureHead:ph2			// forward procedure declaration
+            {: RESULT = ph2; :}
 		;
 
 variablenames	::=	variablename:var  		// list of variables being declared
                     {: RESULT = new ASTList<DeclarationPart>(var); :}
+
 		|	variablenames:varList COMMA variablename:var2 
             {: RESULT = varList.addLast(var2); :}
 		;
 
 variablename	::=	IDENT:id1 					// scalar variable
-				    {: ScalarDeclPart decl = new ScalarDeclPart();
-                       decl.setName(id1);
-                       RESULT = decl; :}	
+				    {:
+                        ScalarDeclPart decl = new ScalarDeclPart();
+                        decl.setName(id1);
+                        RESULT = decl;
+                    :}	
 
 		|	IDENT:id2 L_SQUARE bound:b1 R_SQUARE		// 1 dimensional array
-		    {: b1.setName(id2);
-		       RESULT = b1; 
+		    {:
+                b1.setName(id2);
+		        RESULT = b1; 
 			:}	
 
 		|	IDENT:id3 L_SQUARE bound:b2 COMMA bound:b3 R_SQUARE // 2 dimensional array
-			{: b2.setName(id3);
-               b2.setLowerBoundary2(b3.getLowerBoundary1());
-               b2.setUpperBoundary2(b3.getUpperBoundary1());
-               b2.setSize(b2.getSize() * b3.getSize()); // Correct size calculation?
-               RESULT = b2;
+			{:
+                b2.setName(id3);
+                b2.setLowerBoundary2(b3.getLowerBoundary1());
+                b2.setUpperBoundary2(b3.getUpperBoundary1());
+                b2.setSize(b2.getSize() * b3.getSize()); // Correct size calculation?
+                RESULT = b2;
             :}
 		;
 
 bound		::=     INTCONST:i				// integer array bound
-                    {: ArrayDeclPart decl = new ArrayDeclPart();
+                    {:
+                       ArrayDeclPart decl = new ArrayDeclPart();
                        decl.setLowerBoundary1(1);
                        decl.setUpperBoundary1(i);
                        decl.setSize(i);
@@ -262,7 +282,8 @@ bound		::=     INTCONST:i				// integer array bound
 					:}
 
 		|       generalBound:g1 DOT DOT generalBound:g2	// explicit lower/upper bounds
-                {: ArrayDeclPart decl = new ArrayDeclPart();
+                {:
+                   ArrayDeclPart decl = new ArrayDeclPart();
                    decl.setLowerBoundary1(g1.getValue());
                    decl.setUpperBoundary1(g2.getValue());
                    decl.setSize((g1.getValue() - g2.getValue()) + 1);
@@ -284,16 +305,25 @@ type		::=	INTEGER				// integer type
             {: RESULT = new BooleanType(); :}
 		;
 
-functionHead	::=	FUNC IDENT:id L_PAREN parameterList:pl R_PAREN COLON type:t	// function head
-					{: 	RoutineDecl routine = new RoutineDecl(); 
+functionHead	::=	FUNC IDENT:id L_PAREN parameterList:pl R_PAREN COLON type:t
+                    // function head
+					{:
+                        RoutineDecl routine = new RoutineDecl(); 
 						routine.setType(t);
 						routine.setName(id);
 						routine.setRoutineBody(pl);
 						RESULT = routine;
-					:}
+                    :}
 		;
 
-procedureHead	::=	PROCEDURE  IDENT L_PAREN parameterList  R_PAREN		// procedure head
+procedureHead	::=	PROCEDURE  IDENT:id L_PAREN parameterList:pl  R_PAREN
+                    // procedure head
+                    {:
+                       RoutineDecl routine = new RoutineDecl();
+					   routine.setName(id);
+				       routine.setRoutineBody(pl);
+					   RESULT = routine;
+                    :}
 		;
 
 outputs		::=	output			// list of output expressions
@@ -318,28 +348,28 @@ arguments	::=	expression		// list of function/procedure arguments
 		;
 
 parameterList	::=	parameters:plist		//  function/procedure formal parameters
-					{:	
-						RoutineBody routbody = new RoutineBody();
-						routbody.setParameters(plist);
-						RESULT = routbody;
-					:}
+					{:
+                        RoutineBody routbody = new RoutineBody();
+					    routbody.setParameters(plist);
+					    RESULT = routbody; :}
 		|	//  EMPTY
+            {: RESULT = new RoutineBody(); :}
 		;
 
 parameters	::=	parameter:p1			// list of function/procedure formal parameters
-				{:	RESULT = new ASTList<ScalarDecl>(p1); :}
+				{: RESULT = new ASTList<ScalarDecl>(p1); :}
+
 		|	parameters:plist COMMA parameter:p2
-			{: 	plist.addLast(p2); 
-				RESULT = plist;
-			:}	
+			{: RESULT = plist.addLast(p2); :}
 		;
 
 parameter	::=	IDENT:id COLON type:t		// declare one parameter
-				{:	ScalarDecl param = new ScalarDecl();   
-					param.setType(t);
-					param.setName(id);
-					RESULT = param;
-				:}
+				{:
+                    ScalarDecl param = new ScalarDecl();   
+                    param.setType(t);
+		            param.setName(id);
+			        RESULT = param;
+                :}
 		;
 
 expression	::=	conjunction:c			// disjunctions, associate left-to-right
