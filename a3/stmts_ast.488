@@ -1,10 +1,35 @@
 {
-	x := 1
-	y := false
 
 	while (x < 4)
 	do 
 		x := x + 1
 	end
+
+% Assignment
+
+x := 1
+y := false
+
+% Scopes
+    {}
+    {
+        var z : integer
+        z := 10
+    }
+
+% Proc call
+proc1()
+
+% Failing due to unfinished expressions, I think ...
+%proc2(x, y)
+
+% Input / Output
+get input_var
+get input_array1[6]
+get input_array3[4,15]
+get input_array4[-5,-2]
+
+put 1
+put "text", newline
 }
 
