@@ -416,7 +416,7 @@ public class Main {
 	    
 	    if (testingAST) {
 		System.out.println("use dummy testing AST");
-		Program fakeProgram = new Program();
+		Program fakeProgram = new Program(new Scope());
 		
 		// add Declarations
 		ASTList<Declaration> declLst = new ASTList<Declaration>();
@@ -457,6 +457,8 @@ public class Main {
 		ASTList<Declaration> declLst2 = new ASTList<Declaration>();
 		declLst2.addLast(decl3);
 		((Scope)stmt1).setDeclarations(declLst2);
+		
+// 		Stmt stmt2 = new AssignStmt();
 		
 		stmtLst.addLast(stmt1);
 		
