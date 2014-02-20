@@ -1,7 +1,39 @@
 {
 var x : integer
 var y : boolean
-var z : integer
+var a[10],b[1..2], c[1,1..5] : boolean
+var z : boolean
+
+func f (a:integer) : integer {
+	result a + 1
+}
+
+proc p (a:integer) {
+    return
+}
+
+x := 1
+y := true
+
+while (1) do {
+    exit
+    exit
+} end
+
+while (1) do
+    exit
+    exit
+end
+
+repeat {
+  exit
+} until 1
+
+{
+x := z
+}
+
+
 x:=1
 if (x=1) then {
 y:=true
@@ -9,4 +41,6 @@ y:=true
 z := 2
 }
 fi
+
+
 }

@@ -73,7 +73,7 @@ public class SymbolTable {
 	
 	// second parameter is only used when entering a function scope with parameters
 	private void traverse(Scope s, ASTList<ScalarDecl> arg, ScopeType scope_type){
-	    System.out.println("enter traverse");
+// 	    System.out.println("enter traverse");
 	    Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
 
 	    ASTList<Declaration> AST_dcl=s.getDeclarations();
@@ -107,7 +107,7 @@ public class SymbolTable {
 	    }
 	    
 	    symbolstack.pop();
-	    System.out.println("exit traverse");
+// 	    System.out.println("exit traverse");
 	}
 	private void recursive_stmt(ASTList<Stmt> AST_stat,ScopeType scope_type){
 	    LinkedList<Stmt> stmt_ll=AST_stat.get_list();
@@ -166,6 +166,18 @@ public class SymbolTable {
 	    
 	    if (dp instanceof ArrayDeclPart) {
 		check_if_declared(symboltable, dp.getName());
+		
+		// Semantic analysis S46: check that lower bound is <= upper bound
+		ArrayDeclPart adp = (ArrayDeclPart)dp;
+		if (adp.isTwoDimensional()) { // 2 dim
+		    if ((adp.getLowerBoundary1() > adp.getUpperBoundary1()) || (adp.getLowerBoundary2() > adp.getUpperBoundary2())) {
+			System.out.println("array error: lower boundary greater than upper boundary");
+		    }
+		} else { // 1 dim
+		    if (adp.getLowerBoundary1() > adp.getUpperBoundary1()) {
+			System.out.println("array error: lower boundary greater than upper boundary");
+		    }
+		}
 	    }
 	    
 	    add_to_symboltable(dp, symboltable, type);
@@ -184,7 +196,7 @@ public class SymbolTable {
 		    System.out.println("exit statement not in a loop");
 		}
 		if(!(expn_analysis(((ExitStmt)stmt).getExpn()).equals("boolean"))){
-			System.out.println("Boolean type request");
+			System.out.println("Boolean type required");
 		}
 	    }
 	    
@@ -193,7 +205,7 @@ public class SymbolTable {
 		    System.out.println("result statement not in a function");
 		}
 		if(!(expn_analysis(((ResultStmt)stmt).getValue()).equals("boolean"))){
-			System.out.println("Boolean type request");
+			System.out.println("Boolean type required");
 		}
 	    }
 	    
@@ -205,7 +217,7 @@ public class SymbolTable {
 	    
 	    if (stmt instanceof LoopingStmt) { // looping statement (while/repeat)
 		if(!(expn_analysis(((LoopingStmt)stmt).getExpn()).equals("boolean"))){
-			System.out.println("Boolean type request");
+			System.out.println("Boolean type required");
 		}
 		ASTList<Stmt> whileStmts = ((LoopingStmt)stmt).getBody();
 		LinkedList<Stmt> whilestmt_ll=whileStmts.get_list();
@@ -232,7 +244,7 @@ public class SymbolTable {
 	    if(stmt instanceof IfStmt){
 		IfStmt if_stmt=(IfStmt) stmt;
 		if(!(expn_analysis(if_stmt.getCondition()).equals("boolean"))){
-			System.out.println("Boolean type request");
+			System.out.println("Boolean type required");
 		}
 		recursive_stmt(if_stmt.getWhenTrue(),scope_type);
 		recursive_stmt(if_stmt.getWhenFalse(),scope_type);
@@ -248,9 +260,9 @@ public class SymbolTable {
 	    Type tp = decl.getType();
 	    SymbolType s_type = null;
 	    if (tp != null) {
-		s_type=new SymbolType(tp.toString(), "");  
+		s_type=new SymbolType(tp.toString(), null);  
 	    } else {
-		s_type=new SymbolType("null", ""); 
+		s_type=new SymbolType("null", null); 
 	    }
 	    String kind = "unknown";
 	    if (decl instanceof ScalarDecl) {
@@ -264,12 +276,13 @@ public class SymbolTable {
 	
 	
 	private void add_to_symboltable(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type) {
-	    SymbolType s_type=new SymbolType(type.toString(), "");  
+	    SymbolType s_type=new SymbolType(type.toString(), null);  
 	    String kind = "unknown";
 	    if (dp instanceof ScalarDeclPart) {
 		kind = "var";
 	    } else if (dp instanceof ArrayDeclPart) {
 		kind = "array";
+		s_type.setLink((Object)dp);
 	    }
 	    Symbol sym=new Symbol(dp.getName(), kind,0 , s_type); 
 	    symboltable.put(dp.getName(),sym);

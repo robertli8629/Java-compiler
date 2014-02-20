@@ -32,6 +32,10 @@ public class ArrayDeclPart extends DeclarationPart {
 			isTwoDimensional = true;
 		}
 	}
+	
+	public Boolean isTwoDimensional() {
+		return this.isTwoDimensional;
+	}
 
 	/**
 	 * Returns a string that describes the array.

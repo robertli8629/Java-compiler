@@ -18,7 +18,7 @@ public class SymbolType {
 	/** Symbol  constructor
          *  Create and initialize a symbol table 
 	 */
-	public SymbolType  (String type, String link){
+	public SymbolType  (String type, Object link){
 	  this.type=type;
 	  this.link=link;
 	
@@ -28,9 +28,21 @@ public class SymbolType {
 	    return this.type;
 	}
 	
+	public Object getLink() {
+	    return this.link;
+	}
+	
+	public void setLink(Object link) {
+	    this.link = link;
+	}
+	
 	@Override
 	public String toString() {
-		return   "type: " + type + ", link : " + link ;
+		String link_str = "null";
+		if (link != null) {
+		    link_str = link.toString();
+		}
+		return   "type: " + type + ", link : " + link_str ;
 	}
 
 	/** The rest of Symbol Table
@@ -39,7 +51,7 @@ public class SymbolType {
 	 *  GO HERE.				
 	 */
 	private String type;
-	private String link;
+	private Object link;
 
 }
  
