@@ -11,6 +11,8 @@ import compiler488.ast.stmt.*;
 import compiler488.ast.expn.*;
 import compiler488.ast.decl.*;
 import compiler488.ast.type.*;
+import compiler488.ast.Readable;
+import compiler488.ast.Printable;
 import compiler488.ast.ASTList;
 
 /* User code components 1: action code components.
@@ -120,30 +122,30 @@ terminal String  TEXTCONST	;
 // Non-terminals that have no value.
 // nonterminal xxx
 
-nonterminal	inputs,		output,		outputs ;
-
 // Non-terminals that have a value.
 // nonterminal type  nameList ;
 
-nonterminal Program program;
-nonterminal Scope scope;
+nonterminal Program program ;
+nonterminal Scope scope ;
 nonterminal Expn constant, primary, factor, term, arithExpn, compareExpn ;
 nonterminal Expn negation, conjunction, expression, variable ;
-nonterminal ASTList<Stmt> statements;
-nonterminal Stmt statement;
-nonterminal Type type;
+nonterminal ASTList<Stmt> statements ;
+nonterminal Stmt statement ;
+nonterminal Type type ;
 nonterminal DeclarationPart variablename ;
 nonterminal ArrayDeclPart bound ;
-nonterminal IntConstExpn generalBound;
+nonterminal IntConstExpn generalBound ;
 nonterminal ASTList<DeclarationPart> variablenames ;
 nonterminal Declaration declaration ;
 nonterminal ASTList<Declaration> declarations ;
 nonterminal RoutineDecl functionHead, procedureHead ;
-nonterminal ScalarDecl parameter;
-nonterminal ASTList<ScalarDecl> parameters;
-nonterminal RoutineBody parameterList;
-nonterminal ASTList<Expn> argumentList, arguments;
-
+nonterminal ScalarDecl parameter ;
+nonterminal ASTList<ScalarDecl> parameters ;
+nonterminal RoutineBody parameterList ;
+nonterminal ASTList<Expn> argumentList, arguments ;
+nonterminal ASTList<Readable> inputs ;
+nonterminal Printable output ;
+nonterminal ASTList<Printable> outputs ;
 
 // CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
 // feature of java-cup. The lines below should remain
@@ -196,17 +198,81 @@ declarations	::=	declaration:d		// sequence of declarations
 statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
                 {: RESULT = new AssignStmt(e1, e2); :}
 
-		|	IF expression THEN statements FI 	// if statements
-		|	IF expression THEN statements ELSE statements FI	
-		|	WHILE expression DO statements END	// while statement 
-		|       REPEAT statements UNTIL expression	// repeat statement
+		|	IF expression:e3 THEN statements:s1 FI 	// if statements
+			{:
+                IfStmt if1 = new IfStmt();
+				if1.setCondition(e3);
+				if1.setWhenTrue(s1);
+			    RESULT = if1;
+			:}
+
+		|	IF expression:e4 THEN statements:s3 ELSE statements:s3a FI
+			{:
+				IfStmt if2 = new IfStmt();
+				if2.setCondition(e4);
+				if2.setWhenTrue(s3);
+				if2.setWhenFalse(s3a);
+			    RESULT = if2;
+			:}
+
+		|	WHILE expression:e5 DO statements:s3 END	// while statement 
+			{:
+				WhileDoStmt wstmt = new WhileDoStmt();
+				wstmt.setExpn(e5);
+				wstmt.setBody(s3);
+				RESULT = wstmt;
+			:}
+
+		|   REPEAT statements:s4 UNTIL expression:e6	// repeat statement
+			{:
+				RepeatUntilStmt rstmt = new RepeatUntilStmt();
+				rstmt.setExpn(e6);
+				rstmt.setBody(s4);
+				RESULT = rstmt;
+			:}
+
 		|	EXIT					// exit statements
-		|	EXIT WHEN expression
-		|	RESULT expression 			// return from function
+            {: RESULT = new ExitStmt(); :}
+
+		|	EXIT WHEN expression:e6
+            {:
+                ExitStmt ex = new ExitStmt();
+                ex.setExpn(e6);
+                RESULT = ex;
+            :}
+
+		|	RESULT expression:e7 	// return from function
+            {:
+                ResultStmt res = new ResultStmt();
+                res.setValue(e7);
+                RESULT = res;
+            :}
+
 		|	RETURN 					// return from procedure
-		|	PUT outputs				// output statment
-		|	GET  inputs				// input statement
-		|	IDENT L_PAREN  argumentList  R_PAREN 	// call procedure 
+            {: RESULT = new ReturnStmt(); :}
+
+		|	PUT outputs:outs			// output statment
+            {:
+                PutStmt put = new PutStmt();
+                put.setOutputs(outs);
+                RESULT = put;
+            :}
+
+		|	GET  inputs:ins				// input statement
+            {:
+                GetStmt get = new GetStmt();
+                get.setInputs(ins);
+                RESULT = get;
+            :}
+
+		|	IDENT:id L_PAREN  argumentList:argList  R_PAREN 	// call procedure 
+            {:
+                ProcedureCallStmt proc = new ProcedureCallStmt();
+                proc.setArguments(argList);
+                proc.setName(id);
+                RESULT = proc;
+            :}
+
 		|	scope:s					// embedded scope
             {: RESULT = s; :}
 		;
@@ -325,43 +391,55 @@ procedureHead	::=	PROCEDURE  IDENT:id L_PAREN parameterList:pl  R_PAREN
                     :}
 		;
 
-outputs		::=	output			// list of output expressions
-		|	outputs COMMA output
+outputs		::=	output:out1			// list of output expressions
+                {: RESULT = new ASTList<Printable>(out1); :}
+
+		|	outputs:outList COMMA output:out2
+            {: RESULT = outList.addLast(out2); :}
 		;
 
-output		::=	expression		// integer expression
-		|	TEXTCONST		// text constant
+output		::=	expression:e	// integer expression
+                {: RESULT = e; :}
+
+		|	TEXTCONST:t		// text constant
+            {:
+                TextConstExpn text = new TextConstExpn();
+                text.setValue(t);
+                RESULT = text;
+            :}
+
 		|	NEWLINE			// newline constant
+            {: RESULT = new NewlineConstExpn(); :}
 		;
 
-inputs		::=	variable		// list of variables being read into
-		|	inputs COMMA variable
+inputs		::=	variable:v1		// list of variables being read into
+                {: RESULT = new ASTList<Readable>((Readable) v1); :}
+
+		|	inputs:inputList COMMA variable:v2
+            {: RESULT = inputList.addLast((Readable) v2); :}
 		;
 
-argumentList	::=	arguments:a		//  function/procedure arguments
-					{:
-						RESULT = a;
-					:}
+argumentList	::=	arguments:args		//  function/procedure arguments
+                    {: RESULT = args; :}
+
 		|	//  EMPTY
+            {: RESULT = new ASTList<Expn>(); :}
 		;
 
-arguments	::=	expression:exp1		// list of function/procedure arguments
-				{:
-					ASTList<Expn> alist = new ASTList<Expn>(exp1);
-					RESULT = alist;
-				:}
-		|	arguments:a COMMA expression:exp2
-			{:
-				a.addLast(exp2);
-				RESULT = a;
-			:}
+arguments	::=	expression:e		// list of function/procedure arguments
+                {: RESULT = new ASTList<Expn>(e); :}
+
+		|	arguments:argList COMMA expression:exp
+            {: RESULT = argList.addLast(exp); :}
 		;
 
 parameterList	::=	parameters:plist		//  function/procedure formal parameters
 					{:
                         RoutineBody routbody = new RoutineBody();
 					    routbody.setParameters(plist);
-					    RESULT = routbody; :}
+					    RESULT = routbody;
+                    :}
+
 		|	//  EMPTY
             {: RESULT = new RoutineBody(); :}
 		;
@@ -382,20 +460,37 @@ parameter	::=	IDENT:id COLON type:t		// declare one parameter
                 :}
 		;
 
-expression	::=	conjunction:c			// disjunctions, associate left-to-right
-            {: RESULT = c; :}
-		|	expression OR conjunction
+expression	::=	conjunction:c1			// disjunctions, associate left-to-right
+            {: RESULT = c1; :}
+
+		|	expression:e OR conjunction:c2
+			{:
+				BoolExpn bExp = new BoolExpn();
+				bExp.setOpSymbol("or");
+				bExp.setLeft(e);
+				bExp.setRight(c2);
+				RESULT = bExp;
+			:}
 		;
 
 conjunction	::=	negation:n1			// conjunctions, associate left-to-right
             {: RESULT = n1; :}
-		|	conjunction AND negation
+
+		|	conjunction:c AND negation:n2
+			{:
+				BoolExpn bExp = new BoolExpn();
+				bExp.setOpSymbol("and");
+				bExp.setLeft(c);
+				bExp.setRight(n2);
+				RESULT = bExp;
+			:}
 		;
 
 negation	::=	compareExpn:c 			// negations
                 {: RESULT = c; :}
+
 		|	NOT negation:n
-			{: 
+			{:
 				NotExpn ne = new NotExpn();
 				ne.setOpSymbol("not");
 				ne.setOperand(n);
@@ -405,6 +500,7 @@ negation	::=	compareExpn:c 			// negations
 
 compareExpn	::=	arithExpn:a1			// comparisons, do not associate
                 {: RESULT = a1; :}
+
 		|	arithExpn:a2 EQUAL arithExpn:a3
 			{:
 				EqualsExpn eqExp1 = new EqualsExpn();
@@ -413,6 +509,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				eqExp1.setRight(a3);
 				RESULT = eqExp1;	
 			:}
+
 		| 	arithExpn:a4 NOT EQUAL arithExpn:a5
 			{:
 				EqualsExpn eqExp2 = new EqualsExpn();
@@ -421,6 +518,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				eqExp2.setRight(a5);
 				RESULT = eqExp2;
 			:}
+
 		|	arithExpn:a6 LESS arithExpn:a7
 			{:
 				CompareExpn coExp3 = new CompareExpn();
@@ -429,6 +527,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp3.setRight(a7);
 				RESULT = coExp3;
 			:}
+
 		|	arithExpn:a8 LESS EQUAL arithExpn:a9
 			{:
 				CompareExpn coExp4 = new CompareExpn();
@@ -437,6 +536,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp4.setRight(a9);
 				RESULT = coExp4;
 			:}
+
 		|	arithExpn:a10 GREATER arithExpn:a11
 			{:
 				CompareExpn coExp5 = new CompareExpn();
@@ -445,6 +545,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp5.setRight(a11);
 				RESULT = coExp5;
 			:}
+
 		|	arithExpn:a12 GREATER EQUAL arithExpn:a13
 			{:
 				CompareExpn coExp6 = new CompareExpn();
@@ -457,6 +558,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 
 arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
                 {: RESULT = t1; :}
+
 		|	arithExpn:a1  PLUS  term:t2
 			{:
 				ArithExpn ae1 = new ArithExpn();
@@ -465,6 +567,7 @@ arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
 				ae1.setLeft(a1);
 				RESULT = ae1;
 			:}
+
 		|	arithExpn:a2  MINUS term:t3
 			{:
 				ArithExpn ae2 = new ArithExpn();
@@ -477,6 +580,7 @@ arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
 
 term		::=	factor:f1 		// terms, associate * , /   left-to-right
             {: RESULT = f1; :}
+
 		|	term:t1 TIMES factor:f2
 			{:
 				ArithExpn ae1 = new ArithExpn();
@@ -485,6 +589,7 @@ term		::=	factor:f1 		// terms, associate * , /   left-to-right
 				ae1.setOpSymbol("*");
 				RESULT = ae1;
 			:}
+
 		|	term:t2 DIVIDE factor:f3
 			{:
 				ArithExpn ae2 = new ArithExpn();
@@ -497,6 +602,7 @@ term		::=	factor:f1 		// terms, associate * , /   left-to-right
 
 factor		::=	primary:p
                 {: RESULT = p; :}				
+
 		|	MINUS factor:f			// unary minus
 			{:
 				UnaryMinusExpn mf = new UnaryMinusExpn(f);
@@ -506,10 +612,23 @@ factor		::=	primary:p
 
 primary		::=	constant:c				// integer or boolean constant
                 {: RESULT = c; :}
-		|	variable				// scalar, array element 
-		| 	L_PAREN  expression  R_PAREN		// parenthesized expression
-		|	L_PAREN  expression QUESTION expression COLON expression R_PAREN
+
+		|	variable:v				// scalar, array element 
+            {: RESULT = v; :}
+
+		| 	L_PAREN  expression:e1  R_PAREN		// parenthesized expression
+            {: RESULT = new ParenthExpn(e1); :}
+
+		|	L_PAREN  expression:e2 QUESTION expression:e3 COLON expression:e4 R_PAREN
 								// conditional expression
+            {:
+                ConditionalExpn condEx = new ConditionalExpn();
+                condEx.setCondition(e2);
+                condEx.setTrueValue(e3);
+                condEx.setFalseValue(e4);
+                RESULT = condEx;
+            :}
+
 		|	IDENT:id L_PAREN argumentList:al R_PAREN 	// function call
 			{:	
 				FunctionCallExpn func = new FunctionCallExpn(); 
@@ -521,16 +640,30 @@ primary		::=	constant:c				// integer or boolean constant
 
 constant	::=	INTCONST:i	// integer constant
                 {:	RESULT = new IntConstExpn(i); :}
+
 		|	TRUE		// constant true
 				{:	RESULT = new BoolConstExpn(true); :}
+
 		|	FALSE		// constant false
 				{:  RESULT = new BoolConstExpn(false); :}
 		;
 
-variable	::=	IDENT:id			// scalar variable or parameter
-                {: RESULT = new IdentExpn(id); :}
-		|	IDENT L_SQUARE expression R_SQUARE	// element of 1 dimensional array
-		|   IDENT L_SQUARE expression COMMA expression R_SQUARE	// element of 2 dimensional array
-		;
+variable	::=	IDENT:id1			// scalar variable or parameter
+                {: RESULT = new IdentExpn(id1); :}
 
+		|	IDENT:id2 L_SQUARE expression:e1 R_SQUARE	// element of 1 dimensional array
+            {:
+                SubsExpn sub = new SubsExpn(e1, null);
+                sub.setVariable(id2);
+                RESULT = sub;
+            :}
+                
+		|   IDENT:id3 L_SQUARE expression:e2 COMMA expression:e3 R_SQUARE
+            // element of 2 dimensional array
+            {:
+                SubsExpn sub = new SubsExpn(e2, e3);
+                sub.setVariable(id3);
+                RESULT = sub;
+            :}
+		;
 
