@@ -145,6 +145,7 @@ public class SymbolTable {
 	}
 	
 	
+	
 	private void add_to_symboltable(Declaration decl, Hashtable<String,Symbol> symboltable) {
 	    SymbolType s_type=new SymbolType(decl.getType().toString(), "");  
 	    String kind = "unknown";
