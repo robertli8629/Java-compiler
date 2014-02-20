@@ -21,7 +21,7 @@ public class MultiDeclarations extends Declaration {
 	 */
 	@Override
 	public String toString() {
-		return  " : " + type ;
+		return  elements + " : " + type ;
 	}
 
 
@@ -33,11 +33,13 @@ public class MultiDeclarations extends Declaration {
 	 * @param depth
 	 *            How much indentation to use while printing.
 	 */
+/* Commented out to fix printing of declaration list. Not sure if this
+   should be permanent.
 	@Override
 	public void printOn(PrintStream out, int depth) {
 		out.println(elements);
 		Indentable.printIndentOn (out, depth, this + " ");
-	}
+	}*/
 
 
 	public ASTList<DeclarationPart> getElements() {
