@@ -200,6 +200,16 @@ public class SymbolTable {
 		    }
 		}
 	    }
+	    
+	    if(stmt instanceof AssignStmt){
+		    //System.out.println("AssignStmt!!!!");
+		    AssignStmt asgn_stmt=(AssignStmt) stmt;
+		    Expn expn=asgn_stmt.getRval();
+		    IdentExpn var=(IdentExpn) asgn_stmt.getLval();
+		    if(!(variable_analysis(var).equals(expn_analysis(expn)))){
+			    System.out.println("Type error");
+		    }
+	    }
 	
 	    return;
 	}
@@ -269,6 +279,115 @@ public class SymbolTable {
 		}
 	    }
 	}
+	
+	
+	
+	
+	private String expn_analysis(Expn expn){
+            if(expn instanceof IntConstExpn){
+                return "integer";
+            }
+            if(expn instanceof UnaryExpn){
+                if(!(expn_analysis(expn).equals("integer"))){
+                        System.out.println("bad operand type for unary -");
+                }
+                return "integer";
+            }
+            if(expn instanceof ArithExpn){
+                ArithExpn arith_expn=(ArithExpn) expn;
+                if(!(expn_analysis(arith_expn.getLeft()).equals("integer"))){
+                        System.out.println("unsupported operand type(s) for "+arith_expn.getOpSymbol());
+                }
+                if(!(expn_analysis(arith_expn.getRight()).equals("integer"))){
+                        System.out.println("unsupported operand type(s) for "+arith_expn.getOpSymbol());
+                }
+                return "integer";
+            }
+            if(expn instanceof BoolConstExpn){
+                return "boolean";
+            }
+            if(expn instanceof NotExpn){
+                if(!(expn_analysis(expn).equals("boolean"))){
+                        System.out.println("bad operand type for not");
+                }
+                return "boolean";
+            }
+            if(expn instanceof BoolExpn){
+                BoolExpn bool_expn=(BoolExpn) expn;
+                if(!(expn_analysis(bool_expn.getLeft()).equals("boolean"))){
+                        System.out.println("unsupported operand type(s) for "+bool_expn.getOpSymbol());
+                }
+                if(!(expn_analysis(bool_expn.getRight()).equals("boolean"))){
+                        System.out.println("unsupported operand type(s) for "+bool_expn.getOpSymbol());
+                }
+                return "boolean";
+            }
+            if(expn instanceof EqualsExpn){
+                EqualsExpn euqals_expn=(EqualsExpn) expn;
+         if(!(expn_analysis(euqals_expn.getLeft()).equals(expn_analysis(euqals_expn.getRight())))){
+                        System.out.println("uncomparable types");
+                }
+                return "boolean";
+            }
+            if(expn instanceof CompareExpn){
+                CompareExpn comp_expn=(CompareExpn) expn;
+                if(!(expn_analysis(comp_expn.getLeft()).equals("integer"))){
+                        System.out.println("unsupported operand type(s) for "+comp_expn.getOpSymbol());
+                }
+                if(!(expn_analysis(comp_expn.getRight()).equals("integer"))){
+                        System.out.println("unsupported operand type(s) for "+comp_expn.getOpSymbol());
+                }
+                return "boolean";
+            }
+            if(expn instanceof ParenthExpn){
+                ParenthExpn parenth_expn=(ParenthExpn) expn;
+                return expn_analysis(parenth_expn.getParenth());
+            }
+            if(expn instanceof ConditionalExpn){
+                ConditionalExpn cond_expn=(ConditionalExpn) expn;
+                if(!(expn_analysis(cond_expn.getCondition()).equals("boolean"))){
+                        System.out.println("unsupported operand type");
+                }
+         if(!(expn_analysis(cond_expn.getTrueValue()).equals(expn_analysis(cond_expn.getFalseValue())))){
+                        System.out.println("unsupported operand type");
+                }
+                return expn_analysis(cond_expn.getCondition());
+            }
+            if(expn instanceof FunctionCallExpn){
+                FunctionCallExpn func_expn=(FunctionCallExpn) expn;
+               
+            }
+            if(expn instanceof IdentExpn){
+                IdentExpn ident_expn=(IdentExpn) expn;
+                return variable_analysis(ident_expn);
+            }
+            return "";
+        }
+       
+       
+       
+       
+        private String variable_analysis(IdentExpn ident_expn){
+            Iterator<Hashtable<String,Symbol>> iter=symbolstack.iterator();
+            int flag=0;
+            Symbol symbol = null;
+            while(iter.hasNext()){
+                symbol=iter.next().get(ident_expn.toString());
+                if (symbol != null) {
+                        flag=1;
+                        break;
+                }
+            }
+            if(flag==0){
+                System.out.println("name \""+ident_expn.toString()+"\" is not defined");
+            }else if(symbol!= null){
+                //System.out.println("ident_expn.toString():"+symbol.getType().getType());
+                return symbol.getType().getType();
+            }
+            return "";
+        }
+	
+	
 	
 	
 	// check if the var is defined and if two vars have the same type

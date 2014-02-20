@@ -16,5 +16,9 @@ public class ParenthExpn extends Expn {
     public String toString() {
         return "( " + exp + " )";
     }
+    
+    public Expn getParenth(){
+        return exp;
+    }
 }
 
