@@ -88,36 +88,7 @@ public class SymbolTable {
 		while (iterator.hasNext()){
 			Declaration decl = (Declaration)iterator.next();
 			
-			// Semantic analysis S10: check whether variable is declared in currect scope
-			if (decl instanceof ScalarDecl) {
-			    check_if_declared(symboltable, decl.getName());
-			}
-			
-			if (decl instanceof MultiDeclarations) {
-			    ASTList<DeclarationPart> decl_list = ((MultiDeclarations)decl).getElements();
-			    LinkedList<DeclarationPart> ll_part=decl_list.get_list();
-			    
-			    for (DeclarationPart dp : ll_part) {
-				add_to_symboltable(dp, symboltable, decl.getType());
-			    }
-			    continue;
-			}
-			
-			// Semantic analysis S54: associate params if any with scope
-			if (decl instanceof RoutineDecl) {
-			    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
-			    Scope routine_scope = rb.getBody();
-			    ASTList<ScalarDecl> params = rb.getParameters();
-			    if (decl.getType() == null) {
-				traverse(routine_scope, params, ScopeType.PROCEDURE);
-			    } else {
-				traverse(routine_scope, params, ScopeType.FUNCTION);
-			    }
-			    
-			}
-			
-			// add it to symbol table
-			add_to_symboltable(decl, symboltable);
+			handle_declaration(decl, symboltable, scope_type);
 		}
 	    }
 	    printHash(symboltable);
@@ -130,13 +101,8 @@ public class SymbolTable {
 		ListIterator iterator_stmt = stmt_ll.listIterator();
 		while (iterator_stmt.hasNext()){
 			Stmt stmt = (Stmt)iterator_stmt.next();
-			if(stmt instanceof Scope){
-				Scope scope = (Scope) stmt; // find the scope from stmtlist
-				
-				
-				traverse(scope, null, ScopeType.MINOR);
-				
-			}
+			
+			handle_statement(stmt, scope_type);
 		}
 	    }
 	    
@@ -145,9 +111,108 @@ public class SymbolTable {
 	}
 	
 	
+	private void handle_declaration(Declaration decl, Hashtable<String,Symbol> symboltable, ScopeType scope_type) {
+	
+	    // Semantic analysis S10: check whether variable is declared in currect scope
+	    if (decl instanceof ScalarDecl) {
+		check_if_declared(symboltable, decl.getName());
+	    }
+	    
+	    if (decl instanceof MultiDeclarations) {
+		ASTList<DeclarationPart> decl_list = ((MultiDeclarations)decl).getElements();
+		LinkedList<DeclarationPart> ll_part=decl_list.get_list();
+		
+		for (DeclarationPart dp : ll_part) {
+// 		    add_to_symboltable(dp, symboltable, decl.getType());
+		    handle_part_declaration(dp, symboltable, scope_type, decl.getType());
+		}
+		return;
+	    }
+	    
+	    // Semantic analysis S54: associate params if any with scope
+	    if (decl instanceof RoutineDecl) {
+		RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
+		Scope routine_scope = rb.getBody();
+		ASTList<ScalarDecl> params = rb.getParameters();
+		if (decl.getType() == null) {
+		    traverse(routine_scope, params, ScopeType.PROCEDURE);
+		} else {
+		    traverse(routine_scope, params, ScopeType.FUNCTION);
+		}
+		
+	    }
+	    
+	    // add it to symbol table
+	    add_to_symboltable(decl, symboltable);
+	
+	    return;
+	}
+	
+	private void handle_part_declaration(DeclarationPart dp, Hashtable<String,Symbol> symboltable, ScopeType scope_type, Type type) {
+	    
+	    if (dp instanceof ScalarDeclPart) {
+		check_if_declared(symboltable, dp.getName());
+	    }
+	    
+	    if (dp instanceof ArrayDeclPart) {
+		check_if_declared(symboltable, dp.getName());
+	    }
+	    
+	    add_to_symboltable(dp, symboltable, type);
+	}
+	
+	private void handle_statement(Stmt stmt, ScopeType scope_type) {
+	
+	    if(stmt instanceof Scope){
+		Scope scope = (Scope) stmt; // find the scope from stmtlist\
+		traverse(scope, null, ScopeType.MINOR);
+		    
+	    }
+	    
+	    if (stmt instanceof ExitStmt) { // Semantic analysis S50: check that exit statement is in a loop
+		if (scope_type != ScopeType.LOOP) {
+		    System.out.println("exit statement not in a loop");
+		}
+	    }
+	    
+	    if (stmt instanceof ResultStmt) { // Semantic analysis S51: check that result statement is in a function
+		if (scope_type != ScopeType.FUNCTION) {
+		    System.out.println("result statement not in a function");
+		}
+	    }
+	    
+	    if (stmt instanceof ReturnStmt) { // Semantic analysis S52: check that return statement is in a procedure
+		if (scope_type != ScopeType.PROCEDURE) {
+		    System.out.println("return statement not in a procedure");
+		}
+	    }
+	    
+	    if (stmt instanceof LoopingStmt) { // looping statement (while/repeat)
+		ASTList<Stmt> whileStmts = ((LoopingStmt)stmt).getBody();
+		LinkedList<Stmt> whilestmt_ll=whileStmts.get_list();
+		for (Stmt whileStmt : whilestmt_ll) {
+		    if(whileStmt instanceof Scope){
+			Scope scope = (Scope) whileStmt; // find the scope from stmtlist
+			traverse(scope, null, ScopeType.LOOP);
+			    
+		    } else {
+			handle_statement(whileStmt, ScopeType.LOOP);
+		    }
+		}
+	    }
+	
+	    return;
+	}
+	
 	
 	private void add_to_symboltable(Declaration decl, Hashtable<String,Symbol> symboltable) {
-	    SymbolType s_type=new SymbolType(decl.getType().toString(), "");  
+	    Type tp = decl.getType();
+	    SymbolType s_type = null;
+	    if (tp != null) {
+		s_type=new SymbolType(tp.toString(), "");  
+	    } else {
+		s_type=new SymbolType("null", ""); 
+	    }
 	    String kind = "unknown";
 	    if (decl instanceof ScalarDecl) {
 		kind = "var";
@@ -158,17 +223,18 @@ public class SymbolTable {
 	    symboltable.put(decl.getName(),sym);
 	}
 	
+	
 	private void add_to_symboltable(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type) {
 	    SymbolType s_type=new SymbolType(type.toString(), "");  
 	    String kind = "unknown";
 	    if (dp instanceof ScalarDeclPart) {
 		kind = "var";
-	    } 
+	    } else if (dp instanceof ArrayDeclPart) {
+		kind = "array";
+	    }
 	    Symbol sym=new Symbol(dp.getName(), kind,0 , s_type); 
 	    symboltable.put(dp.getName(),sym);
 	}
-	
-	
 	
 	
 	private void printHash(Hashtable<String,Symbol> ht) {
