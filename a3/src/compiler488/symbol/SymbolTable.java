@@ -109,7 +109,17 @@ public class SymbolTable {
 	    symbolstack.pop();
 	    System.out.println("exit traverse");
 	}
-	
+	private void recursive_stmt(ASTList<Stmt> AST_stat,ScopeType scope_type){
+	    LinkedList<Stmt> stmt_ll=AST_stat.get_list();
+	    if (stmt_ll != null){
+		ListIterator iterator_stmt = stmt_ll.listIterator();
+		while (iterator_stmt.hasNext()){
+			Stmt stmt = (Stmt)iterator_stmt.next();
+			
+			handle_statement(stmt, scope_type);
+		}
+	    }
+	}
 	
 	private void handle_declaration(Declaration decl, Hashtable<String,Symbol> symboltable, ScopeType scope_type) {
 	
@@ -173,11 +183,17 @@ public class SymbolTable {
 		if (scope_type != ScopeType.LOOP) {
 		    System.out.println("exit statement not in a loop");
 		}
+		if(!(expn_analysis(((ExitStmt)stmt).getExpn()).equals("boolean"))){
+			System.out.println("Boolean type request");
+		}
 	    }
 	    
 	    if (stmt instanceof ResultStmt) { // Semantic analysis S51: check that result statement is in a function
 		if (scope_type != ScopeType.FUNCTION) {
 		    System.out.println("result statement not in a function");
+		}
+		if(!(expn_analysis(((ResultStmt)stmt).getValue()).equals("boolean"))){
+			System.out.println("Boolean type request");
 		}
 	    }
 	    
@@ -188,6 +204,9 @@ public class SymbolTable {
 	    }
 	    
 	    if (stmt instanceof LoopingStmt) { // looping statement (while/repeat)
+		if(!(expn_analysis(((LoopingStmt)stmt).getExpn()).equals("boolean"))){
+			System.out.println("Boolean type request");
+		}
 		ASTList<Stmt> whileStmts = ((LoopingStmt)stmt).getBody();
 		LinkedList<Stmt> whilestmt_ll=whileStmts.get_list();
 		for (Stmt whileStmt : whilestmt_ll) {
@@ -210,7 +229,17 @@ public class SymbolTable {
 			    System.out.println("Type error");
 		    }
 	    }
-	
+	    if(stmt instanceof IfStmt){
+		IfStmt if_stmt=(IfStmt) stmt;
+		if(!(expn_analysis(if_stmt.getCondition()).equals("boolean"))){
+			System.out.println("Boolean type request");
+		}
+		recursive_stmt(if_stmt.getWhenTrue(),scope_type);
+		recursive_stmt(if_stmt.getWhenFalse(),scope_type);
+	    }
+	    if(stmt instanceof ProcedureCallStmt){
+		
+	    }
 	    return;
 	}
 	
