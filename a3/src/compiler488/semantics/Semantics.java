@@ -140,7 +140,7 @@ public class Semantics {
 			handle_declaration(decl, symboltable, scope_type);
 		}
 	    }
-	    printHash(symboltable);
+// 	    printHash(symboltable);
 	    symbolTable.symbolstack.push(symboltable);
 
 	    // recursion
@@ -282,13 +282,15 @@ public class Semantics {
 		}
 	    }
 	    
+	    // S34: check that variable and expression in assignment are the same type
 	    if(stmt instanceof AssignStmt){
-		    //System.out.println("AssignStmt!!!!");
 		    AssignStmt asgn_stmt=(AssignStmt) stmt;
 		    Expn expn=asgn_stmt.getRval();
 		    IdentExpn var=(IdentExpn) asgn_stmt.getLval();
-		    if(!(variable_analysis(var).equals(expn_analysis(expn)))){
-			    System.out.println("Type error");
+		    String var_type = variable_analysis(var);
+		    String expn_type = expn_analysis(expn);
+		    if(!(var_type.equals(expn_type))){
+			    System.out.println("Type error: expect variable " + var.toString() + " type: " + var_type + " but given type: " + expn_type);
 		    }
 	    }
 	    
@@ -330,7 +332,7 @@ public class Semantics {
 	    }
 	}
 	
-	// Semantic analysis S54: associate params if any with scope
+	// S54: associate params if any with scope
 	private void add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params) {
 	    System.out.println("add_params");
 	    if (params != null) {
@@ -428,23 +430,25 @@ public class Semantics {
        
        
        
-       
+        // S29: check whether the variable is declared or visible
         private String variable_analysis(IdentExpn ident_expn){
-            Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator();
-            int flag=0;
+            Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
             Symbol symbol = null;
+            Symbol symbol_found = null;
             while(iter.hasNext()){
                 symbol=iter.next().get(ident_expn.toString());
                 if (symbol != null) {
-                        flag=1;
-                        break;
+		    symbol_found = symbol;
                 }
             }
-            if(flag==0){
-                System.out.println("name \""+ident_expn.toString()+"\" is not defined");
-            }else if(symbol!= null){
-                //System.out.println("ident_expn.toString():"+symbol.getType().getType());
-                return symbol.getType().getType();
+//             System.out.println("top");
+//             System.out.println(symbolTable.symbolstack.peek().get(ident_expn.toString()));
+            
+            if(symbol_found==null){
+                System.out.println("variable \"" + ident_expn.toString() + "\" is not defined");
+            }else if(symbol_found!= null){
+//                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
+                return symbol_found.getType().getType();
             }
             return "";
         }
