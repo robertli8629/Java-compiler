@@ -683,12 +683,17 @@ constant	::=	INTCONST:i	// integer constant
 		;
 
 variable	::=	IDENT:id1			// scalar variable or parameter
-                {: RESULT = new IdentExpn(id1); :}
+                {: 
+					IdentExpn idExpn = new IdentExpn(id1); 
+					idExpn.setPos(id1left, id1right);
+					RESULT = idExpn;
+				:}
 
 		|	IDENT:id2 L_SQUARE expression:e1 R_SQUARE	// element of 1 dimensional array
             {:
                 SubsExpn sub = new SubsExpn(e1, null);
                 sub.setVariable(id2);
+				sub.setPos(id2left, id2right);
                 RESULT = sub;
             :}
                 
@@ -697,6 +702,7 @@ variable	::=	IDENT:id1			// scalar variable or parameter
             {:
                 SubsExpn sub = new SubsExpn(e2, e3);
                 sub.setVariable(id3);
+				sub.setPos(id3left, id3right);
                 RESULT = sub;
             :}
 		;
