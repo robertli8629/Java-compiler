@@ -197,7 +197,12 @@ scope		::=	L_CURLEY:lc1 declarations:d statements:s R_CURLEY
 		;
 
 statements	::=	statement:s				// sequence of statements
-                {: RESULT = new ASTList<Stmt>(s); :}
+                {:
+                    ASTList<Stmt> list =
+                        new ASTList<Stmt>(s);
+                    list.setPos(sleft, sright);
+                    RESULT = list;
+                :}
 
 		|	statements:stmtList statement:stmt
             {: RESULT = stmtList.addLast(stmt); :}
@@ -217,72 +222,91 @@ declarations	::=	declaration:d		// sequence of declarations
 
 
 statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
-                {: RESULT = new AssignStmt(e1, e2); :}
+                {:
+                    AssignStmt a = new AssignStmt(e1, e2);
+                    a.setPos(e1left, e1right);
+                    RESULT = a;
+                :}
 
-		|	IF expression:e3 THEN statements:s1 FI 	// if statements
+		|	IF:i1 expression:e3 THEN statements:s1 FI 	// if statements
 			{:
                 IfStmt if1 = new IfStmt();
 				if1.setCondition(e3);
 				if1.setWhenTrue(s1);
+                if1.setPos(i1left, i1right);
 			    RESULT = if1;
 			:}
 
-		|	IF expression:e4 THEN statements:s3 ELSE statements:s3a FI
+		|	IF:i2 expression:e4 THEN statements:s3 ELSE statements:s3a FI
 			{:
 				IfStmt if2 = new IfStmt();
 				if2.setCondition(e4);
 				if2.setWhenTrue(s3);
 				if2.setWhenFalse(s3a);
+                if2.setPos(i2left, i2right);
 			    RESULT = if2;
 			:}
 
-		|	WHILE expression:e5 DO statements:s3 END	// while statement 
+		|	WHILE:w expression:e5 DO statements:s3 END	// while statement 
 			{:
 				WhileDoStmt wstmt = new WhileDoStmt();
 				wstmt.setExpn(e5);
 				wstmt.setBody(s3);
+                wstmt.setPos(wleft, wright);
 				RESULT = wstmt;
 			:}
 
-		|   REPEAT statements:s4 UNTIL expression:e6	// repeat statement
+		|   REPEAT:r statements:s4 UNTIL expression:e6	// repeat statement
 			{:
 				RepeatUntilStmt rstmt = new RepeatUntilStmt();
 				rstmt.setExpn(e6);
 				rstmt.setBody(s4);
+                rstmt.setPos(rleft, rright);
 				RESULT = rstmt;
 			:}
 
-		|	EXIT					// exit statements
-            {: RESULT = new ExitStmt(); :}
+		|	EXIT:x1					// exit statements
+            {:
+                ExitStmt ex = new ExitStmt();
+                ex.setPos(x1left, x1right);
+            :}
 
-		|	EXIT WHEN expression:e6
+		|	EXIT:x2 WHEN expression:e6
             {:
                 ExitStmt ex = new ExitStmt();
                 ex.setExpn(e6);
+                ex.setPos(x2left, x2right);
                 RESULT = ex;
             :}
 
-		|	RESULT expression:e7 	// return from function
+		|	RESULT:r1 expression:e7 	// return from function
             {:
                 ResultStmt res = new ResultStmt();
                 res.setValue(e7);
+                res.setPos(r1left, r1right);
                 RESULT = res;
             :}
 
-		|	RETURN 					// return from procedure
-            {: RESULT = new ReturnStmt(); :}
+		|	RETURN:r2 					// return from procedure
+            {:
+                ReturnStmt res = new ReturnStmt();
+                res.setPos(r2left, r2right);
+                RESULT = res;
+            :}
 
-		|	PUT outputs:outs			// output statment
+		|	PUT:p outputs:outs			// output statment
             {:
                 PutStmt put = new PutStmt();
                 put.setOutputs(outs);
+                put.setPos(pleft, pright);
                 RESULT = put;
             :}
 
-		|	GET  inputs:ins				// input statement
+		|	GET:g  inputs:ins				// input statement
             {:
                 GetStmt get = new GetStmt();
                 get.setInputs(ins);
+                get.setPos(gleft, gright);
                 RESULT = get;
             :}
 
@@ -291,6 +315,7 @@ statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
                 ProcedureCallStmt proc = new ProcedureCallStmt();
                 proc.setArguments(argList);
                 proc.setName(id);
+                proc.setPos(idleft, idright);
                 RESULT = proc;
             :}
 
@@ -432,7 +457,11 @@ procedureHead	::=	PROCEDURE:p  IDENT:id L_PAREN parameterList:pl  R_PAREN
 		;
 
 outputs		::=	output:out1			// list of output expressions
-                {: RESULT = new ASTList<Printable>(out1); :}
+                {:
+                    ASTList<Printable> list = new ASTList<Printable>(out1);
+                    list.setPos(out1left, out1right);
+                    RESULT = list;
+                :}
 
 		|	outputs:outList COMMA output:out2
             {: RESULT = outList.addLast(out2); :}
@@ -445,15 +474,25 @@ output		::=	expression:e	// integer expression
             {:
                 TextConstExpn text = new TextConstExpn();
                 text.setValue(t);
+                text.setPos(tleft, tright);
                 RESULT = text;
             :}
 
-		|	NEWLINE			// newline constant
-            {: RESULT = new NewlineConstExpn(); :}
+		|	NEWLINE:n			// newline constant
+            {:
+                NewlineConstExpn line = new NewlineConstExpn();
+                line.setPos(nleft, nright);
+                RESULT = line;
+            :}
 		;
 
 inputs		::=	variable:v1		// list of variables being read into
-                {: RESULT = new ASTList<Readable>((Readable) v1); :}
+                {:
+                    ASTList<Readable> list =
+                        new ASTList<Readable>((Readable) v1);
+                    list.setPos(v1left, v1right);
+                    RESULT = list;
+                :}
 
 		|	inputs:inputList COMMA variable:v2
             {: RESULT = inputList.addLast((Readable) v2); :}
@@ -467,7 +506,11 @@ argumentList	::=	arguments:args		//  function/procedure arguments
 		;
 
 arguments	::=	expression:e		// list of function/procedure arguments
-                {: RESULT = new ASTList<Expn>(e); :}
+                {:
+                    ASTList<Expn> list = new ASTList<Expn>(e);
+                    list.setPos(eleft, eright);
+                    RESULT = list;
+                :}
 
 		|	arguments:argList COMMA expression:exp
             {: RESULT = argList.addLast(exp); :}
