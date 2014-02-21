@@ -13,7 +13,8 @@ import compiler488.ast.stmt.*;
 import compiler488.ast.decl.*;
 import compiler488.ast.expn.*;
 import compiler488.ast.type.*;
-
+import compiler488.ast.Readable;
+import compiler488.ast.Printable;
 /** Implement semantic analysis for compiler 488 
  *  @author  <B> Put your names here </B>
  */
@@ -311,9 +312,42 @@ public class Semantics {
 		
 	    }
 	    
+	    if(stmt instanceof PutStmt){
+		PutStmt put_stmt=(PutStmt) stmt;
+		handle_output(put_stmt);
+	    }
+	    if(stmt instanceof GetStmt){
+		GetStmt get_stmt=(GetStmt) stmt;
+		handle_input(get_stmt);
+	    }
 	    return;
 	}
+
+	private void handle_output(PutStmt stmt){
+	    ASTList<Printable> outputs = stmt.getOutputs();
+	    LinkedList<Printable> output_ll=outputs.get_list();
+	    for(Printable output:output_ll){
+		if(output instanceof Expn){
+		    Expn expn=(Expn) output;
+		    if(!(expn_analysis(expn).equals("integer"))){ //S31: Check that type of expression or variable is integer
+			System.out.println("Type is not integer");
+		    }
+		}
+	    }
+	}
 	
+	private void handle_input(GetStmt stmt){
+	    ASTList<Readable> inputs = stmt.getInputs();
+	    LinkedList<Readable> input_ll=inputs.get_list();
+	    for(Readable input:input_ll){
+		if(input instanceof IdentExpn){
+		    IdentExpn expn=(IdentExpn) input;
+		    if(!(variable_analysis(expn).equals("integer"))){ //S31: Check that type of expression or variable is integer
+			System.out.println("Type is not integer");
+		    }
+		}
+	    }
+	}
 	
 	private void printHash(Hashtable<String,Symbol> ht) {
 // 	    System.out.println("printHash");
