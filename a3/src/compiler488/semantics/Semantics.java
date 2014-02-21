@@ -241,25 +241,27 @@ public class Semantics {
 		    
 	    }
 	    
-	    if (stmt instanceof ExitStmt) { // Semantic analysis S50: check that exit statement is in a loop
+	    if (stmt instanceof ExitStmt) { // S50: check that exit statement is in a loop
 		if (scope_type != ScopeType.LOOP) {
-		    System.out.println("exit statement not in a loop");
+		    System.out.println("exit statement not in a loop"); // S30: check boolean type
 		}
-		if(!(expn_analysis(((ExitStmt)stmt).getExpn()).equals("boolean"))){
-			System.out.println("Boolean type required");
+		if (((ExitStmt)stmt).getExpn() != null) { // exit when statement
+		    if(!(expn_analysis(((ExitStmt)stmt).getExpn()).equals("boolean"))){
+			    System.out.println("Boolean type required for expression in exit when statement"); // S30: check boolean type
+		    }
 		}
 	    }
 	    
-	    if (stmt instanceof ResultStmt) { // Semantic analysis S51: check that result statement is in a function
+	    if (stmt instanceof ResultStmt) { // S51: check that result statement is in a function
 		if (scope_type != ScopeType.FUNCTION) {
 		    System.out.println("result statement not in a function");
 		}
-		if(!(expn_analysis(((ResultStmt)stmt).getValue()).equals("boolean"))){
+		if(!(expn_analysis(((ResultStmt)stmt).getValue()).equals("boolean"))){ // TODO: S35: Check that expression type matches the return type of the function
 			System.out.println("Boolean type required");
 		}
 	    }
 	    
-	    if (stmt instanceof ReturnStmt) { // Semantic analysis S52: check that return statement is in a procedure
+	    if (stmt instanceof ReturnStmt) { // S52: check that return statement is in a procedure
 		if (scope_type != ScopeType.PROCEDURE) {
 		    System.out.println("return statement not in a procedure");
 		}
@@ -267,7 +269,7 @@ public class Semantics {
 	    
 	    if (stmt instanceof LoopingStmt) { // looping statement (while/repeat)
 		if(!(expn_analysis(((LoopingStmt)stmt).getExpn()).equals("boolean"))){
-			System.out.println("Boolean type required");
+			System.out.println("Boolean type required for expression in loop"); // S30: check boolean type
 		}
 		ASTList<Stmt> whileStmts = ((LoopingStmt)stmt).getBody();
 		LinkedList<Stmt> whilestmt_ll=whileStmts.get_list();
@@ -297,13 +299,15 @@ public class Semantics {
 	    if(stmt instanceof IfStmt){
 		IfStmt if_stmt=(IfStmt) stmt;
 		if(!(expn_analysis(if_stmt.getCondition()).equals("boolean"))){
-			System.out.println("Boolean type required");
+			System.out.println("Boolean type required for expression in if statement");  // S30: check boolean type
 		}
-		recursive_stmt(if_stmt.getWhenTrue(), ScopeType.MINOR);
-		recursive_stmt(if_stmt.getWhenFalse(), ScopeType.MINOR);
+		recursive_stmt(if_stmt.getWhenTrue(), ScopeType.MINOR); // check statements after then
+		if (if_stmt.getWhenFalse() != null) {
+		    recursive_stmt(if_stmt.getWhenFalse(), ScopeType.MINOR); // check statements after else
+		}
 	    }
 	    
-	    if(stmt instanceof ProcedureCallStmt){
+	    if(stmt instanceof ProcedureCallStmt){ // TODO: S43, S44
 		
 	    }
 	    
