@@ -221,11 +221,11 @@ public class Semantics {
 		ArrayDeclPart adp = (ArrayDeclPart)dp;
 		if (adp.isTwoDimensional()) { // 2 dim
 		    if ((adp.getLowerBoundary1() > adp.getUpperBoundary1()) || (adp.getLowerBoundary2() > adp.getUpperBoundary2())) {
-			System.out.println("array error: lower boundary greater than upper boundary");
+			System.out.println("array " + adp.toString() + " : lower boundary greater than upper boundary");
 		    }
 		} else { // 1 dim
 		    if (adp.getLowerBoundary1() > adp.getUpperBoundary1()) {
-			System.out.println("array error: lower boundary greater than upper boundary");
+			System.out.println("array " + adp.toString() + " : lower boundary greater than upper boundary");
 		    }
 		}
 	    }
@@ -327,7 +327,7 @@ public class Semantics {
 	}
 	
 	
-	// check whether name is declared in ht
+	// check whether name is declared in current scope
 	private void check_if_declared(Hashtable<String,Symbol> ht, String name) {
 // 	    Hashtable<String,Symbol> ht = this.symbolstack.peek();
 	    Set<String> keyset = ht.keySet();
