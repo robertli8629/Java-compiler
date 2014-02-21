@@ -332,7 +332,7 @@ public class Semantics {
 		if(output instanceof Expn){
 		    Expn expn=(Expn) output;
 		    if(!(expn_analysis(expn).equals("integer"))){ //S31: Check that type of expression or variable is integer
-			System.out.println("Type is not integer");
+			System.out.println("Type in put is not integer");
 		    }
 		}
 	    }
@@ -345,7 +345,7 @@ public class Semantics {
 		if(input instanceof IdentExpn){
 		    IdentExpn expn=(IdentExpn) input;
 		    if(!(variable_analysis(expn).equals("integer"))){ //S31: Check that type of expression or variable is integer
-			System.out.println("Type is not integer");
+			System.out.println("Type in get is not integer");
 		    }
 		}
 	    }
@@ -497,7 +497,7 @@ public class Semantics {
 //             System.out.println(symbolTable.symbolstack.peek().get(ident_expn.toString()));
             
             if(symbol_found==null){
-                System.out.println("variable \"" + ident_expn.toString() + "\" is not defined");
+                System.out.println("Line: " + ident_expn.getLine() + " Column: " + ident_expn.getCol() + " :variable \"" + ident_expn.toString() + "\" is not defined");
             }else if(symbol_found!= null){
 //                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
                 return symbol_found.getType().getType();
