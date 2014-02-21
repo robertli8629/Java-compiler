@@ -7,7 +7,8 @@ package compiler488.ast;
  */
 public class AST {
 
-    private int line, col;
+    /* Line and column position information from the scanner. */
+    private int line = -1 , col = -1;
 
     public void setPos(int line, int col) {
         this.line = line;
