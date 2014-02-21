@@ -7,4 +7,18 @@ package compiler488.ast;
  */
 public class AST {
 
+    private int line, col;
+
+    public void setPos(int line, int col) {
+        this.line = line;
+        this.col = col;
+    }
+
+    public int getLine() {
+        return this.line;
+    }
+
+    public int getCol() {
+        return this.col;
+    }
 }
