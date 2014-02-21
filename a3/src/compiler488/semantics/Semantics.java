@@ -332,7 +332,7 @@ public class Semantics {
 		if(output instanceof Expn){
 		    Expn expn=(Expn) output;
 		    if(!(expn_analysis(expn).equals("integer"))){ //S31: Check that type of expression or variable is integer
-			System.out.println("Type is not integer");
+			System.out.println("Type in put is not integer");
 		    }
 		}
 	    }
@@ -345,7 +345,7 @@ public class Semantics {
 		if(input instanceof IdentExpn){
 		    IdentExpn expn=(IdentExpn) input;
 		    if(!(variable_analysis(expn).equals("integer"))){ //S31: Check that type of expression or variable is integer
-			System.out.println("Type is not integer");
+			System.out.println("Type in get is not integer");
 		    }
 		}
 	    }
@@ -483,21 +483,97 @@ public class Semantics {
        
        
         // S29: check whether the variable is declared or visible
-        private String variable_analysis(IdentExpn ident_expn){
-            Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
-            Symbol symbol = null;
-            Symbol symbol_found = null;
-            while(iter.hasNext()){
-                symbol=iter.next().get(ident_expn.toString());
-                if (symbol != null) {
-		    symbol_found = symbol;
-                }
+        private String variable_analysis(Expn expn){
+	    if(expn instanceof IdentExpn){
+		IdentExpn ident_expn=(IdentExpn) expn;
+		Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
+		Symbol symbol = null;
+		Symbol symbol_found = null;
+		while(iter.hasNext()){
+		    symbol=iter.next().get(ident_expn.toString());
+		    if (symbol != null) {
+			symbol_found = symbol;
+		    }
+		}
+    //             System.out.println("top");
+    //             System.out.println(symbolTable.symbolstack.peek().get(ident_expn.toString()));
+		
+		if(symbol_found==null){
+		    System.out.println("variable \"" + ident_expn.toString() + "\" is not defined");
+		}else if(symbol_found!= null){
+    //                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
+		    return symbol_found.getType().getType();
+		}
             }
+
+            if(expn instanceof SubsExpn){//one dimensional array check
+		SubsExpn sub_expn=(SubsExpn) expn;
+		if(sub_expn.getSubscript2()==null){
+		    if(!(sub_expn.getSubscript1().equals("integer"))){
+			System.out.println("Type should be integer");
+		    }
+		    if(sub_expn.getSubscript2()!=null){
+			if(!(sub_expn.getSubscript2().equals("integer"))){
+			    System.out.println("Type should be integer");
+			}
+		    }
+		    Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
+		    Symbol symbol = null;
+		    Symbol symbol_found = null;
+		    while(iter.hasNext()){
+			symbol=iter.next().get(sub_expn.getVariable());
+			if (symbol != null) {
+			    symbol_found = symbol;
+			}
+		    }
+		    if(symbol_found==null){
+			System.out.println("variable \"" + sub_expn.getVariable() + "\" is not defined");
+		    }else if(symbol_found!= null){
+	//                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
+			if(symbol.getType().getLink() instanceof ArrayDeclPart){
+			    ArrayDeclPart array=(ArrayDeclPart) symbol.getType().getLink();
+			    if(array.isTwoDimensional()){
+				System.out.println(sub_expn.getVariable()+" should be one dimensional array");
+			    }
+			    return symbol.getType().getType();
+			}
+		    }
+		}
+            }
+            if(expn instanceof SubsExpn){//two dimensional array check
+		SubsExpn sub_expn=(SubsExpn) expn;
+		if(sub_expn.getSubscript2()!=null){
+		    if(!(sub_expn.getSubscript2().equals("integer"))){
+			System.out.println("Type should be integer");
+		    }
+		    Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
+		    Symbol symbol = null;
+		    Symbol symbol_found = null;
+		    while(iter.hasNext()){
+			symbol=iter.next().get(sub_expn.getVariable());
+			if (symbol != null) {
+			    symbol_found = symbol;
+			}
+		    }
+		    if(symbol_found==null){
+			System.out.println("variable \"" + sub_expn.getVariable() + "\" is not defined");
+		    }else if(symbol_found!= null){
+	//                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
+			if(symbol.getType().getLink() instanceof ArrayDeclPart){
+			    ArrayDeclPart array=(ArrayDeclPart) symbol.getType().getLink();
+			    if(!(array.isTwoDimensional())){
+				System.out.println(sub_expn.getVariable()+" should be two dimensional array");
+			    }
+			    return symbol.getType().getType();
+			}
+		    }
+		}
+
 //             System.out.println("top");
 //             System.out.println(symbolTable.symbolstack.peek().get(ident_expn.toString()));
             
             if(symbol_found==null){
-                System.out.println("variable \"" + ident_expn.toString() + "\" is not defined");
+                System.out.println("Line: " + ident_expn.getLine() + " Column: " + ident_expn.getCol() + " :variable \"" + ident_expn.toString() + "\" is not defined");
             }else if(symbol_found!= null){
 //                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
                 return symbol_found.getType().getType();
