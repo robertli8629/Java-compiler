@@ -499,7 +499,7 @@ public class Semantics {
     //             System.out.println(symbolTable.symbolstack.peek().get(ident_expn.toString()));
 		
 		if(symbol_found==null){
-		    System.out.println("variable \"" + ident_expn.toString() + "\" is not defined");
+		    System.out.println("Line: " + ident_expn.getLine() + " Column: " + ident_expn.getCol() + " :variable \"" + ident_expn.toString() + "\" is not defined");
 		}else if(symbol_found!= null){
     //                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
 		    return symbol_found.getType().getType();
@@ -571,17 +571,10 @@ public class Semantics {
 
 //             System.out.println("top");
 //             System.out.println(symbolTable.symbolstack.peek().get(ident_expn.toString()));
-            
-            if(symbol_found==null){
-                System.out.println("Line: " + ident_expn.getLine() + " Column: " + ident_expn.getCol() + " :variable \"" + ident_expn.toString() + "\" is not defined");
-            }else if(symbol_found!= null){
-//                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
-                return symbol_found.getType().getType();
             }
             return "";
-        }
 	
-	
+	}
 	
 
 }
