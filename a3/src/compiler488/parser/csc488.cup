@@ -166,29 +166,55 @@ start with program;
  */
 
 program		::=	scope:s          // the main program
-                {: RESULT = new Program(s); :}
+                {:
+                    Program prog = new Program(s);
+                    prog.setPos(sleft, sright);
+                    RESULT = prog;
+                :}
                 ;
 
-scope		::=	L_CURLEY declarations:d statements:s R_CURLEY 
+scope		::=	L_CURLEY:lc1 declarations:d statements:s R_CURLEY 
 							// scope with declarations and statements
-                {: RESULT = new Scope(d, s); :}
+                {:
+                    Scope sc = new Scope(d, s);
+                    sc.setPos(lc1left, lc1right);
+                    RESULT = sc;
+                :}
 
-		|	L_CURLEY statements:stmt  R_CURLEY 		// scope with statments only
-            {: RESULT = new Scope(stmt); :}
+		|	L_CURLEY:lc2 statements:stmt  R_CURLEY 		// scope with statments only
+            {:
+                Scope sc = new Scope(stmt);
+                sc.setPos(lc2left, lc2right);
+                RESULT = sc;
+            :}
 
-		|	L_CURLEY  R_CURLEY			// empty scope
-            {: RESULT = new Scope(); :}
+		|	L_CURLEY:lc3  R_CURLEY			// empty scope
+            {:
+                Scope sc = new Scope();
+                sc.setPos(lc3left, lc3right);
+                RESULT = sc;
+            :}
 		;
 
 statements	::=	statement:s				// sequence of statements
-                {: RESULT = new ASTList<Stmt>(s); :}
+                {:
+                    ASTList<Stmt> list =
+                        new ASTList<Stmt>(s);
+                    list.setPos(sleft, sright);
+                    RESULT = list;
+                :}
 
 		|	statements:stmtList statement:stmt
             {: RESULT = stmtList.addLast(stmt); :}
 		;
 
 declarations	::=	declaration:d		// sequence of declarations
-                    {: RESULT = new ASTList<Declaration>(d); :}
+                    {:
+                        ASTList<Declaration> list =
+                            new ASTList<Declaration>(d);
+                        list.setPos(dleft, dright);
+                        RESULT = list;
+                    :}
 
 		|	declarations:declList declaration:decl
             {: RESULT = declList.addLast(decl); :}
@@ -196,72 +222,91 @@ declarations	::=	declaration:d		// sequence of declarations
 
 
 statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
-                {: RESULT = new AssignStmt(e1, e2); :}
+                {:
+                    AssignStmt a = new AssignStmt(e1, e2);
+                    a.setPos(e1left, e1right);
+                    RESULT = a;
+                :}
 
-		|	IF expression:e3 THEN statements:s1 FI 	// if statements
+		|	IF:i1 expression:e3 THEN statements:s1 FI 	// if statements
 			{:
                 IfStmt if1 = new IfStmt();
 				if1.setCondition(e3);
 				if1.setWhenTrue(s1);
+                if1.setPos(i1left, i1right);
 			    RESULT = if1;
 			:}
 
-		|	IF expression:e4 THEN statements:s3 ELSE statements:s3a FI
+		|	IF:i2 expression:e4 THEN statements:s3 ELSE statements:s3a FI
 			{:
 				IfStmt if2 = new IfStmt();
 				if2.setCondition(e4);
 				if2.setWhenTrue(s3);
 				if2.setWhenFalse(s3a);
+                if2.setPos(i2left, i2right);
 			    RESULT = if2;
 			:}
 
-		|	WHILE expression:e5 DO statements:s3 END	// while statement 
+		|	WHILE:w expression:e5 DO statements:s3 END	// while statement 
 			{:
 				WhileDoStmt wstmt = new WhileDoStmt();
 				wstmt.setExpn(e5);
 				wstmt.setBody(s3);
+                wstmt.setPos(wleft, wright);
 				RESULT = wstmt;
 			:}
 
-		|   REPEAT statements:s4 UNTIL expression:e6	// repeat statement
+		|   REPEAT:r statements:s4 UNTIL expression:e6	// repeat statement
 			{:
 				RepeatUntilStmt rstmt = new RepeatUntilStmt();
 				rstmt.setExpn(e6);
 				rstmt.setBody(s4);
+                rstmt.setPos(rleft, rright);
 				RESULT = rstmt;
 			:}
 
-		|	EXIT					// exit statements
-            {: RESULT = new ExitStmt(); :}
+		|	EXIT:x1					// exit statements
+            {:
+                ExitStmt ex = new ExitStmt();
+                ex.setPos(x1left, x1right);
+            :}
 
-		|	EXIT WHEN expression:e6
+		|	EXIT:x2 WHEN expression:e6
             {:
                 ExitStmt ex = new ExitStmt();
                 ex.setExpn(e6);
+                ex.setPos(x2left, x2right);
                 RESULT = ex;
             :}
 
-		|	RESULT expression:e7 	// return from function
+		|	RESULT:r1 expression:e7 	// return from function
             {:
                 ResultStmt res = new ResultStmt();
                 res.setValue(e7);
+                res.setPos(r1left, r1right);
                 RESULT = res;
             :}
 
-		|	RETURN 					// return from procedure
-            {: RESULT = new ReturnStmt(); :}
+		|	RETURN:r2 					// return from procedure
+            {:
+                ReturnStmt res = new ReturnStmt();
+                res.setPos(r2left, r2right);
+                RESULT = res;
+            :}
 
-		|	PUT outputs:outs			// output statment
+		|	PUT:p outputs:outs			// output statment
             {:
                 PutStmt put = new PutStmt();
                 put.setOutputs(outs);
+                put.setPos(pleft, pright);
                 RESULT = put;
             :}
 
-		|	GET  inputs:ins				// input statement
+		|	GET:g  inputs:ins				// input statement
             {:
                 GetStmt get = new GetStmt();
                 get.setInputs(ins);
+                get.setPos(gleft, gright);
                 RESULT = get;
             :}
 
@@ -270,6 +315,7 @@ statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
                 ProcedureCallStmt proc = new ProcedureCallStmt();
                 proc.setArguments(argList);
                 proc.setName(id);
+                proc.setPos(idleft, idright);
                 RESULT = proc;
             :}
 
@@ -277,38 +323,52 @@ statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
             {: RESULT = s; :}
 		;
 
-declaration	::=	VAR variablenames:var COLON type:t		// declare scalar/array variables
+declaration	::=	VAR:v variablenames:var COLON type:t		// declare scalar/array variables
                 {:
                    MultiDeclarations decl = new MultiDeclarations();
                    decl.setElements(var);
                    decl.setType(t);
+                   decl.setPos(vleft, vright);
                    RESULT = decl;
                 :}
 
 		|	functionHead:fh1  scope:sc1			// function declaration
 			{:
-               RoutineBody rb = fh1.getRoutineBody(); 
-		       rb.setBody(sc1);
-		       RESULT = fh1;
+                RoutineBody rb = fh1.getRoutineBody(); 
+		        rb.setBody(sc1);
+                rb.setPos(sc1left, sc1right);
+		        RESULT = fh1;
             :}
 
 		|	procedureHead:ph1  scope:sc2			// procedure declaration
             {:
                 RoutineBody rb = ph1.getRoutineBody();
                 rb.setBody(sc2);
+                rb.setPos(sc2left, sc2right);
                 RESULT = ph1;
             :}
                 
 
-		|   FORWARD  functionHead:fh2			// forward function declaration
-			{: RESULT = fh2; :}
+		|   FORWARD:f1 functionHead:fh2			// forward function declaration
+			{:
+                fh2.setPos(f1left, f1right);
+                RESULT = fh2;
+            :}
 
-		|	FORWARD  procedureHead:ph2			// forward procedure declaration
-            {: RESULT = ph2; :}
+		|	FORWARD:f2 procedureHead:ph2			// forward procedure declaration
+            {:  
+                ph2.setPos(f2left, f2right);
+                RESULT = ph2;
+            :}
 		;
 
 variablenames	::=	variablename:var  		// list of variables being declared
-                    {: RESULT = new ASTList<DeclarationPart>(var); :}
+                    {:
+                        ASTList<DeclarationPart> list  =
+                            new ASTList<DeclarationPart>(var);
+                        list.setPos(varleft, varright);
+                        RESULT = list;
+                    :}
 
 		|	variablenames:varList COMMA variablename:var2 
             {: RESULT = varList.addLast(var2); :}
@@ -318,12 +378,14 @@ variablename	::=	IDENT:id1 					// scalar variable
 				    {:
                         ScalarDeclPart decl = new ScalarDeclPart();
                         decl.setName(id1);
+                        decl.setPos(id1left, id1right);
                         RESULT = decl;
                     :}	
 
 		|	IDENT:id2 L_SQUARE bound:b1 R_SQUARE		// 1 dimensional array
 		    {:
                 b1.setName(id2);
+                b1.setPos(id2left, id2right);
 		        RESULT = b1; 
 			:}	
 
@@ -333,26 +395,27 @@ variablename	::=	IDENT:id1 					// scalar variable
                 b2.setLowerBoundary2(b3.getLowerBoundary1());
                 b2.setUpperBoundary2(b3.getUpperBoundary1());
                 b2.setSize(b2.getSize() * b3.getSize()); // Correct size calculation?
+                b2.setPos(id3left, id3right);
                 RESULT = b2;
             :}
 		;
 
 bound		::=     INTCONST:i				// integer array bound
                     {:
-                       ArrayDeclPart decl = new ArrayDeclPart();
-                       decl.setLowerBoundary1(1);
-                       decl.setUpperBoundary1(i);
-                       decl.setSize(i);
-                       RESULT = decl; 
+                        ArrayDeclPart decl = new ArrayDeclPart();
+                        decl.setLowerBoundary1(1);
+                        decl.setUpperBoundary1(i);
+                        decl.setSize(i);
+                        RESULT = decl; 
 					:}
 
 		|       generalBound:g1 DOT DOT generalBound:g2	// explicit lower/upper bounds
                 {:
-                   ArrayDeclPart decl = new ArrayDeclPart();
-                   decl.setLowerBoundary1(g1.getValue());
-                   decl.setUpperBoundary1(g2.getValue());
-                   decl.setSize((g1.getValue() - g2.getValue()) + 1);
-                   RESULT = decl; 
+                    ArrayDeclPart decl = new ArrayDeclPart();
+                    decl.setLowerBoundary1(g1.getValue());
+                    decl.setUpperBoundary1(g2.getValue());
+                    decl.setSize((g1.getValue() - g2.getValue()) + 1);
+                    RESULT = decl; 
 				:}
 		;
 
@@ -370,29 +433,35 @@ type		::=	INTEGER				// integer type
             {: RESULT = new BooleanType(); :}
 		;
 
-functionHead	::=	FUNC IDENT:id L_PAREN parameterList:pl R_PAREN COLON type:t
+functionHead	::=	FUNC:f IDENT:id L_PAREN parameterList:pl R_PAREN COLON type:t
                     // function head
 					{:
                         RoutineDecl routine = new RoutineDecl(); 
 						routine.setType(t);
 						routine.setName(id);
+                        routine.setPos(fleft, fright);
 						routine.setRoutineBody(pl);
 						RESULT = routine;
                     :}
 		;
 
-procedureHead	::=	PROCEDURE  IDENT:id L_PAREN parameterList:pl  R_PAREN
+procedureHead	::=	PROCEDURE:p  IDENT:id L_PAREN parameterList:pl  R_PAREN
                     // procedure head
                     {:
                        RoutineDecl routine = new RoutineDecl();
 					   routine.setName(id);
 				       routine.setRoutineBody(pl);
+                       routine.setPos(pleft, pright);
 					   RESULT = routine;
                     :}
 		;
 
 outputs		::=	output:out1			// list of output expressions
-                {: RESULT = new ASTList<Printable>(out1); :}
+                {:
+                    ASTList<Printable> list = new ASTList<Printable>(out1);
+                    list.setPos(out1left, out1right);
+                    RESULT = list;
+                :}
 
 		|	outputs:outList COMMA output:out2
             {: RESULT = outList.addLast(out2); :}
@@ -405,15 +474,25 @@ output		::=	expression:e	// integer expression
             {:
                 TextConstExpn text = new TextConstExpn();
                 text.setValue(t);
+                text.setPos(tleft, tright);
                 RESULT = text;
             :}
 
-		|	NEWLINE			// newline constant
-            {: RESULT = new NewlineConstExpn(); :}
+		|	NEWLINE:n			// newline constant
+            {:
+                NewlineConstExpn line = new NewlineConstExpn();
+                line.setPos(nleft, nright);
+                RESULT = line;
+            :}
 		;
 
 inputs		::=	variable:v1		// list of variables being read into
-                {: RESULT = new ASTList<Readable>((Readable) v1); :}
+                {:
+                    ASTList<Readable> list =
+                        new ASTList<Readable>((Readable) v1);
+                    list.setPos(v1left, v1right);
+                    RESULT = list;
+                :}
 
 		|	inputs:inputList COMMA variable:v2
             {: RESULT = inputList.addLast((Readable) v2); :}
@@ -427,7 +506,11 @@ argumentList	::=	arguments:args		//  function/procedure arguments
 		;
 
 arguments	::=	expression:e		// list of function/procedure arguments
-                {: RESULT = new ASTList<Expn>(e); :}
+                {:
+                    ASTList<Expn> list = new ASTList<Expn>(e);
+                    list.setPos(eleft, eright);
+                    RESULT = list;
+                :}
 
 		|	arguments:argList COMMA expression:exp
             {: RESULT = argList.addLast(exp); :}
@@ -445,7 +528,11 @@ parameterList	::=	parameters:plist		//  function/procedure formal parameters
 		;
 
 parameters	::=	parameter:p1			// list of function/procedure formal parameters
-				{: RESULT = new ASTList<ScalarDecl>(p1); :}
+				{:
+                    ASTList<ScalarDecl> params = new ASTList<ScalarDecl>(p1);
+                    params.setPos(p1left, p1right);
+                    RESULT = params;
+                :}
 
 		|	parameters:plist COMMA parameter:p2
 			{: RESULT = plist.addLast(p2); :}
@@ -456,12 +543,15 @@ parameter	::=	IDENT:id COLON type:t		// declare one parameter
                     ScalarDecl param = new ScalarDecl();   
                     param.setType(t);
 		            param.setName(id);
+                    param.setPos(idleft, idright);
 			        RESULT = param;
                 :}
 		;
 
 expression	::=	conjunction:c1			// disjunctions, associate left-to-right
-            {: RESULT = c1; :}
+            {: 
+				RESULT = c1; 
+			:}
 
 		|	expression:e OR conjunction:c2
 			{:
@@ -469,6 +559,7 @@ expression	::=	conjunction:c1			// disjunctions, associate left-to-right
 				bExp.setOpSymbol("or");
 				bExp.setLeft(e);
 				bExp.setRight(c2);
+				bExp.setPos(eleft, eright);
 				RESULT = bExp;
 			:}
 		;
@@ -482,6 +573,7 @@ conjunction	::=	negation:n1			// conjunctions, associate left-to-right
 				bExp.setOpSymbol("and");
 				bExp.setLeft(c);
 				bExp.setRight(n2);
+				bExp.setPos(cleft, cright);
 				RESULT = bExp;
 			:}
 		;
@@ -489,11 +581,12 @@ conjunction	::=	negation:n1			// conjunctions, associate left-to-right
 negation	::=	compareExpn:c 			// negations
                 {: RESULT = c; :}
 
-		|	NOT negation:n
+		|	NOT:n1 negation:n
 			{:
 				NotExpn ne = new NotExpn();
 				ne.setOpSymbol("not");
 				ne.setOperand(n);
+				ne.setPos(n1left, n1right);
 				RESULT = ne;
 			:}
 		;
@@ -507,6 +600,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				eqExp1.setOpSymbol("=");
 				eqExp1.setLeft(a2);
 				eqExp1.setRight(a3);
+				eqExp1.setPos(a2left, a2right);
 				RESULT = eqExp1;	
 			:}
 
@@ -516,6 +610,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				eqExp2.setOpSymbol("not=");
 				eqExp2.setLeft(a4);
 				eqExp2.setRight(a5);
+				eqExp2.setPos(a4left, a4right);
 				RESULT = eqExp2;
 			:}
 
@@ -525,6 +620,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp3.setOpSymbol("<");
 				coExp3.setLeft(a6);
 				coExp3.setRight(a7);
+				coExp3.setPos(a6left, a6right);
 				RESULT = coExp3;
 			:}
 
@@ -534,6 +630,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp4.setOpSymbol("<=");
 				coExp4.setLeft(a8);
 				coExp4.setRight(a9);
+				coExp4.setPos(a8left, a8right);
 				RESULT = coExp4;
 			:}
 
@@ -543,6 +640,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp5.setOpSymbol(">");
 				coExp5.setLeft(a10);
 				coExp5.setRight(a11);
+				coExp5.setPos(a10left, a10right);
 				RESULT = coExp5;
 			:}
 
@@ -552,6 +650,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp6.setOpSymbol(">=");
 				coExp6.setLeft(a12);
 				coExp6.setRight(a13);
+				coExp6.setPos(a12left, a12right);
 				RESULT = coExp6;
 			:}
 		;
@@ -565,6 +664,7 @@ arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
 				ae1.setOpSymbol("+");
 				ae1.setRight(t2);
 				ae1.setLeft(a1);
+				ae1.setPos(a1left, a1right);
 				RESULT = ae1;
 			:}
 
@@ -574,6 +674,7 @@ arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
 				ae2.setOpSymbol("-");
 				ae2.setLeft(a2);
 				ae2.setRight(t3);
+				ae2.setPos(a2left, a2right);
 				RESULT = ae2;
 			:}
 		;
@@ -587,6 +688,7 @@ term		::=	factor:f1 		// terms, associate * , /   left-to-right
 				ae1.setLeft(t1);
 				ae1.setRight(f2);
 				ae1.setOpSymbol("*");
+				ae1.setPos(t1left, t1right);
 				RESULT = ae1;
 			:}
 
@@ -596,6 +698,7 @@ term		::=	factor:f1 		// terms, associate * , /   left-to-right
 				ae2.setLeft(t2);
 				ae2.setRight(f3);
 				ae2.setOpSymbol("/");
+				ae2.setPos(t2left, t2right);
 				RESULT = ae2;	
 			:}
 		;
@@ -603,9 +706,10 @@ term		::=	factor:f1 		// terms, associate * , /   left-to-right
 factor		::=	primary:p
                 {: RESULT = p; :}				
 
-		|	MINUS factor:f			// unary minus
+		|	MINUS:m factor:f			// unary minus
 			{:
 				UnaryMinusExpn mf = new UnaryMinusExpn(f);
+				mf.setPos(mleft, mright);
 				RESULT = mf;
 			:}
 		;
@@ -616,16 +720,21 @@ primary		::=	constant:c				// integer or boolean constant
 		|	variable:v				// scalar, array element 
             {: RESULT = v; :}
 
-		| 	L_PAREN  expression:e1  R_PAREN		// parenthesized expression
-            {: RESULT = new ParenthExpn(e1); :}
+		| 	L_PAREN:lpa1  expression:e1  R_PAREN		// parenthesized expression
+            {: 
+				ParenthExpn pExpn = new ParenthExpn(e1); 
+				pExpn.setPos(lpa1left, lpa1right);
+				RESULT = pExpn; 
+			:}
 
-		|	L_PAREN  expression:e2 QUESTION expression:e3 COLON expression:e4 R_PAREN
+		|	L_PAREN:lpa2  expression:e2 QUESTION expression:e3 COLON expression:e4 R_PAREN
 								// conditional expression
             {:
                 ConditionalExpn condEx = new ConditionalExpn();
                 condEx.setCondition(e2);
                 condEx.setTrueValue(e3);
                 condEx.setFalseValue(e4);
+				condEx.setPos(lpa2left, lpa2right);
                 RESULT = condEx;
             :}
 
@@ -634,27 +743,45 @@ primary		::=	constant:c				// integer or boolean constant
 				FunctionCallExpn func = new FunctionCallExpn(); 
 			   	func.setIdent(id);
 				func.setArguments(al);
+				func.setPos(idleft, idright);
 				RESULT = func;
 			:}
 		;
 
 constant	::=	INTCONST:i	// integer constant
-                {:	RESULT = new IntConstExpn(i); :}
+                {:
+					IntConstExpn intExpn = new IntConstExpn(i); 
+					intExpn.setPos(ileft, iright);
+					RESULT = intExpn; 
+				:}
 
-		|	TRUE		// constant true
-				{:	RESULT = new BoolConstExpn(true); :}
+		|	TRUE:t		// constant true
+				{:	
+					BoolConstExpn bExpn1 = new BoolConstExpn(true); 
+					bExpn1.setPos(tleft, tright);
+					RESULT = bExpn1; 
+				:}
 
-		|	FALSE		// constant false
-				{:  RESULT = new BoolConstExpn(false); :}
+		|	FALSE:f		// constant false
+				{:  
+					BoolConstExpn bExpn2 = new BoolConstExpn(false); 
+					bExpn2.setPos(fleft, fright);
+					RESULT = bExpn2; 
+				:}
 		;
 
 variable	::=	IDENT:id1			// scalar variable or parameter
-                {: RESULT = new IdentExpn(id1); :}
+                {: 
+					IdentExpn idExpn = new IdentExpn(id1); 
+					idExpn.setPos(id1left, id1right);
+					RESULT = idExpn;
+				:}
 
 		|	IDENT:id2 L_SQUARE expression:e1 R_SQUARE	// element of 1 dimensional array
             {:
                 SubsExpn sub = new SubsExpn(e1, null);
                 sub.setVariable(id2);
+				sub.setPos(id2left, id2right);
                 RESULT = sub;
             :}
                 
@@ -663,6 +790,7 @@ variable	::=	IDENT:id1			// scalar variable or parameter
             {:
                 SubsExpn sub = new SubsExpn(e2, e3);
                 sub.setVariable(id3);
+				sub.setPos(id3left, id3right);
                 RESULT = sub;
             :}
 		;
