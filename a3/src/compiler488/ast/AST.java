@@ -8,18 +8,20 @@ package compiler488.ast;
 public class AST {
 
     /* Line and column position information from the scanner. */
-    private int line = -1 , col = -1;
+    private int line = -2 , col = -2;
 
     public void setPos(int line, int col) {
         this.line = line;
         this.col = col;
     }
 
+    /* Add 1 for accuracy, since Lexer counts newlines only. */
     public int getLine() {
-        return this.line;
+        return this.line + 1;
     }
 
+    /* Add 1 since Lexer doesn't count first char of matched text. */
     public int getCol() {
-        return this.col;
+        return this.col + 1;
     }
 }

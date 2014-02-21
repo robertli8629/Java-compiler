@@ -775,6 +775,7 @@ variable	::=	IDENT:id1			// scalar variable or parameter
                 {: 
 					IdentExpn idExpn = new IdentExpn(id1); 
 					idExpn.setPos(id1left, id1right);
+                    System.out.println("PARSER -- Line: " + id1left + " Col: " + id1right);
 					RESULT = idExpn;
 				:}
 
