@@ -269,6 +269,7 @@ statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
             {:
                 ExitStmt ex = new ExitStmt();
                 ex.setPos(x1left, x1right);
+                RESULT = ex;
             :}
 
 		|	EXIT:x2 WHEN expression:e6

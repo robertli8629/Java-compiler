@@ -15,6 +15,8 @@ import compiler488.ast.expn.*;
 import compiler488.ast.type.*;
 import compiler488.ast.Readable;
 import compiler488.ast.Printable;
+
+
 /** Implement semantic analysis for compiler 488 
  *  @author  <B> Put your names here </B>
  */
@@ -330,7 +332,7 @@ public class Semantics {
 		if(output instanceof Expn){
 		    Expn expn=(Expn) output;
 		    if(!(expn_analysis(expn).equals("integer"))){ //S31: Check that type of expression or variable is integer
-			System.out.println("Type is not integer");
+			System.out.println("Type in put is not integer");
 		    }
 		}
 	    }
@@ -343,7 +345,7 @@ public class Semantics {
 		if(input instanceof IdentExpn){
 		    IdentExpn expn=(IdentExpn) input;
 		    if(!(variable_analysis(expn).equals("integer"))){ //S31: Check that type of expression or variable is integer
-			System.out.println("Type is not integer");
+			System.out.println("Type in get is not integer");
 		    }
 		}
 	    }
@@ -389,12 +391,14 @@ public class Semantics {
             if(expn instanceof IntConstExpn){
                 return "integer";
             }
+            
             if(expn instanceof UnaryExpn){
-                if(!(expn_analysis(expn).equals("integer"))){
-                        System.out.println("bad operand type for unary -");
+                if(!(expn_analysis(expn).equals("integer"))){ // S31: check integer type
+                        System.out.println("bad operand type for unary - has to be integer");
                 }
                 return "integer";
             }
+            
             if(expn instanceof ArithExpn){
                 ArithExpn arith_expn=(ArithExpn) expn;
                 if(!(expn_analysis(arith_expn.getLeft()).equals("integer"))){
@@ -405,15 +409,18 @@ public class Semantics {
                 }
                 return "integer";
             }
+            
             if(expn instanceof BoolConstExpn){
                 return "boolean";
             }
-            if(expn instanceof NotExpn){
+            
+            if(expn instanceof NotExpn){ // S30: check boolean type
                 if(!(expn_analysis(expn).equals("boolean"))){
-                        System.out.println("bad operand type for not");
+                        System.out.println("bad operand type for not - has to be boolean");
                 }
                 return "boolean";
             }
+            
             if(expn instanceof BoolExpn){
                 BoolExpn bool_expn=(BoolExpn) expn;
                 if(!(expn_analysis(bool_expn.getLeft()).equals("boolean"))){
@@ -424,13 +431,15 @@ public class Semantics {
                 }
                 return "boolean";
             }
+            
             if(expn instanceof EqualsExpn){
                 EqualsExpn euqals_expn=(EqualsExpn) expn;
-         if(!(expn_analysis(euqals_expn.getLeft()).equals(expn_analysis(euqals_expn.getRight())))){
+		if(!(expn_analysis(euqals_expn.getLeft()).equals(expn_analysis(euqals_expn.getRight())))){
                         System.out.println("uncomparable types");
                 }
                 return "boolean";
             }
+            
             if(expn instanceof CompareExpn){
                 CompareExpn comp_expn=(CompareExpn) expn;
                 if(!(expn_analysis(comp_expn.getLeft()).equals("integer"))){
@@ -441,29 +450,34 @@ public class Semantics {
                 }
                 return "boolean";
             }
+            
             if(expn instanceof ParenthExpn){
                 ParenthExpn parenth_expn=(ParenthExpn) expn;
                 return expn_analysis(parenth_expn.getParenth());
             }
+            
             if(expn instanceof ConditionalExpn){
                 ConditionalExpn cond_expn=(ConditionalExpn) expn;
-                if(!(expn_analysis(cond_expn.getCondition()).equals("boolean"))){
+                if(!(expn_analysis(cond_expn.getCondition()).equals("boolean"))){ // S30: check boolean type
+                        System.out.println("unsupported expression type - has to be boolean");
+                }
+		if(!(expn_analysis(cond_expn.getTrueValue()).equals(expn_analysis(cond_expn.getFalseValue())))){ // S33: Both exprs in conditional are the same type
                         System.out.println("unsupported operand type");
                 }
-         if(!(expn_analysis(cond_expn.getTrueValue()).equals(expn_analysis(cond_expn.getFalseValue())))){
-                        System.out.println("unsupported operand type");
-                }
-                return expn_analysis(cond_expn.getCondition());
+                return expn_analysis(cond_expn.getTrueValue()); // S24: set result type of conditional expressions
             }
-            if(expn instanceof FunctionCallExpn){
+            
+            if(expn instanceof FunctionCallExpn){ // TODO: S43,S44,S28
                 FunctionCallExpn func_expn=(FunctionCallExpn) expn;
                
             }
+            
             if(expn instanceof IdentExpn){
                 IdentExpn ident_expn=(IdentExpn) expn;
                 return variable_analysis(ident_expn);
             }
             return "";
+            
         }
        
        
@@ -491,6 +505,7 @@ public class Semantics {
 		    return symbol_found.getType().getType();
 		}
             }
+
             if(expn instanceof SubsExpn){//one dimensional array check
 		SubsExpn sub_expn=(SubsExpn) expn;
 		if(sub_expn.getSubscript2()==null){
@@ -553,6 +568,15 @@ public class Semantics {
 			}
 		    }
 		}
+
+//             System.out.println("top");
+//             System.out.println(symbolTable.symbolstack.peek().get(ident_expn.toString()));
+            
+            if(symbol_found==null){
+                System.out.println("Line: " + ident_expn.getLine() + " Column: " + ident_expn.getCol() + " :variable \"" + ident_expn.toString() + "\" is not defined");
+            }else if(symbol_found!= null){
+//                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
+                return symbol_found.getType().getType();
             }
             return "";
         }
