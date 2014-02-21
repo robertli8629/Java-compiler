@@ -461,7 +461,9 @@ parameter	::=	IDENT:id COLON type:t		// declare one parameter
 		;
 
 expression	::=	conjunction:c1			// disjunctions, associate left-to-right
-            {: RESULT = c1; :}
+            {: 
+				RESULT = c1; 
+			:}
 
 		|	expression:e OR conjunction:c2
 			{:
@@ -469,6 +471,7 @@ expression	::=	conjunction:c1			// disjunctions, associate left-to-right
 				bExp.setOpSymbol("or");
 				bExp.setLeft(e);
 				bExp.setRight(c2);
+				bExp.setPos(eleft, eright);
 				RESULT = bExp;
 			:}
 		;
@@ -482,6 +485,7 @@ conjunction	::=	negation:n1			// conjunctions, associate left-to-right
 				bExp.setOpSymbol("and");
 				bExp.setLeft(c);
 				bExp.setRight(n2);
+				bExp.setPos(cleft, cright);
 				RESULT = bExp;
 			:}
 		;
@@ -489,11 +493,12 @@ conjunction	::=	negation:n1			// conjunctions, associate left-to-right
 negation	::=	compareExpn:c 			// negations
                 {: RESULT = c; :}
 
-		|	NOT negation:n
+		|	NOT:n1 negation:n
 			{:
 				NotExpn ne = new NotExpn();
 				ne.setOpSymbol("not");
 				ne.setOperand(n);
+				ne.setPos(n1left, n1right);
 				RESULT = ne;
 			:}
 		;
@@ -507,6 +512,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				eqExp1.setOpSymbol("=");
 				eqExp1.setLeft(a2);
 				eqExp1.setRight(a3);
+				eqExp1.setPos(a2left, a2right);
 				RESULT = eqExp1;	
 			:}
 
@@ -516,6 +522,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				eqExp2.setOpSymbol("not=");
 				eqExp2.setLeft(a4);
 				eqExp2.setRight(a5);
+				eqExp2.setPos(a4left, a4right);
 				RESULT = eqExp2;
 			:}
 
@@ -525,6 +532,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp3.setOpSymbol("<");
 				coExp3.setLeft(a6);
 				coExp3.setRight(a7);
+				coExp3.setPos(a6left, a6right);
 				RESULT = coExp3;
 			:}
 
@@ -534,6 +542,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp4.setOpSymbol("<=");
 				coExp4.setLeft(a8);
 				coExp4.setRight(a9);
+				coExp4.setPos(a8left, a8right);
 				RESULT = coExp4;
 			:}
 
@@ -543,6 +552,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp5.setOpSymbol(">");
 				coExp5.setLeft(a10);
 				coExp5.setRight(a11);
+				coExp5.setPos(a10left, a10right);
 				RESULT = coExp5;
 			:}
 
@@ -552,6 +562,7 @@ compareExpn	::=	arithExpn:a1			// comparisons, do not associate
 				coExp6.setOpSymbol(">=");
 				coExp6.setLeft(a12);
 				coExp6.setRight(a13);
+				coExp6.setPos(a12left, a12right);
 				RESULT = coExp6;
 			:}
 		;
@@ -565,6 +576,7 @@ arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
 				ae1.setOpSymbol("+");
 				ae1.setRight(t2);
 				ae1.setLeft(a1);
+				ae1.setPos(a1left, a1right);
 				RESULT = ae1;
 			:}
 
@@ -574,6 +586,7 @@ arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
 				ae2.setOpSymbol("-");
 				ae2.setLeft(a2);
 				ae2.setRight(t3);
+				ae2.setPos(a2left, a2right);
 				RESULT = ae2;
 			:}
 		;
@@ -587,6 +600,7 @@ term		::=	factor:f1 		// terms, associate * , /   left-to-right
 				ae1.setLeft(t1);
 				ae1.setRight(f2);
 				ae1.setOpSymbol("*");
+				ae1.setPos(t1left, t1right);
 				RESULT = ae1;
 			:}
 
@@ -596,6 +610,7 @@ term		::=	factor:f1 		// terms, associate * , /   left-to-right
 				ae2.setLeft(t2);
 				ae2.setRight(f3);
 				ae2.setOpSymbol("/");
+				ae2.setPos(t2left, t2right);
 				RESULT = ae2;	
 			:}
 		;
@@ -603,9 +618,10 @@ term		::=	factor:f1 		// terms, associate * , /   left-to-right
 factor		::=	primary:p
                 {: RESULT = p; :}				
 
-		|	MINUS factor:f			// unary minus
+		|	MINUS:m factor:f			// unary minus
 			{:
 				UnaryMinusExpn mf = new UnaryMinusExpn(f);
+				mf.setPos(mleft, mright);
 				RESULT = mf;
 			:}
 		;
@@ -616,16 +632,21 @@ primary		::=	constant:c				// integer or boolean constant
 		|	variable:v				// scalar, array element 
             {: RESULT = v; :}
 
-		| 	L_PAREN  expression:e1  R_PAREN		// parenthesized expression
-            {: RESULT = new ParenthExpn(e1); :}
+		| 	L_PAREN:lpa1  expression:e1  R_PAREN		// parenthesized expression
+            {: 
+				ParenthExpn pExpn = new ParenthExpn(e1); 
+				pExpn.setPos(lpa1left, lpa1right);
+				RESULT = pExpn; 
+			:}
 
-		|	L_PAREN  expression:e2 QUESTION expression:e3 COLON expression:e4 R_PAREN
+		|	L_PAREN:lpa2  expression:e2 QUESTION expression:e3 COLON expression:e4 R_PAREN
 								// conditional expression
             {:
                 ConditionalExpn condEx = new ConditionalExpn();
                 condEx.setCondition(e2);
                 condEx.setTrueValue(e3);
                 condEx.setFalseValue(e4);
+				condEx.setPos(lpa2left, lpa2right);
                 RESULT = condEx;
             :}
 
@@ -634,18 +655,31 @@ primary		::=	constant:c				// integer or boolean constant
 				FunctionCallExpn func = new FunctionCallExpn(); 
 			   	func.setIdent(id);
 				func.setArguments(al);
+				func.setPos(idleft, idright);
 				RESULT = func;
 			:}
 		;
 
 constant	::=	INTCONST:i	// integer constant
-                {:	RESULT = new IntConstExpn(i); :}
+                {:
+					IntConstExpn intExpn = new IntConstExpn(i); 
+					intExpn.setPos(ileft, iright);
+					RESULT = intExpn; 
+				:}
 
-		|	TRUE		// constant true
-				{:	RESULT = new BoolConstExpn(true); :}
+		|	TRUE:t		// constant true
+				{:	
+					BoolConstExpn bExpn1 = new BoolConstExpn(true); 
+					bExpn1.setPos(tleft, tright);
+					RESULT = bExpn1; 
+				:}
 
-		|	FALSE		// constant false
-				{:  RESULT = new BoolConstExpn(false); :}
+		|	FALSE:f		// constant false
+				{:  
+					BoolConstExpn bExpn2 = new BoolConstExpn(false); 
+					bExpn2.setPos(fleft, fright);
+					RESULT = bExpn2; 
+				:}
 		;
 
 variable	::=	IDENT:id1			// scalar variable or parameter
