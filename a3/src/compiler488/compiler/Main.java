@@ -503,9 +503,7 @@ public class Main {
                 else {
 		    programAST.printOn( saveSysOut  , 0 );
 		}
-		// do semantic analysis
-		SymbolTable st = new SymbolTable();
-		st.Initialize(programAST);
+		
 	   }
            catch( Exception e) 
 	       {
@@ -521,6 +519,12 @@ public class Main {
 	   // programAST.doSemantics() ;
 	   // or
 	   // Semantics.doIt( programAST );
+	   
+	   
+	   Semantics semantic = new Semantics();
+	   semantic.Initialize(programAST);
+	   
+	   
 	}
         catch( Exception e) 
 	    {
