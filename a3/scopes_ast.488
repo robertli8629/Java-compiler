@@ -3,14 +3,14 @@
     {
         var a : integer
         {
-	    var b : integer
-	    exit
+	        var b : integer
+	        exit
         }
         {
-	    var a : boolean
-	    a := 1
-	    b := 2
-	}
+	        var a : boolean
+	        a := 1
+	        b := 2
+	    }
     }
 }
 
