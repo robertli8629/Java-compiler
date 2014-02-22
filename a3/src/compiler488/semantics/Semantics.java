@@ -334,7 +334,7 @@ public class Semantics {
 		if(output instanceof Expn){
 		    Expn expn=(Expn) output;
 		    if(!(expn_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
-			print(expn, "Type in put is not integer");
+			print(expn, "Type of " + expn + " in put statement is not integer");
 		    }
 		}
 	    }
@@ -347,7 +347,7 @@ public class Semantics {
 		if(input instanceof IdentExpn){
 		    IdentExpn expn=(IdentExpn) input;
 		    if(!(variable_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
-			print(expn, "Type in get is not integer");
+			print(expn, "Type of " + expn + " in get statement is not integer");
 		    }
 		}
 	    }
@@ -404,8 +404,9 @@ public class Semantics {
             }
             
             if(expn instanceof UnaryExpn){
-                if(!(expn_analysis(expn).equals("integer"))){ // S31: check integer type
-                        print(expn, "bad operand type for unary - has to be integer");
+		Expn operand = ((UnaryExpn)expn).getOperand();
+                if(!(expn_analysis(operand).equals("integer"))){ // S31: check integer type
+                        print(expn, "bad operand type for unary : " + operand + " has to be integer");
                 }
                 return "integer";
             }
@@ -413,10 +414,10 @@ public class Semantics {
             if(expn instanceof ArithExpn){
                 ArithExpn arith_expn=(ArithExpn) expn;
                 if(!(expn_analysis(arith_expn.getLeft()).equals("integer"))){
-                        print(expn, "unsupported operand type(s) for "+arith_expn.getOpSymbol());
+                        print(expn, "bad operand type(s) for " + arith_expn.getOpSymbol() + " : " + arith_expn.getLeft() + " has to be integer");
                 }
                 if(!(expn_analysis(arith_expn.getRight()).equals("integer"))){
-                        print(expn, "unsupported operand type(s) for "+arith_expn.getOpSymbol());
+                        print(expn, "bad operand type(s) for " + arith_expn.getOpSymbol() + " : " + arith_expn.getRight() + " has to be integer");
                 }
                 return "integer";
             }
@@ -427,7 +428,7 @@ public class Semantics {
             
             if(expn instanceof NotExpn){ // S30: check boolean type
                 if(!(expn_analysis(expn).equals("boolean"))){
-                        print(expn, "bad operand type for not - has to be boolean");
+                        print(expn, "bad operand type for not : " + expn + " has to be boolean");
                 }
                 return "boolean";
             }
@@ -435,18 +436,18 @@ public class Semantics {
             if(expn instanceof BoolExpn){
                 BoolExpn bool_expn=(BoolExpn) expn;
                 if(!(expn_analysis(bool_expn.getLeft()).equals("boolean"))){
-                        print(expn, "unsupported operand type(s) for "+bool_expn.getOpSymbol());
+                        print(expn, "bad operand type(s) for " + bool_expn.getOpSymbol() + " : " + bool_expn.getLeft() + " has to be boolean");
                 }
                 if(!(expn_analysis(bool_expn.getRight()).equals("boolean"))){
-                        print(expn, "unsupported operand type(s) for "+bool_expn.getOpSymbol());
+                        print(expn, "bad operand type(s) for " + bool_expn.getOpSymbol() + " : " + bool_expn.getRight() + " has to be boolean");
                 }
                 return "boolean";
             }
             
             if(expn instanceof EqualsExpn){
-                EqualsExpn euqals_expn=(EqualsExpn) expn;
-		if(!(expn_analysis(euqals_expn.getLeft()).equals(expn_analysis(euqals_expn.getRight())))){
-                        print(expn, "uncomparable types");
+                EqualsExpn equals_expn=(EqualsExpn) expn;
+		if(!(expn_analysis(equals_expn.getLeft()).equals(expn_analysis(equals_expn.getRight())))){ // S32: check that left and right operand have same type
+                        print(expn, "uncomparable types between " + equals_expn.getLeft() + " and " + equals_expn.getRight());
                 }
                 return "boolean";
             }
@@ -454,10 +455,10 @@ public class Semantics {
             if(expn instanceof CompareExpn){
                 CompareExpn comp_expn=(CompareExpn) expn;
                 if(!(expn_analysis(comp_expn.getLeft()).equals("integer"))){
-                        print(expn, "unsupported operand type(s) for "+comp_expn.getOpSymbol());
+                        print(expn, "bad operand type(s) for " + comp_expn.getOpSymbol() + " : " + comp_expn.getLeft() + " has to be integer");
                 }
                 if(!(expn_analysis(comp_expn.getRight()).equals("integer"))){
-                        print(expn, "unsupported operand type(s) for "+comp_expn.getOpSymbol());
+                        print(expn, "bad operand type(s) for " + comp_expn.getOpSymbol() + " : " + comp_expn.getRight() + " has to be integer");
                 }
                 return "boolean";
             }
@@ -470,10 +471,10 @@ public class Semantics {
             if(expn instanceof ConditionalExpn){
                 ConditionalExpn cond_expn=(ConditionalExpn) expn;
                 if(!(expn_analysis(cond_expn.getCondition()).equals("boolean"))){ // S30: check boolean type
-                        print(expn, "unsupported expression type - has to be boolean");
+                        print(expn, "bad conditional expression : " + cond_expn.getCondition() + " has to be boolean");
                 }
 		if(!(expn_analysis(cond_expn.getTrueValue()).equals(expn_analysis(cond_expn.getFalseValue())))){ // S33: Both exprs in conditional are the same type
-                        print(expn, "unsupported operand type");
+                        print(expn, "incompatible types between " + cond_expn.getTrueValue() + " and " + cond_expn.getFalseValue());
                 }
                 return expn_analysis(cond_expn.getTrueValue()); // S24: set result type of conditional expressions
             }
