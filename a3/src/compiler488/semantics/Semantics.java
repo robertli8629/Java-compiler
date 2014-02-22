@@ -240,7 +240,7 @@ public class Semantics {
 	private void handle_statement(Stmt stmt, ScopeType scope_type) {
 	
 	    if(stmt instanceof Scope){
-		Scope scope = (Scope) stmt; // find the scope from stmtlist\
+		Scope scope = (Scope) stmt; // find the scope from stmtlist
 		traverse(scope, null, ScopeType.MINOR);
 		    
 	    }
@@ -329,10 +329,10 @@ public class Semantics {
 
 	private void handle_output(PutStmt stmt){
 	    ASTList<Printable> outputs = stmt.getOutputs();
-	    LinkedList<Printable> output_ll=outputs.get_list();
-	    for(Printable output:output_ll){
+	    LinkedList<Printable> output_ll = outputs.get_list();
+	    for(Printable output : output_ll){
 		if(output instanceof Expn){
-		    Expn expn=(Expn) output;
+		    Expn expn = (Expn) output;
 		    if(!(expn_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
 			print(expn, "Type of " + expn + " in put statement is not integer");
 		    }
@@ -342,10 +342,10 @@ public class Semantics {
 	
 	private void handle_input(GetStmt stmt){
 	    ASTList<Readable> inputs = stmt.getInputs();
-	    LinkedList<Readable> input_ll=inputs.get_list();
-	    for(Readable input:input_ll){
+	    LinkedList<Readable> input_ll = inputs.get_list();
+	    for(Readable input : input_ll){
 		if(input instanceof IdentExpn){
-		    IdentExpn expn=(IdentExpn) input;
+		    IdentExpn expn = (IdentExpn) input;
 		    if(!(variable_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
 			print(expn, "Type of " + expn + " in get statement is not integer");
 		    }
@@ -403,8 +403,8 @@ public class Semantics {
                 return "integer";
             }
             
-            if(expn instanceof UnaryExpn){
-		Expn operand = ((UnaryExpn)expn).getOperand();
+            if(expn instanceof UnaryMinusExpn){
+		Expn operand = ((UnaryMinusExpn)expn).getOperand();
                 if(!(expn_analysis(operand).equals("integer"))){ // S31: check integer type
                         print(expn, "bad operand type for unary : " + operand + " has to be integer");
                 }
@@ -427,8 +427,9 @@ public class Semantics {
             }
             
             if(expn instanceof NotExpn){ // S30: check boolean type
-                if(!(expn_analysis(expn).equals("boolean"))){
-                        print(expn, "bad operand type for not : " + expn + " has to be boolean");
+		Expn operand = ((NotExpn)expn).getOperand();
+                if(!(expn_analysis(operand).equals("boolean"))){
+                        print(expn, "bad operand type for not : " + operand + " has to be boolean");
                 }
                 return "boolean";
             }
