@@ -1,0 +1,14 @@
+{
+
+var x : integer
+var y : boolean
+var z[10] : integer
+var w[10,10] : integer
+
+y[true]:=true
+z[1,1]:=2
+w[1]:= true
+put 1
+get x
+
+}

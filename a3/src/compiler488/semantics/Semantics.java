@@ -15,6 +15,7 @@ import compiler488.ast.expn.*;
 import compiler488.ast.type.*;
 import compiler488.ast.Readable;
 import compiler488.ast.Printable;
+import compiler488.ast.AST;
 
 
 /** Implement semantic analysis for compiler 488 
@@ -143,7 +144,7 @@ public class Semantics {
 			handle_declaration(decl, symboltable, scope_type);
 		}
 	    }
-// 	    printHash(symboltable);
+	    printHash(symboltable);
 	    symbolTable.symbolstack.push(symboltable);
 
 	    // recursion
@@ -289,9 +290,10 @@ public class Semantics {
 	    
 	    // S34: check that variable and expression in assignment are the same type
 	    if(stmt instanceof AssignStmt){
-		    AssignStmt asgn_stmt=(AssignStmt) stmt;
-		    Expn expn=asgn_stmt.getRval();
-		    IdentExpn var=(IdentExpn) asgn_stmt.getLval();
+		    AssignStmt asgn_stmt = (AssignStmt) stmt;
+		    Expn expn = asgn_stmt.getRval();
+// 		    IdentExpn var=(IdentExpn) asgn_stmt.getLval();
+		    Expn var = asgn_stmt.getLval();
 		    String var_type = variable_analysis(var);
 		    String expn_type = expn_analysis(expn);
 		    if(!(var_type.equals(expn_type))){
@@ -331,7 +333,7 @@ public class Semantics {
 	    for(Printable output:output_ll){
 		if(output instanceof Expn){
 		    Expn expn=(Expn) output;
-		    if(!(expn_analysis(expn).equals("integer"))){ //S31: Check that type of expression or variable is integer
+		    if(!(expn_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
 			System.out.println("Type in put is not integer");
 		    }
 		}
@@ -344,7 +346,7 @@ public class Semantics {
 	    for(Readable input:input_ll){
 		if(input instanceof IdentExpn){
 		    IdentExpn expn=(IdentExpn) input;
-		    if(!(variable_analysis(expn).equals("integer"))){ //S31: Check that type of expression or variable is integer
+		    if(!(variable_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
 			System.out.println("Type in get is not integer");
 		    }
 		}
@@ -495,85 +497,61 @@ public class Semantics {
 			symbol_found = symbol;
 		    }
 		}
-    //             System.out.println("top");
-    //             System.out.println(symbolTable.symbolstack.peek().get(ident_expn.toString()));
 		
 		if(symbol_found==null){
-		    System.out.println("Line: " + ident_expn.getLine() + " Column: " + ident_expn.getCol() + " :variable \"" + ident_expn.toString() + "\" is not defined");
-		}else if(symbol_found!= null){
+		    print(ident_expn, "variable \"" + ident_expn.toString() + "\" is not defined");
+		} else {
     //                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
 		    return symbol_found.getType().getType();
 		}
             }
 
-            if(expn instanceof SubsExpn){//one dimensional array check
+            if(expn instanceof SubsExpn){ // array check
 		SubsExpn sub_expn=(SubsExpn) expn;
-		if(sub_expn.getSubscript2()==null){
-		    if(!(sub_expn.getSubscript1().equals("integer"))){
-			System.out.println("Type should be integer");
-		    }
-		    if(sub_expn.getSubscript2()!=null){
-			if(!(sub_expn.getSubscript2().equals("integer"))){
-			    System.out.println("Type should be integer");
-			}
-		    }
-		    Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
-		    Symbol symbol = null;
-		    Symbol symbol_found = null;
-		    while(iter.hasNext()){
-			symbol=iter.next().get(sub_expn.getVariable());
-			if (symbol != null) {
-			    symbol_found = symbol;
-			}
-		    }
-		    if(symbol_found==null){
-			System.out.println("variable \"" + sub_expn.getVariable() + "\" is not defined");
-		    }else if(symbol_found!= null){
-	//                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
-			if(symbol.getType().getLink() instanceof ArrayDeclPart){
-			    ArrayDeclPart array=(ArrayDeclPart) symbol.getType().getLink();
-			    if(array.isTwoDimensional()){
-				System.out.println(sub_expn.getVariable()+" should be one dimensional array");
-			    }
-			    return symbol.getType().getType();
-			}
+
+		if(!(expn_analysis(sub_expn.getSubscript1()).equals("integer"))){ // S31: integer type check
+		    print(expn, "First index should be integer");
+		}
+		if(sub_expn.getSubscript2() != null){
+		    if(!(expn_analysis(sub_expn.getSubscript2()).equals("integer"))){
+			print(expn, "Second index should be integer");
 		    }
 		}
-            }
-            if(expn instanceof SubsExpn){//two dimensional array check
-		SubsExpn sub_expn=(SubsExpn) expn;
-		if(sub_expn.getSubscript2()!=null){
-		    if(!(sub_expn.getSubscript2().equals("integer"))){
-			System.out.println("Type should be integer");
+		Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
+		Symbol symbol = null;
+		Symbol symbol_found = null;
+		while(iter.hasNext()){
+		    symbol=iter.next().get(sub_expn.getVariable());
+		    if (symbol != null) {
+			symbol_found = symbol;
 		    }
-		    Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
-		    Symbol symbol = null;
-		    Symbol symbol_found = null;
-		    while(iter.hasNext()){
-			symbol=iter.next().get(sub_expn.getVariable());
-			if (symbol != null) {
-			    symbol_found = symbol;
+		}
+		if(symbol_found == null){
+		    print(expn, "variable \"" + sub_expn.getVariable() + "\" is not defined");
+		} else { // S38, S55: 1 dimentional / 2 dimentional array check
+		    if(symbol.getType().getLink() instanceof ArrayDeclPart){
+			ArrayDeclPart array=(ArrayDeclPart) symbol.getType().getLink();
+			if(array.isTwoDimensional() && sub_expn.getSubscript2() == null){
+			    print(expn, sub_expn.getVariable()+" should be two dimensional array");
+			} else if (!array.isTwoDimensional() && sub_expn.getSubscript2() != null) {
+			    print(expn, sub_expn.getVariable()+" should be one dimensional array");
 			}
-		    }
-		    if(symbol_found==null){
-			System.out.println("variable \"" + sub_expn.getVariable() + "\" is not defined");
-		    }else if(symbol_found!= null){
-	//                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
-			if(symbol.getType().getLink() instanceof ArrayDeclPart){
-			    ArrayDeclPart array=(ArrayDeclPart) symbol.getType().getLink();
-			    if(!(array.isTwoDimensional())){
-				System.out.println(sub_expn.getVariable()+" should be two dimensional array");
-			    }
-			    return symbol.getType().getType();
-			}
+			return symbol.getType().getType();
+		    } else {
+			print(expn, sub_expn.getVariable() + " is not declared as an array");
 		    }
 		}
 
-//             System.out.println("top");
-//             System.out.println(symbolTable.symbolstack.peek().get(ident_expn.toString()));
             }
+            
+
             return "";
 	
+	}
+	
+	// print line/column number with the sentence.
+	private void print(AST ast, String string) {
+	    System.out.println("Line: " + ast.getLine() + " Column: " + ast.getCol() + " : " + string);
 	}
 	
 
