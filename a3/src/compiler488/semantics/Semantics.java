@@ -179,7 +179,7 @@ public class Semantics {
 	
 	    // Semantic analysis S10: check whether variable is declared in currect scope
 	    if (decl instanceof ScalarDecl) {
-		check_if_declared(symboltable, decl.getName());
+		check_if_declared(symboltable, decl);
 	    }
 	    
 	    if (decl instanceof MultiDeclarations) {
@@ -215,21 +215,21 @@ public class Semantics {
 	private void handle_part_declaration(DeclarationPart dp, Hashtable<String,Symbol> symboltable, ScopeType scope_type, Type type) {
 	    
 	    if (dp instanceof ScalarDeclPart) {
-		check_if_declared(symboltable, dp.getName());
+		check_if_declared(symboltable, dp);
 	    }
 	    
 	    if (dp instanceof ArrayDeclPart) {
-		check_if_declared(symboltable, dp.getName());
+		check_if_declared(symboltable, dp);
 		
 		// Semantic analysis S46: check that lower bound is <= upper bound
 		ArrayDeclPart adp = (ArrayDeclPart)dp;
 		if (adp.isTwoDimensional()) { // 2 dim
 		    if ((adp.getLowerBoundary1() > adp.getUpperBoundary1()) || (adp.getLowerBoundary2() > adp.getUpperBoundary2())) {
-			System.out.println("array " + adp.toString() + " : lower boundary greater than upper boundary");
+			print(dp, "array " + adp.toString() + " : lower boundary greater than upper boundary");
 		    }
 		} else { // 1 dim
 		    if (adp.getLowerBoundary1() > adp.getUpperBoundary1()) {
-			System.out.println("array " + adp.toString() + " : lower boundary greater than upper boundary");
+			print(dp, "array " + adp.toString() + " : lower boundary greater than upper boundary");
 		    }
 		}
 	    }
@@ -247,33 +247,33 @@ public class Semantics {
 	    
 	    if (stmt instanceof ExitStmt) { // S50: check that exit statement is in a loop
 		if (scope_type != ScopeType.LOOP) {
-		    System.out.println("exit statement not in a loop"); // S30: check boolean type
+		    print(stmt, "exit statement not in a loop"); // S30: check boolean type
 		}
 		if (((ExitStmt)stmt).getExpn() != null) { // exit when statement
 		    if(!(expn_analysis(((ExitStmt)stmt).getExpn()).equals("boolean"))){
-			    System.out.println("Boolean type required for expression in exit when statement"); // S30: check boolean type
+			    print(stmt, "Boolean type required for expression in exit when statement"); // S30: check boolean type
 		    }
 		}
 	    }
 	    
 	    if (stmt instanceof ResultStmt) { // S51: check that result statement is in a function
 		if (scope_type != ScopeType.FUNCTION) {
-		    System.out.println("result statement not in a function");
+		    print(stmt, "result statement not in a function");
 		}
 		if(!(expn_analysis(((ResultStmt)stmt).getValue()).equals("boolean"))){ // TODO: S35: Check that expression type matches the return type of the function
-			System.out.println("Boolean type required");
+			print(stmt, "Boolean type required");
 		}
 	    }
 	    
 	    if (stmt instanceof ReturnStmt) { // S52: check that return statement is in a procedure
 		if (scope_type != ScopeType.PROCEDURE) {
-		    System.out.println("return statement not in a procedure");
+		    print(stmt, "return statement not in a procedure");
 		}
 	    }
 	    
 	    if (stmt instanceof LoopingStmt) { // looping statement (while/repeat)
 		if(!(expn_analysis(((LoopingStmt)stmt).getExpn()).equals("boolean"))){
-			System.out.println("Boolean type required for expression in loop"); // S30: check boolean type
+			print(stmt, "Boolean type required for expression in loop"); // S30: check boolean type
 		}
 		ASTList<Stmt> whileStmts = ((LoopingStmt)stmt).getBody();
 		LinkedList<Stmt> whilestmt_ll=whileStmts.get_list();
@@ -297,14 +297,14 @@ public class Semantics {
 		    String var_type = variable_analysis(var);
 		    String expn_type = expn_analysis(expn);
 		    if(!(var_type.equals(expn_type))){
-			    System.out.println("Type error: expect variable " + var.toString() + " type: " + var_type + " but given type: " + expn_type);
+			    print(expn, "Type error: expect variable " + var.toString() + " type: " + var_type + " but given type: " + expn_type);
 		    }
 	    }
 	    
 	    if(stmt instanceof IfStmt){
 		IfStmt if_stmt=(IfStmt) stmt;
 		if(!(expn_analysis(if_stmt.getCondition()).equals("boolean"))){
-			System.out.println("Boolean type required for expression in if statement");  // S30: check boolean type
+			print(stmt, "Boolean type required for expression in if statement");  // S30: check boolean type
 		}
 		recursive_stmt(if_stmt.getWhenTrue(), ScopeType.MINOR); // check statements after then
 		if (if_stmt.getWhenFalse() != null) {
@@ -334,7 +334,7 @@ public class Semantics {
 		if(output instanceof Expn){
 		    Expn expn=(Expn) output;
 		    if(!(expn_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
-			System.out.println("Type in put is not integer");
+			print(expn, "Type in put is not integer");
 		    }
 		}
 	    }
@@ -347,7 +347,7 @@ public class Semantics {
 		if(input instanceof IdentExpn){
 		    IdentExpn expn=(IdentExpn) input;
 		    if(!(variable_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
-			System.out.println("Type in get is not integer");
+			print(expn, "Type in get is not integer");
 		    }
 		}
 	    }
@@ -366,11 +366,20 @@ public class Semantics {
 	
 	
 	// check whether name is declared in current scope
-	private void check_if_declared(Hashtable<String,Symbol> ht, String name) {
-// 	    Hashtable<String,Symbol> ht = this.symbolstack.peek();
+	private void check_if_declared(Hashtable<String,Symbol> ht, DeclarationPart dp) {
+	    String name = dp.getName();
 	    Set<String> keyset = ht.keySet();
 	    if (keyset.contains(name)) {
-		System.out.println("name \"" + name + "\" is already defined in the scope");
+		print(dp, "name \"" + name + "\" is already defined in the scope");
+	    }
+	}
+	
+	// check whether name is declared in current scope
+	private void check_if_declared(Hashtable<String,Symbol> ht, Declaration decl) {
+	    String name = decl.getName();
+	    Set<String> keyset = ht.keySet();
+	    if (keyset.contains(name)) {
+		print(decl, "name \"" + name + "\" is already defined in the scope");
 	    }
 	}
 	
@@ -396,7 +405,7 @@ public class Semantics {
             
             if(expn instanceof UnaryExpn){
                 if(!(expn_analysis(expn).equals("integer"))){ // S31: check integer type
-                        System.out.println("bad operand type for unary - has to be integer");
+                        print(expn, "bad operand type for unary - has to be integer");
                 }
                 return "integer";
             }
@@ -404,10 +413,10 @@ public class Semantics {
             if(expn instanceof ArithExpn){
                 ArithExpn arith_expn=(ArithExpn) expn;
                 if(!(expn_analysis(arith_expn.getLeft()).equals("integer"))){
-                        System.out.println("unsupported operand type(s) for "+arith_expn.getOpSymbol());
+                        print(expn, "unsupported operand type(s) for "+arith_expn.getOpSymbol());
                 }
                 if(!(expn_analysis(arith_expn.getRight()).equals("integer"))){
-                        System.out.println("unsupported operand type(s) for "+arith_expn.getOpSymbol());
+                        print(expn, "unsupported operand type(s) for "+arith_expn.getOpSymbol());
                 }
                 return "integer";
             }
@@ -418,7 +427,7 @@ public class Semantics {
             
             if(expn instanceof NotExpn){ // S30: check boolean type
                 if(!(expn_analysis(expn).equals("boolean"))){
-                        System.out.println("bad operand type for not - has to be boolean");
+                        print(expn, "bad operand type for not - has to be boolean");
                 }
                 return "boolean";
             }
@@ -426,10 +435,10 @@ public class Semantics {
             if(expn instanceof BoolExpn){
                 BoolExpn bool_expn=(BoolExpn) expn;
                 if(!(expn_analysis(bool_expn.getLeft()).equals("boolean"))){
-                        System.out.println("unsupported operand type(s) for "+bool_expn.getOpSymbol());
+                        print(expn, "unsupported operand type(s) for "+bool_expn.getOpSymbol());
                 }
                 if(!(expn_analysis(bool_expn.getRight()).equals("boolean"))){
-                        System.out.println("unsupported operand type(s) for "+bool_expn.getOpSymbol());
+                        print(expn, "unsupported operand type(s) for "+bool_expn.getOpSymbol());
                 }
                 return "boolean";
             }
@@ -437,7 +446,7 @@ public class Semantics {
             if(expn instanceof EqualsExpn){
                 EqualsExpn euqals_expn=(EqualsExpn) expn;
 		if(!(expn_analysis(euqals_expn.getLeft()).equals(expn_analysis(euqals_expn.getRight())))){
-                        System.out.println("uncomparable types");
+                        print(expn, "uncomparable types");
                 }
                 return "boolean";
             }
@@ -445,10 +454,10 @@ public class Semantics {
             if(expn instanceof CompareExpn){
                 CompareExpn comp_expn=(CompareExpn) expn;
                 if(!(expn_analysis(comp_expn.getLeft()).equals("integer"))){
-                        System.out.println("unsupported operand type(s) for "+comp_expn.getOpSymbol());
+                        print(expn, "unsupported operand type(s) for "+comp_expn.getOpSymbol());
                 }
                 if(!(expn_analysis(comp_expn.getRight()).equals("integer"))){
-                        System.out.println("unsupported operand type(s) for "+comp_expn.getOpSymbol());
+                        print(expn, "unsupported operand type(s) for "+comp_expn.getOpSymbol());
                 }
                 return "boolean";
             }
@@ -461,10 +470,10 @@ public class Semantics {
             if(expn instanceof ConditionalExpn){
                 ConditionalExpn cond_expn=(ConditionalExpn) expn;
                 if(!(expn_analysis(cond_expn.getCondition()).equals("boolean"))){ // S30: check boolean type
-                        System.out.println("unsupported expression type - has to be boolean");
+                        print(expn, "unsupported expression type - has to be boolean");
                 }
 		if(!(expn_analysis(cond_expn.getTrueValue()).equals(expn_analysis(cond_expn.getFalseValue())))){ // S33: Both exprs in conditional are the same type
-                        System.out.println("unsupported operand type");
+                        print(expn, "unsupported operand type");
                 }
                 return expn_analysis(cond_expn.getTrueValue()); // S24: set result type of conditional expressions
             }
@@ -536,17 +545,15 @@ public class Semantics {
 			} else if (!array.isTwoDimensional() && sub_expn.getSubscript2() != null) {
 			    print(expn, sub_expn.getVariable()+" should be one dimensional array");
 			}
-			return symbol.getType().getType();
 		    } else {
 			print(expn, sub_expn.getVariable() + " is not declared as an array");
 		    }
+		    return symbol.getType().getType();
 		}
-
+		
             }
-            
 
             return "";
-	
 	}
 	
 	// print line/column number with the sentence.
