@@ -144,7 +144,7 @@ public class Semantics {
 			handle_declaration(decl, symboltable, scope_type);
 		}
 	    }
-	    printHash(symboltable);
+// 	    printHash(symboltable);
 	    symbolTable.symbolstack.push(symboltable);
 
 	    // recursion
@@ -304,7 +304,7 @@ public class Semantics {
 	    if(stmt instanceof IfStmt){
 		IfStmt if_stmt=(IfStmt) stmt;
 		if(!(expn_analysis(if_stmt.getCondition()).equals("boolean"))){
-			print(stmt, "Boolean type required for expression in if statement");  // S30: check boolean type
+			print(if_stmt.getCondition(), "Boolean type required for expression in if statement");  // S30: check boolean type
 		}
 		recursive_stmt(if_stmt.getWhenTrue(), ScopeType.MINOR); // check statements after then
 		if (if_stmt.getWhenFalse() != null) {
