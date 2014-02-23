@@ -1,5 +1,7 @@
 {
 
+forward func f (a:integer) : integer 
+forward proc p (a:integer)
 
 func f (a:integer) : integer {
 	result a + 1
@@ -19,5 +21,12 @@ p2(2)
 p()
 p(1,2)
 f(a)
-}
 
+p2 := f(1)
+x := f(1)
+p2 := p(1)
+p2 := f(1,2)
+p2 := f2(1)
+p2 := f(true)
+
+}

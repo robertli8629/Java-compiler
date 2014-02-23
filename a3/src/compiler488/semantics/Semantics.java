@@ -132,6 +132,8 @@ public class Semantics {
 	    ASTList<Declaration> AST_dcl=s.getDeclarations();
 	    LinkedList<Declaration> ll=AST_dcl.get_list();
 	    
+	    symbolTable.symbolstack.push(symboltable);
+	    
 	    if (arg != null) {
 		add_params(symboltable, arg);
 	    }
@@ -145,7 +147,7 @@ public class Semantics {
 		}
 	    }
 	    printHash(symboltable);
-	    symbolTable.symbolstack.push(symboltable);
+	    
 
 	    // recursion
 	    ASTList<Stmt> AST_stat=s.getStatements();
@@ -195,20 +197,80 @@ public class Semantics {
 	    
 	    // Semantic analysis S54: associate params if any with scope
 	    if (decl instanceof RoutineDecl) {
+		check_if_declared(symboltable, decl);
 		RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
 		Scope routine_scope = rb.getBody();
-		ASTList<ScalarDecl> params = rb.getParameters();
-		if (decl.getType() == null) {
-		    traverse(routine_scope, params, ScopeType.PROCEDURE);
+		if (routine_scope != null) { // not a forward decl
+		    check_forward_decl((RoutineDecl)decl); // S49: if function/procedure declared forward: verify declaration match
+		    ASTList<ScalarDecl> params = rb.getParameters();
+		    if (decl.getType() == null) {
+			traverse(routine_scope, params, ScopeType.PROCEDURE);
+		    } else {
+			traverse(routine_scope, params, ScopeType.FUNCTION);
+		    }
 		} else {
-		    traverse(routine_scope, params, ScopeType.FUNCTION);
+		    System.out.println("forward");
+		    
 		}
-		
 	    }
 	    
 	    // add it to symbol table
 	    symbolTable.add_to_symboltable(decl, symboltable);
 	
+	    return;
+	}
+	
+	private void check_forward_decl(RoutineDecl decl) { // 
+	    ASTList<ScalarDecl> arg_list = decl.getRoutineBody().getParameters();
+	    LinkedList<ScalarDecl> arg_ll = arg_list.get_list();
+	    int size_used = arg_ll.size();
+	    
+	    String name = decl.getName();
+	    Symbol symbol_found = find_variable(name);
+	    if (symbol_found != null) { // found
+		if (symbol_found.getType().getLink() instanceof RoutineDecl){ // found routine decl
+		    RoutineDecl routine = (RoutineDecl)symbol_found.getType().getLink();
+		    RoutineBody rb = routine.getRoutineBody();
+		    if (rb.getBody() == null) { // found a forward decl
+			if (symbol_found.getType().getType() == "null" && decl.getType() != null) {
+			    print(decl, name + " is pre-declared as a procedure, not as a function");
+			    return;
+			}
+			if (symbol_found.getType().getType() != "null" && decl.getType() == null) {
+			    print(decl, name + " is pre-declared as a function, not as a procedure");
+			    return;
+			}
+// 			RoutineDecl routine=(RoutineDecl) symbol_found.getType().getLink();
+			ASTList<ScalarDecl> arg_list_expected = routine.getRoutineBody().getParameters();
+			LinkedList<ScalarDecl> arg_ll_expected = arg_list_expected.get_list();
+			int size_expected = arg_list_expected.get_list().size();
+			if(size_expected != size_used){
+			    print(decl, "argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
+			} else {
+			    int i;
+			    for(i=0;i<arg_ll.size();i++){
+				ScalarDecl expn=arg_ll.get(i);
+				ScalarDecl scalar_decl=arg_ll_expected.get(i);
+				if((expn.getType() instanceof IntegerType)){
+				    if(!(scalar_decl.getType() instanceof IntegerType)){
+					print(expn, "type error: expect argument number " + i+1 + " type boolean");
+					return;
+				    }
+				}
+				if((expn.getType() instanceof BooleanType)){
+				    if(!(scalar_decl.getType() instanceof BooleanType)){
+					print(expn, "type error: expect argument number " + i+1 + " type integer");
+					return;
+				    }
+				}
+			    }
+			}
+			return;
+		    }
+		}
+	    }
+	    
+	    // default return error
 	    return;
 	}
 	
@@ -296,7 +358,7 @@ public class Semantics {
 		    Expn var = asgn_stmt.getLval();
 		    String var_type = variable_analysis(var);
 		    String expn_type = expn_analysis(expn);
-		    if(var_type != "" && !(var_type.equals(expn_type))){
+		    if(var_type != "" && expn_type != "" && !(var_type.equals(expn_type))){
 			    print(expn, "Type error: expect variable " + var.toString() + " type: " + var_type + ", but given type: " + expn_type);
 		    }
 	    }
@@ -319,28 +381,27 @@ public class Semantics {
 		int size_used = arg_ll.size();
 		String name = proc_stmt.getName();
 		
-		Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
-		Symbol symbol = null;
-		Symbol symbol_found = null;
-		while(iter.hasNext()){
-		    symbol=iter.next().get(name);
-		    if (symbol != null) {
-			symbol_found = symbol;
-		    }
-		}
+		Symbol symbol_found = find_variable(name);
 		
 		if(symbol_found == null){
 		    print(stmt, "procedure \"" + name + "\" is not defined");
 		} else {
-		    if(symbol.getType().getLink() instanceof RoutineDecl){
-			if (symbol.getType().getType() != "null") {
+		    if(symbol_found.getType().getLink() instanceof RoutineDecl){
+			if (symbol_found.getType().getType() != "null") {
 			    print(stmt, name + " is declared as a function, not as a procedure");
+			    return;
 			}
-			RoutineDecl routine=(RoutineDecl) symbol.getType().getLink();
-			int size_expected = routine.getRoutineBody().getParameters().get_list().size();
+			RoutineDecl routine=(RoutineDecl) symbol_found.getType().getLink();
+			ASTList<ScalarDecl> arg_list_expected = routine.getRoutineBody().getParameters();
+			int size_expected = arg_list_expected.get_list().size();
 			if(size_expected != size_used){
 			    print(stmt, "argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
-			} 
+			} else {
+			    int n = check_arguments_match(arg_ll, arg_list_expected.get_list()); // return "" if error
+			    if (n < 0) {
+				return;
+			    }
+			}
 		    } else {
 			print(stmt, name + " is not declared as a procedure");
 		    }
@@ -511,9 +572,42 @@ public class Semantics {
                 return expn_analysis(cond_expn.getTrueValue()); // S24: set result type of conditional expressions
             }
             
-            if(expn instanceof FunctionCallExpn){ // TODO: S43,S44,S28
+            if(expn instanceof FunctionCallExpn){ // S43: check argument number match
                 FunctionCallExpn func_expn=(FunctionCallExpn) expn;
-               
+		
+		ASTList<Expn> arg_list = func_expn.getArguments();
+		LinkedList<Expn> arg_ll = arg_list.get_list();
+		int size_used = arg_ll.size();
+		String name = func_expn.getIdent();
+		
+		Symbol symbol_found = find_variable(name);
+		
+		if(symbol_found == null){
+		    print(expn, "function \"" + name + "\" is not defined");
+		} else {
+		    if(symbol_found.getType().getLink() instanceof RoutineDecl){
+			if (symbol_found.getType().getType() == "null") {
+			    print(expn, name + " is declared as a procedure, not as a function");
+			    return "";
+			}
+			RoutineDecl routine=(RoutineDecl) symbol_found.getType().getLink();
+			ASTList<ScalarDecl> arg_list_expected = routine.getRoutineBody().getParameters();
+			int size_expected = arg_list_expected.get_list().size();
+			if(size_expected != size_used){
+			    print(expn, "argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
+			} else {
+			    int n = check_arguments_match(arg_ll, arg_list_expected.get_list()); // return "" if error
+			    if (n < 0) {
+				return "";
+			    }
+			}
+			return symbol_found.getType().getType();
+		    } else {
+			print(expn, name + " is not declared as a function");
+		    }
+		}
+		return "";
+		
             }
             
             if(expn instanceof IdentExpn){
@@ -525,20 +619,57 @@ public class Semantics {
         }
        
        
+       private int check_arguments_match(LinkedList<Expn> arg_ll, LinkedList<ScalarDecl> arg_ll_expected) {
+	     System.out.println("check_arguments_match");
+	     int i;
+	     for(i=0;i<arg_ll.size();i++){
+		Expn expn=arg_ll.get(i);
+		ScalarDecl decl=arg_ll_expected.get(i);
+		if(expn_analysis(expn).equals("integer")){
+		    if(!(decl.getType() instanceof IntegerType)){
+			print(expn, "type error: expect argument number " + i+1 + " type boolean");
+			return -1;
+		    }
+		}
+		if(expn_analysis(expn).equals("boolean")){
+		    if(!(decl.getType() instanceof BooleanType)){
+			print(expn, "type error: expect argument number " + i+1 + " type integer");
+			return -1;
+		    }
+		}
+	     }
+	     
+	     return 0;
+       }
+       
+//        private int check_arguments_match(LinkedList<ScalarDecl> arg_ll, LinkedList<ScalarDecl> arg_ll_expected) {
+// 	     System.out.println("check_arguments_match");
+// 	     int i;
+// 	     for(i=0;i<arg_ll.size();i++){
+// 		ScalarDecl expn=arg_ll.get(i);
+// 		ScalarDecl decl=arg_ll_expected.get(i);
+// 		if((expn.getType() instanceof IntegerType)){
+// 		    if(!(decl.getType() instanceof IntegerType)){
+// 			print(expn, "type error: expect argument number " + i+1 + " type boolean");
+// 			return -1;
+// 		    }
+// 		}
+// 		if((expn.getType() instanceof BooleanType)){
+// 		    if(!(decl.getType() instanceof BooleanType)){
+// 			print(expn, "type error: expect argument number " + i+1 + " type integer");
+// 			return -1;
+// 		    }
+// 		}
+// 	     }
+// 	     
+// 	     return 0;
+//        }
        
         // S29: check whether the variable is declared or visible
         private String variable_analysis(Expn expn){
 	    if(expn instanceof IdentExpn){
 		IdentExpn ident_expn=(IdentExpn) expn;
-		Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
-		Symbol symbol = null;
-		Symbol symbol_found = null;
-		while(iter.hasNext()){
-		    symbol=iter.next().get(ident_expn.toString());
-		    if (symbol != null) {
-			symbol_found = symbol;
-		    }
-		}
+		Symbol symbol_found = find_variable(ident_expn.toString());
 		
 		if(symbol_found == null){
 		    print(ident_expn, "variable \"" + ident_expn.toString() + "\" is not defined");
@@ -559,20 +690,14 @@ public class Semantics {
 			print(expn, "Second index should be integer");
 		    }
 		}
-		Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
-		Symbol symbol = null;
-		Symbol symbol_found = null;
-		while(iter.hasNext()){
-		    symbol=iter.next().get(sub_expn.getVariable());
-		    if (symbol != null) {
-			symbol_found = symbol;
-		    }
-		}
+
+		Symbol symbol_found = find_variable(sub_expn.getVariable());
+		
 		if(symbol_found == null){
 		    print(expn, "variable \"" + sub_expn.getVariable() + "\" is not defined");
 		} else { // S38, S55: 1 dimentional / 2 dimentional array check
-		    if(symbol.getType().getLink() instanceof ArrayDeclPart){
-			ArrayDeclPart array=(ArrayDeclPart) symbol.getType().getLink();
+		    if(symbol_found.getType().getLink() instanceof ArrayDeclPart){
+			ArrayDeclPart array=(ArrayDeclPart) symbol_found.getType().getLink();
 			if(array.isTwoDimensional() && sub_expn.getSubscript2() == null){
 			    print(expn, sub_expn.getVariable()+" should be two dimensional array");
 			} else if (!array.isTwoDimensional() && sub_expn.getSubscript2() != null) {
@@ -581,12 +706,26 @@ public class Semantics {
 		    } else {
 			print(expn, sub_expn.getVariable() + " is not declared as an array");
 		    }
-		    return symbol.getType().getType();
+		    return symbol_found.getType().getType();
 		}
 		
             }
 
             return "";
+	}
+	
+	// find the variable from symboltable
+	private Symbol find_variable(String name) {
+	    Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
+	    Symbol symbol = null;
+	    Symbol symbol_found = null;
+	    while(iter.hasNext()){
+		symbol=iter.next().get(name);
+		if (symbol != null) {
+		    symbol_found = symbol;
+		}
+	    }
+	    return symbol_found;
 	}
 	
 	// print line/column number with the sentence.
@@ -596,3 +735,5 @@ public class Semantics {
 	
 
 }
+
+// todo: S35, test forward, test parameter
