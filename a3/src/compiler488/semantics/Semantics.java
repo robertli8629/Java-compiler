@@ -144,7 +144,7 @@ public class Semantics {
 			handle_declaration(decl, symboltable, scope_type);
 		}
 	    }
-// 	    printHash(symboltable);
+	    printHash(symboltable);
 	    symbolTable.symbolstack.push(symboltable);
 
 	    // recursion
@@ -296,8 +296,8 @@ public class Semantics {
 		    Expn var = asgn_stmt.getLval();
 		    String var_type = variable_analysis(var);
 		    String expn_type = expn_analysis(expn);
-		    if(!(var_type.equals(expn_type))){
-			    print(expn, "Type error: expect variable " + var.toString() + " type: " + var_type + " but given type: " + expn_type);
+		    if(var_type != "" && !(var_type.equals(expn_type))){
+			    print(expn, "Type error: expect variable " + var.toString() + " type: " + var_type + ", but given type: " + expn_type);
 		    }
 	    }
 	    
@@ -312,8 +312,39 @@ public class Semantics {
 		}
 	    }
 	    
-	    if(stmt instanceof ProcedureCallStmt){ // TODO: S43, S44
+	    if(stmt instanceof ProcedureCallStmt){ // S43: check that the number of arguments is equal to the number of formal parameters
+		ProcedureCallStmt proc_stmt = (ProcedureCallStmt)stmt;
+		ASTList<Expn> arg_list = (proc_stmt).getArguments();
+		LinkedList<Expn> arg_ll = arg_list.get_list();
+		int size_used = arg_ll.size();
+		String name = proc_stmt.getName();
 		
+		Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
+		Symbol symbol = null;
+		Symbol symbol_found = null;
+		while(iter.hasNext()){
+		    symbol=iter.next().get(name);
+		    if (symbol != null) {
+			symbol_found = symbol;
+		    }
+		}
+		
+		if(symbol_found == null){
+		    print(stmt, "procedure \"" + name + "\" is not defined");
+		} else {
+		    if(symbol.getType().getLink() instanceof RoutineDecl){
+			if (symbol.getType().getType() != "null") {
+			    print(stmt, name + " is declared as a function, not as a procedure");
+			}
+			RoutineDecl routine=(RoutineDecl) symbol.getType().getLink();
+			int size_expected = routine.getRoutineBody().getParameters().get_list().size();
+			if(size_expected != size_used){
+			    print(stmt, "argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
+			} 
+		    } else {
+			print(stmt, name + " is not declared as a procedure");
+		    }
+		}
 	    }
 	    
 	    if(stmt instanceof PutStmt){
@@ -509,7 +540,7 @@ public class Semantics {
 		    }
 		}
 		
-		if(symbol_found==null){
+		if(symbol_found == null){
 		    print(ident_expn, "variable \"" + ident_expn.toString() + "\" is not defined");
 		} else {
     //                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());

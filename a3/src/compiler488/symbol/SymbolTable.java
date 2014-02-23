@@ -86,6 +86,7 @@ public class SymbolTable {
 		kind = "var";
 	    } else if (decl instanceof RoutineDecl) {
 		kind = "func";
+		s_type.setLink((Object)decl);
 	    }
 	    Symbol sym=new Symbol(decl.getName(), kind,0 , s_type); 
 	    symboltable.put(decl.getName(),sym);

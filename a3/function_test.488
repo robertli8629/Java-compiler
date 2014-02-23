@@ -1,0 +1,23 @@
+{
+
+
+func f (a:integer) : integer {
+	result a + 1
+}
+
+proc p (a:integer) {
+    return
+}
+
+
+var p2 : integer
+var x : boolean
+
+x:=1
+p(1)
+p2(2)
+p()
+p(1,2)
+f(a)
+}
+
