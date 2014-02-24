@@ -15,6 +15,7 @@ proc p (a:integer) {
 var p2 : integer
 var x : boolean
 
+a:=1
 x:=1
 p(1)
 p2(2)

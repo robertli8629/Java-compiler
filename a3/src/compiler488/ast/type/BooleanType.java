@@ -9,4 +9,13 @@ public class BooleanType extends Type {
 	public String toString() {
 		return "boolean";
 	}
+	
+	@Override
+	public boolean equalTo(String type) {
+	    if (type.equals("boolean")) {
+		return true;
+	    }
+	    return false;
+	}
+	
 }

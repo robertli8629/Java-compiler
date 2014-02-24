@@ -9,4 +9,12 @@ public class IntegerType extends Type {
 	public String toString() {
 		return "integer";
 	}
+	
+	@Override
+	public boolean equalTo(String type) {
+	    if (type.equals("integer")) {
+		return true;
+	    }
+	    return false;
+	}
 }

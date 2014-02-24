@@ -58,7 +58,7 @@ public class Semantics {
 	   symbolTable = new SymbolTable();
 // 	   symbolTable.Initialize(programAST);
 
-	   this.traverse((Scope) programAST, null, ScopeType.MAJOR);
+	   this.traverse((Scope) programAST, null, ScopeType.MAJOR, null);
 	   
 	}
 
@@ -125,7 +125,7 @@ public class Semantics {
 	
 	
 	// second parameter is only used when entering a function scope with parameters
-	private void traverse(Scope s, ASTList<ScalarDecl> arg, ScopeType scope_type){
+	private void traverse(Scope s, ASTList<ScalarDecl> arg, ScopeType scope_type, Object ref){
 // 	    System.out.println("enter traverse");
 	    Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
 
@@ -146,7 +146,7 @@ public class Semantics {
 			handle_declaration(decl, symboltable, scope_type);
 		}
 	    }
-	    printHash(symboltable);
+// 	    printHash(symboltable);
 	    
 
 	    // recursion
@@ -157,7 +157,7 @@ public class Semantics {
 		while (iterator_stmt.hasNext()){
 			Stmt stmt = (Stmt)iterator_stmt.next();
 			
-			handle_statement(stmt, scope_type);
+			handle_statement(stmt, scope_type, ref);
 		}
 	    }
 	    
@@ -172,7 +172,7 @@ public class Semantics {
 		while (iterator_stmt.hasNext()){
 			Stmt stmt = (Stmt)iterator_stmt.next();
 			
-			handle_statement(stmt, scope_type);
+			handle_statement(stmt, scope_type, null);
 		}
 	    }
 	}
@@ -204,12 +204,12 @@ public class Semantics {
 		    check_forward_decl((RoutineDecl)decl); // S49: if function/procedure declared forward: verify declaration match
 		    ASTList<ScalarDecl> params = rb.getParameters();
 		    if (decl.getType() == null) {
-			traverse(routine_scope, params, ScopeType.PROCEDURE);
+			traverse(routine_scope, params, ScopeType.PROCEDURE, null);
 		    } else {
-			traverse(routine_scope, params, ScopeType.FUNCTION);
+			traverse(routine_scope, params, ScopeType.FUNCTION, decl);
 		    }
 		} else {
-		    System.out.println("forward");
+// 		    System.out.println("forward");
 		    
 		}
 	    }
@@ -221,9 +221,15 @@ public class Semantics {
 	}
 	
 	private void check_forward_decl(RoutineDecl decl) { // 
+// 	    System.out.println("check_forward_decl");
+	
 	    ASTList<ScalarDecl> arg_list = decl.getRoutineBody().getParameters();
-	    LinkedList<ScalarDecl> arg_ll = arg_list.get_list();
-	    int size_used = arg_ll.size();
+	    LinkedList<ScalarDecl> arg_ll = null;
+	    int size_used = 0;
+	    if (arg_list != null) {
+		arg_ll = arg_list.get_list();
+	        size_used = arg_ll.size();
+	    }
 	    
 	    String name = decl.getName();
 	    Symbol symbol_found = find_variable(name);
@@ -236,19 +242,27 @@ public class Semantics {
 			    print(decl, name + " is pre-declared as a procedure, not as a function");
 			    return;
 			}
-			if (symbol_found.getType().getType() != "null" && decl.getType() == null) {
-			    print(decl, name + " is pre-declared as a function, not as a procedure");
-			    return;
+			if (symbol_found.getType().getType() != "null") {
+			    if (decl.getType() == null) {
+				print(decl, name + " is pre-declared as a function, not as a procedure");
+				return;
+			    } else if (!decl.getType().equalTo(symbol_found.getType().getType())) {
+				print(decl, "return type of " + name + " is different from that of forward declaration");
+			    }
 			}
 // 			RoutineDecl routine=(RoutineDecl) symbol_found.getType().getLink();
 			ASTList<ScalarDecl> arg_list_expected = routine.getRoutineBody().getParameters();
-			LinkedList<ScalarDecl> arg_ll_expected = arg_list_expected.get_list();
-			int size_expected = arg_list_expected.get_list().size();
+			LinkedList<ScalarDecl> arg_ll_expected = null;
+			int size_expected = 0;
+			if (arg_list_expected != null) {
+			    arg_ll_expected = arg_list_expected.get_list();
+			    size_expected = arg_list_expected.get_list().size();
+			}
 			if(size_expected != size_used){
 			    print(decl, "argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
 			} else {
 			    int i;
-			    for(i=0;i<arg_ll.size();i++){
+			    for (i = 0;i < size_used; i++){
 				ScalarDecl expn=arg_ll.get(i);
 				ScalarDecl scalar_decl=arg_ll_expected.get(i);
 				if((expn.getType() instanceof IntegerType)){
@@ -299,11 +313,11 @@ public class Semantics {
 	    symbolTable.add_to_symboltable(dp, symboltable, type);
 	}
 	
-	private void handle_statement(Stmt stmt, ScopeType scope_type) {
+	private void handle_statement(Stmt stmt, ScopeType scope_type, Object ref) {
 	
 	    if(stmt instanceof Scope){
 		Scope scope = (Scope) stmt; // find the scope from stmtlist
-		traverse(scope, null, ScopeType.MINOR);
+		traverse(scope, null, ScopeType.MINOR, null);
 		    
 	    }
 	    
@@ -311,6 +325,7 @@ public class Semantics {
 		if (scope_type != ScopeType.LOOP) {
 		    print(stmt, "exit statement not in a loop"); // S30: check boolean type
 		}
+		
 		if (((ExitStmt)stmt).getExpn() != null) { // exit when statement
 		    if(!(expn_analysis(((ExitStmt)stmt).getExpn()).equals("boolean"))){
 			    print(stmt, "Boolean type required for expression in exit when statement"); // S30: check boolean type
@@ -321,9 +336,12 @@ public class Semantics {
 	    if (stmt instanceof ResultStmt) { // S51: check that result statement is in a function
 		if (scope_type != ScopeType.FUNCTION) {
 		    print(stmt, "result statement not in a function");
+		    return;
 		}
-		if(!(expn_analysis(((ResultStmt)stmt).getValue()).equals("boolean"))){ // TODO: S35: Check that expression type matches the return type of the function
-			print(stmt, "Boolean type required");
+		
+		RoutineDecl decl = (RoutineDecl)ref;
+		if(!(expn_analysis(((ResultStmt)stmt).getValue()).equals(decl.getType().toString()))){ // TODO: S35: Check that expression type matches the return type of the function
+			print(stmt, "type mismatch in result statement");
 		}
 	    }
 	    
@@ -342,10 +360,10 @@ public class Semantics {
 		for (Stmt whileStmt : whilestmt_ll) {
 		    if(whileStmt instanceof Scope){
 			Scope scope = (Scope) whileStmt; // find the scope from stmtlist
-			traverse(scope, null, ScopeType.LOOP);
+			traverse(scope, null, ScopeType.LOOP, null);
 			    
 		    } else {
-			handle_statement(whileStmt, ScopeType.LOOP);
+			handle_statement(whileStmt, ScopeType.LOOP, null);
 		    }
 		}
 	    }
@@ -377,9 +395,13 @@ public class Semantics {
 	    if(stmt instanceof ProcedureCallStmt){ // S43: check that the number of arguments is equal to the number of formal parameters
 		ProcedureCallStmt proc_stmt = (ProcedureCallStmt)stmt;
 		ASTList<Expn> arg_list = (proc_stmt).getArguments();
-		LinkedList<Expn> arg_ll = arg_list.get_list();
-		int size_used = arg_ll.size();
+		int size_used = 0;
 		String name = proc_stmt.getName();
+		LinkedList<Expn> arg_ll = null;
+		if (arg_list != null) {
+		    arg_ll = arg_list.get_list();
+		    size_used = arg_ll.size();
+		}
 		
 		Symbol symbol_found = find_variable(name);
 		
@@ -393,10 +415,17 @@ public class Semantics {
 			}
 			RoutineDecl routine=(RoutineDecl) symbol_found.getType().getLink();
 			ASTList<ScalarDecl> arg_list_expected = routine.getRoutineBody().getParameters();
-			int size_expected = arg_list_expected.get_list().size();
+			int size_expected = 0;
+			if (arg_list_expected != null) {
+			    size_expected = arg_list_expected.get_list().size();
+			}
+			
 			if(size_expected != size_used){
 			    print(stmt, "argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
 			} else {
+			    if (size_expected == 0) {
+				return;
+			    }
 			    int n = check_arguments_match(arg_ll, arg_list_expected.get_list()); // return "" if error
 			    if (n < 0) {
 				return;
@@ -477,7 +506,7 @@ public class Semantics {
 	
 	// S54: associate params if any with scope
 	private void add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params) {
-	    System.out.println("add_params");
+// 	    System.out.println("add_params");
 	    if (params != null) {
 		LinkedList<ScalarDecl> l = params.get_list();
 		for (ScalarDecl d : l) {
@@ -575,10 +604,14 @@ public class Semantics {
             if(expn instanceof FunctionCallExpn){ // S43: check argument number match
                 FunctionCallExpn func_expn=(FunctionCallExpn) expn;
 		
-		ASTList<Expn> arg_list = func_expn.getArguments();
-		LinkedList<Expn> arg_ll = arg_list.get_list();
-		int size_used = arg_ll.size();
+		int size_used = 0;
 		String name = func_expn.getIdent();
+		ASTList<Expn> arg_list = func_expn.getArguments();
+		LinkedList<Expn> arg_ll = null;
+		if (arg_list != null) {
+		    arg_ll = arg_list.get_list();
+		    size_used = arg_ll.size();
+		}
 		
 		Symbol symbol_found = find_variable(name);
 		
@@ -592,10 +625,17 @@ public class Semantics {
 			}
 			RoutineDecl routine=(RoutineDecl) symbol_found.getType().getLink();
 			ASTList<ScalarDecl> arg_list_expected = routine.getRoutineBody().getParameters();
-			int size_expected = arg_list_expected.get_list().size();
+			int size_expected = 0;
+			if (arg_list_expected != null) {
+			    size_expected = arg_list_expected.get_list().size();
+			}
+			
 			if(size_expected != size_used){
 			    print(expn, "argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
 			} else {
+			    if (size_expected == 0) {
+				return symbol_found.getType().getType();
+			    }
 			    int n = check_arguments_match(arg_ll, arg_list_expected.get_list()); // return "" if error
 			    if (n < 0) {
 				return "";
@@ -620,7 +660,7 @@ public class Semantics {
        
        
        private int check_arguments_match(LinkedList<Expn> arg_ll, LinkedList<ScalarDecl> arg_ll_expected) {
-	     System.out.println("check_arguments_match");
+// 	     System.out.println("check_arguments_match");
 	     int i;
 	     for(i=0;i<arg_ll.size();i++){
 		Expn expn=arg_ll.get(i);
@@ -641,29 +681,7 @@ public class Semantics {
 	     
 	     return 0;
        }
-       
-//        private int check_arguments_match(LinkedList<ScalarDecl> arg_ll, LinkedList<ScalarDecl> arg_ll_expected) {
-// 	     System.out.println("check_arguments_match");
-// 	     int i;
-// 	     for(i=0;i<arg_ll.size();i++){
-// 		ScalarDecl expn=arg_ll.get(i);
-// 		ScalarDecl decl=arg_ll_expected.get(i);
-// 		if((expn.getType() instanceof IntegerType)){
-// 		    if(!(decl.getType() instanceof IntegerType)){
-// 			print(expn, "type error: expect argument number " + i+1 + " type boolean");
-// 			return -1;
-// 		    }
-// 		}
-// 		if((expn.getType() instanceof BooleanType)){
-// 		    if(!(decl.getType() instanceof BooleanType)){
-// 			print(expn, "type error: expect argument number " + i+1 + " type integer");
-// 			return -1;
-// 		    }
-// 		}
-// 	     }
-// 	     
-// 	     return 0;
-//        }
+
        
         // S29: check whether the variable is declared or visible
         private String variable_analysis(Expn expn){
@@ -736,4 +754,3 @@ public class Semantics {
 
 }
 
-// todo: S35, test forward, test parameter

@@ -6,4 +6,9 @@ import compiler488.ast.AST;
  * A placeholder for types.
  */
 public class Type extends AST {
+
+    public boolean equalTo(String type) {
+	return false;
+    }
+
 }
