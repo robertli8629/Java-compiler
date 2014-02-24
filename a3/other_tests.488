@@ -35,7 +35,7 @@ fi
 
 while ((1+2)=(3+5)) do {
     if 1 then
-	{exit}
+	{exit} % need fix
     else 
 	{exit when 1}
     fi
@@ -51,7 +51,7 @@ get a
 get a, b, c, dd
 
 put 1
-put "qwe"
+put "qwe" % need fix
 put newline
 put 1, "df", newline
 
