@@ -22,6 +22,7 @@ func f4 (aa:integer) : integer {
 	    {exit} % need fix
 	else 
 	    {result true}
+	    {result aa+1}
 	fi
 	exit
 	{exit}
@@ -30,9 +31,10 @@ func f4 (aa:integer) : integer {
 }
 
 func F() : integer {
-    %proc P () {
-%	result 7 % inside F but not directly inside F
-    %}
+    proc P () {
+	result 7 % inside F but not directly inside F
+    }
+    return
 }
 
 proc p (a:integer) {
