@@ -232,7 +232,10 @@ public class Semantics {
 	    }
 	    
 	    String name = decl.getName();
-	    Symbol symbol_found = find_variable(name);
+	    // look for forward declaration only in the current scope
+	    Hashtable<String,Symbol> ht = symbolTable.symbolstack.peek();
+	    Symbol symbol_found = ht.get(name);
+	    
 	    if (symbol_found != null) { // found
 		if (symbol_found.getType().getLink() instanceof RoutineDecl){ // found routine decl
 		    RoutineDecl routine = (RoutineDecl)symbol_found.getType().getLink();
@@ -250,7 +253,7 @@ public class Semantics {
 				print(decl, "return type of " + name + " is different from that of forward declaration");
 			    }
 			}
-// 			RoutineDecl routine=(RoutineDecl) symbol_found.getType().getLink();
+			
 			ASTList<ScalarDecl> arg_list_expected = routine.getRoutineBody().getParameters();
 			LinkedList<ScalarDecl> arg_ll_expected = null;
 			int size_expected = 0;
@@ -259,7 +262,7 @@ public class Semantics {
 			    size_expected = arg_list_expected.get_list().size();
 			}
 			if(size_expected != size_used){
-			    print(decl, "argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
+			    print(decl, "forward declaration error: argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
 			} else {
 			    int i;
 			    for (i = 0;i < size_used; i++){
@@ -267,13 +270,13 @@ public class Semantics {
 				ScalarDecl scalar_decl=arg_ll_expected.get(i);
 				if((expn.getType() instanceof IntegerType)){
 				    if(!(scalar_decl.getType() instanceof IntegerType)){
-					print(expn, "type error: expect argument number " + i+1 + " type boolean");
+					print(expn, "forward declaration error: expect argument number " + i+1 + " type boolean");
 					return;
 				    }
 				}
 				if((expn.getType() instanceof BooleanType)){
 				    if(!(scalar_decl.getType() instanceof BooleanType)){
-					print(expn, "type error: expect argument number " + i+1 + " type integer");
+					print(expn, "forward declaration error: expect argument number " + i+1 + " type integer");
 					return;
 				    }
 				}
@@ -752,7 +755,7 @@ public class Semantics {
             return "";
 	}
 	
-	// find the variable from symboltable
+	// find the variable from symboltable that appears closest to the top scope
 	private Symbol find_variable(String name) {
 	    Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
 	    Symbol symbol = null;

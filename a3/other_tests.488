@@ -12,9 +12,12 @@ func f (a:integer) : integer {
     result 1
 }
 func f2 () : integer {}
-func f3 (a:integer,b:boolean) : integer {}
-func f (a:integer) : integer {
-	result a + 1
+func f3 (a:integer,b:integer) : integer {
+    b := a+1
+    cc := b+1 % should report error for missing result stmt?
+}
+func f (aa:integer) : integer {
+	result aa + 1
 }
 
 proc p (a:integer) {
