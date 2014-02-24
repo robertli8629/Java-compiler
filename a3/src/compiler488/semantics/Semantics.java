@@ -696,10 +696,10 @@ public class Semantics {
 		
             }
             
-            if(expn instanceof IdentExpn){
-                IdentExpn ident_expn=(IdentExpn) expn;
-                return variable_analysis(ident_expn);
+            if ((expn instanceof IdentExpn) || (expn instanceof SubsExpn)) {
+                return variable_analysis(expn);
             }
+            
             return "";
             
         }
