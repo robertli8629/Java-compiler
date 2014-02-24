@@ -2,7 +2,7 @@
 
 % rest of the general testing for combining things together
 
-var a : integer
+var a,h[5] : integer
 var b,c,d,e[10],f[1..2], g[1,1..5] : boolean
 
 forward func f (a:integer) : integer 
@@ -48,12 +48,12 @@ aaa[1] := 1
 aaa[2,3] := 2
 
 get a
-get a, b, c, dd
+get a, b, c, h[1]
 
 put 1
-put "qwe" % need fix
+put "qwe"
 put newline
-put 1, "df", newline
+put 1, "df", newline, b
 
 p2()
 p(1)

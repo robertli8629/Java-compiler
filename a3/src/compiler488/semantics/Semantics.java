@@ -438,13 +438,15 @@ public class Semantics {
 	    }
 	    
 	    if(stmt instanceof PutStmt){
-		PutStmt put_stmt=(PutStmt) stmt;
+		PutStmt put_stmt = (PutStmt) stmt;
 		handle_output(put_stmt);
 	    }
+	    
 	    if(stmt instanceof GetStmt){
-		GetStmt get_stmt=(GetStmt) stmt;
+		GetStmt get_stmt = (GetStmt) stmt;
 		handle_input(get_stmt);
 	    }
+	    
 	    return;
 	}
 
@@ -452,7 +454,9 @@ public class Semantics {
 	    ASTList<Printable> outputs = stmt.getOutputs();
 	    LinkedList<Printable> output_ll = outputs.get_list();
 	    for(Printable output : output_ll){
-		if(output instanceof Expn){
+		if ((output instanceof TextConstExpn) || (output instanceof NewlineConstExpn)) {
+		    continue;
+		} else if (output instanceof Expn){
 		    Expn expn = (Expn) output;
 		    if(!(expn_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
 			print(expn, "Type of " + expn + " in put statement is not integer");
@@ -467,6 +471,11 @@ public class Semantics {
 	    for(Readable input : input_ll){
 		if(input instanceof IdentExpn){
 		    IdentExpn expn = (IdentExpn) input;
+		    if(!(variable_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
+			print(expn, "Type of " + expn + " in get statement is not integer");
+		    }
+		} else if (input instanceof SubsExpn) {
+		    SubsExpn expn = (SubsExpn) input;
 		    if(!(variable_analysis(expn).equals("integer"))){ // S31: Check that type of expression or variable is integer
 			print(expn, "Type of " + expn + " in get statement is not integer");
 		    }
