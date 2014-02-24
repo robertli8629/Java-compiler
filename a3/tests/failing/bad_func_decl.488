@@ -1,4 +1,0 @@
-{
-	func f( a : integer, ) : boolean { }
-	b := 8
-}

@@ -1,6 +1,0 @@
-{
-    % Comparison operators should not associate
-
-    test := true = true <= false
-}
-

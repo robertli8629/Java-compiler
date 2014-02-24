@@ -202,13 +202,15 @@ public class Semantics {
 		Scope routine_scope = rb.getBody();
 		if (routine_scope != null) { // not a forward decl
 		    check_forward_decl((RoutineDecl)decl); // S49: if function/procedure declared forward: verify declaration match
+		    symbolTable.add_to_symboltable(decl, symboltable); // add first for recursive definition
 		    ASTList<ScalarDecl> params = rb.getParameters();
 		    if (decl.getType() == null) {
 			traverse(routine_scope, params, ScopeType.PROCEDURE, null);
 		    } else {
 			traverse(routine_scope, params, ScopeType.FUNCTION, decl);
 		    }
-		} else {
+		    return;
+		} else { // forward declaration
 // 		    System.out.println("forward");
 		    
 		}
@@ -392,7 +394,6 @@ public class Semantics {
 	    if(stmt instanceof AssignStmt){
 		    AssignStmt asgn_stmt = (AssignStmt) stmt;
 		    Expn expn = asgn_stmt.getRval();
-// 		    IdentExpn var=(IdentExpn) asgn_stmt.getLval();
 		    Expn var = asgn_stmt.getLval();
 		    String var_type = variable_analysis(var);
 		    String expn_type = expn_analysis(expn);
@@ -556,7 +557,6 @@ public class Semantics {
 	    if (params != null) {
 		LinkedList<ScalarDecl> l = params.get_list();
 		for (ScalarDecl d : l) {
-    // 		System.out.println(d);
 		    symbolTable.add_to_symboltable(d, ht);
 		}
 	    }
@@ -708,9 +708,9 @@ public class Semantics {
        private int check_arguments_match(LinkedList<Expn> arg_ll, LinkedList<ScalarDecl> arg_ll_expected) {
 // 	     System.out.println("check_arguments_match");
 	     int i;
-	     for(i=0;i<arg_ll.size();i++){
-		Expn expn=arg_ll.get(i);
-		ScalarDecl decl=arg_ll_expected.get(i);
+	     for(i = 0; i < arg_ll.size(); i++){
+		Expn expn = arg_ll.get(i);
+		ScalarDecl decl = arg_ll_expected.get(i);
 		if(expn_analysis(expn).equals("integer")){
 		    if(!(decl.getType() instanceof IntegerType)){
 			print(expn, "type error: expect argument number " + i+1 + " type boolean");
@@ -738,7 +738,6 @@ public class Semantics {
 		if(symbol_found == null){
 		    print(ident_expn, "variable \"" + ident_expn.toString() + "\" is not defined");
 		} else {
-    //                 System.out.println("ident_expn.toString():"+symbol_found.getType().getType());
 		    return symbol_found.getType().getType();
 		}
             }
@@ -792,7 +791,7 @@ public class Semantics {
 	    return symbol_found;
 	}
 	
-	// print line/column number with the sentence.
+	// print line/column number with the error message.
 	private void print(AST ast, String string) {
 	    System.out.println("Line: " + ast.getLine() + " Column: " + ast.getCol() + " : " + string);
 	}

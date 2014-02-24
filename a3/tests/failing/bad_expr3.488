@@ -1,4 +1,0 @@
-{
-    test := ((true or false) and (not (true)) % unbalanced paren
-}
-

@@ -1,5 +1,0 @@
-{
-    var a:integer
-    put a:=3 %put must follow by a expression
-
-}

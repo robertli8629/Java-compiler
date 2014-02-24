@@ -1,7 +1,0 @@
-{
-    func printnum(a : integer) : integer {
-	result 1 
-    }
-    % cannot have only declaration without statement.
-
-}

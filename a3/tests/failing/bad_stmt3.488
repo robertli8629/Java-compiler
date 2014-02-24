@@ -1,8 +1,0 @@
-{
-    var a:integer
-    a:=3
-    if {a<4} % misuse of curly brackets
-    then {put "output"}
-    fi
-
-}
