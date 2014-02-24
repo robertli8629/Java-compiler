@@ -16,8 +16,23 @@ func f3 (a:integer,b:integer) : integer {
     b := a+1
     cc := b+1 % should report error for missing result stmt?
 }
-func f (aa:integer) : integer {
-	result aa + 1
+func f4 (aa:integer) : integer {
+    while ((1+2)=(3+5)) do {
+	if 1 then
+	    {exit} % need fix
+	else 
+	    {result true}
+	fi
+	exit
+	{exit}
+    } end
+    result aa + 1
+}
+
+func F() : integer {
+    %proc P () {
+%	result 7 % inside F but not directly inside F
+    %}
 }
 
 proc p (a:integer) {
@@ -42,6 +57,8 @@ while ((1+2)=(3+5)) do {
     else 
 	{exit when 1}
     fi
+    exit
+    {exit}
 } end
 
 repeat {} until 1
@@ -62,5 +79,12 @@ p2()
 p(1)
 p3(1,2,3,4,5)
 x := f2()
+
+exit
+return
+result 1
+
+
+
 
 }

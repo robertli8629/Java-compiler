@@ -38,7 +38,7 @@ public class Semantics {
 	}
 	
 	private enum ScopeType {
-	    MAJOR, FUNCTION, PROCEDURE, LOOP, MINOR
+	    MAJOR, FUNCTION, PROCEDURE, LOOP, MINOR, LOOP_IN_FUNCTION, LOOP_IN_PROCEDURE
 	}
 
 	/**  semanticsInitialize - called once by the parser at the      */
@@ -165,14 +165,14 @@ public class Semantics {
 // 	    System.out.println("exit traverse");
 	}
 	
-	private void recursive_stmt(ASTList<Stmt> AST_stat, ScopeType scope_type){
+	private void recursive_stmt(ASTList<Stmt> AST_stat, ScopeType scope_type, Object ref){
 	    LinkedList<Stmt> stmt_ll = AST_stat.get_list();
 	    if (stmt_ll != null){
 		ListIterator iterator_stmt = stmt_ll.listIterator();
 		while (iterator_stmt.hasNext()){
 			Stmt stmt = (Stmt)iterator_stmt.next();
 			
-			handle_statement(stmt, scope_type, null);
+			handle_statement(stmt, scope_type, ref);
 		}
 	    }
 	}
@@ -320,12 +320,16 @@ public class Semantics {
 	
 	    if(stmt instanceof Scope){
 		Scope scope = (Scope) stmt; // find the scope from stmtlist
-		traverse(scope, null, ScopeType.MINOR, null);
+		ScopeType st = scope_type;
+		if (scope_type == ScopeType.MAJOR) {
+		    scope_type = ScopeType.MINOR;
+		}
+		traverse(scope, null, scope_type, ref);
 		    
 	    }
 	    
 	    if (stmt instanceof ExitStmt) { // S50: check that exit statement is in a loop
-		if (scope_type != ScopeType.LOOP) {
+		if (!((scope_type == ScopeType.LOOP) || (scope_type == ScopeType.LOOP_IN_FUNCTION) || (scope_type == ScopeType.LOOP_IN_PROCEDURE))) {
 		    print(stmt, "exit statement not in a loop"); // S30: check boolean type
 		}
 		
@@ -337,7 +341,7 @@ public class Semantics {
 	    }
 	    
 	    if (stmt instanceof ResultStmt) { // S51: check that result statement is in a function
-		if (scope_type != ScopeType.FUNCTION) {
+		if (!((scope_type == ScopeType.FUNCTION) || (scope_type == ScopeType.LOOP_IN_FUNCTION))) {
 		    print(stmt, "result statement not in a function");
 		    return;
 		}
@@ -349,7 +353,7 @@ public class Semantics {
 	    }
 	    
 	    if (stmt instanceof ReturnStmt) { // S52: check that return statement is in a procedure
-		if (scope_type != ScopeType.PROCEDURE) {
+		if (!((scope_type == ScopeType.PROCEDURE) || (scope_type == ScopeType.LOOP_IN_PROCEDURE))) {
 		    print(stmt, "return statement not in a procedure");
 		}
 	    }
@@ -360,14 +364,27 @@ public class Semantics {
 		}
 		ASTList<Stmt> whileStmts = ((LoopingStmt)stmt).getBody();
 		LinkedList<Stmt> whilestmt_ll=whileStmts.get_list();
+		// set scope type according to current scope
+		ScopeType st = ScopeType.LOOP;
+		switch (scope_type) {
+		    case FUNCTION:
+			st = ScopeType.LOOP_IN_FUNCTION;
+			break;
+		    case PROCEDURE:
+			st = ScopeType.LOOP_IN_PROCEDURE;
+			break;
+		    case LOOP_IN_FUNCTION:
+			st = ScopeType.LOOP_IN_FUNCTION;
+			break;
+		    case LOOP_IN_PROCEDURE:
+			st = ScopeType.LOOP_IN_PROCEDURE;
+			break;
+		    default:
+			st = ScopeType.LOOP;
+			break;
+		}
 		for (Stmt whileStmt : whilestmt_ll) {
-		    if(whileStmt instanceof Scope){
-			Scope scope = (Scope) whileStmt; // find the scope from stmtlist
-			traverse(scope, null, ScopeType.LOOP, null);
-			    
-		    } else {
-			handle_statement(whileStmt, ScopeType.LOOP, null);
-		    }
+		    handle_statement(whileStmt, st, ref);
 		}
 	    }
 	    
@@ -389,9 +406,15 @@ public class Semantics {
 		if(!(expn_analysis(if_stmt.getCondition()).equals("boolean"))){
 			print(if_stmt.getCondition(), "Boolean type required for expression in if statement");  // S30: check boolean type
 		}
-		recursive_stmt(if_stmt.getWhenTrue(), ScopeType.MINOR); // check statements after then
+		
+		ScopeType st = scope_type;
+		if (scope_type == ScopeType.MAJOR) {
+		    scope_type = ScopeType.MINOR;
+		}
+		
+		recursive_stmt(if_stmt.getWhenTrue(), scope_type, ref); // check statements after then
 		if (if_stmt.getWhenFalse() != null) {
-		    recursive_stmt(if_stmt.getWhenFalse(), ScopeType.MINOR); // check statements after else
+		    recursive_stmt(if_stmt.getWhenFalse(), scope_type, ref); // check statements after else
 		}
 	    }
 	    
