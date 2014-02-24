@@ -340,7 +340,7 @@ public class Semantics {
 		}
 		
 		RoutineDecl decl = (RoutineDecl)ref;
-		if(!(expn_analysis(((ResultStmt)stmt).getValue()).equals(decl.getType().toString()))){ // TODO: S35: Check that expression type matches the return type of the function
+		if(!(expn_analysis(((ResultStmt)stmt).getValue()).equals(decl.getType().toString()))){ // S35: Check that expression type matches the return type of the function
 			print(stmt, "type mismatch in result statement");
 		}
 	    }
@@ -492,6 +492,7 @@ public class Semantics {
 	    Set<String> keyset = ht.keySet();
 	    if (keyset.contains(name)) {
 		print(dp, "name \"" + name + "\" is already defined in the scope");
+		return;
 	    }
 	}
 	
@@ -500,7 +501,17 @@ public class Semantics {
 	    String name = decl.getName();
 	    Set<String> keyset = ht.keySet();
 	    if (keyset.contains(name)) {
+		// if it's a forward declaration, we are good
+		Symbol sym = ht.get(name);
+		if (sym.getKind().equals("func")) {
+		    RoutineDecl routine = (RoutineDecl)sym.getType().getLink();
+		    if (routine.getRoutineBody().getBody() == null) { // it's a forward declaration, do not throw error
+			return;
+		    }
+		}
+	    
 		print(decl, "name \"" + name + "\" is already defined in the scope");
+		return;
 	    }
 	}
 	

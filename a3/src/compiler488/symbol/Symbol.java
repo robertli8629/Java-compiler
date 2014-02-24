@@ -33,6 +33,10 @@ public class Symbol {
 	public SymbolType getType() {
 	    return this.type;
 	}
+	
+	public String getKind() {
+	    return this.kind;
+	}
 
 	/** The rest of Symbol Table
 	 *  Data structures, public and private functions

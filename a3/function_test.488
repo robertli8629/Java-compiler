@@ -7,6 +7,10 @@ func f (a:integer) : integer {
 	result a + 1
 }
 
+func f (a:integer) : integer {
+	result a + 1
+}
+
 proc p (a:integer) {
     return
 }
