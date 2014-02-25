@@ -30,6 +30,10 @@ public class Semantics {
 	public FileWriter Tracer;
 	public File f;
 	private SymbolTable symbolTable;
+	/** indicate whether any semantic error occurs */
+	public boolean error_flag = false;
+	
+	private boolean showSymbolTable = false;
      
      
      /** SemanticAnalyzer constructor */
@@ -43,7 +47,7 @@ public class Semantics {
 
 	/**  semanticsInitialize - called once by the parser at the      */
 	/*                        start of  compilation                 */
-	public void Initialize(Program programAST) {
+	public void Initialize(Program programAST, boolean showSymbolTable) {
 	
 	   /*   Initialize the symbol table             */
 	
@@ -54,9 +58,9 @@ public class Semantics {
 	   /*  semantic analysis module                 */
 	   /*  GOES HERE                                */
 	   /*********************************************/
+	   this.showSymbolTable = showSymbolTable;
 	   
 	   symbolTable = new SymbolTable();
-// 	   symbolTable.Initialize(programAST);
 
 	   this.traverse((Scope) programAST, null, ScopeType.MAJOR, null, 0);
 	   
@@ -147,8 +151,9 @@ public class Semantics {
 			order_number = handle_declaration(decl, symboltable, scope_type, lexic_level, order_number);
 		}
 	    }
-// 	    printHash(symboltable);
-	    
+	    if (showSymbolTable) { 
+		printHash(symboltable);
+	    }
 
 	    // recursion
 	    ASTList<Stmt> AST_stat=s.getStatements();
@@ -801,6 +806,7 @@ public class Semantics {
 	// print line/column number with the error message.
 	private void print(AST ast, String string) {
 	    System.out.println("Line: " + ast.getLine() + " Column: " + ast.getCol() + " : " + string);
+	    error_flag = true;
 	}
 	
 
