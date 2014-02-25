@@ -73,7 +73,7 @@ public class SymbolTable {
 	
 	
 	
-	public void add_to_symboltable(Declaration decl, Hashtable<String,Symbol> symboltable) {
+	public void add_to_symboltable(Declaration decl, Hashtable<String,Symbol> symboltable, int lexic_level, int order_number) {
 	    Type tp = decl.getType();
 	    SymbolType s_type = null;
 	    if (tp != null) {
@@ -88,12 +88,12 @@ public class SymbolTable {
 		kind = "func";
 		s_type.setLink((Object)decl);
 	    }
-	    Symbol sym=new Symbol(decl.getName(), kind,0 , s_type); 
+	    Symbol sym=new Symbol(decl.getName(), kind,0 , s_type, lexic_level, order_number); 
 	    symboltable.put(decl.getName(),sym);
 	}
 	
 	
-	public void add_to_symboltable(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type) {
+	public void add_to_symboltable(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type, int lexic_level, int order_number) {
 	    SymbolType s_type=new SymbolType(type.toString(), null);  
 	    String kind = "unknown";
 	    if (dp instanceof ScalarDeclPart) {
@@ -102,7 +102,7 @@ public class SymbolTable {
 		kind = "array";
 		s_type.setLink((Object)dp);
 	    }
-	    Symbol sym=new Symbol(dp.getName(), kind,0 , s_type); 
+	    Symbol sym=new Symbol(dp.getName(), kind,0 , s_type, lexic_level, order_number); 
 	    symboltable.put(dp.getName(),sym);
 	}
 	

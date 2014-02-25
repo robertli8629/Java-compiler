@@ -11,7 +11,9 @@ func f (a:integer) : integer {
 	result a + 1
 }
 
-proc p (a:integer) {
+proc p (aa:integer) {
+    var bb : integer
+    var cc : integer
     return
 }
 
