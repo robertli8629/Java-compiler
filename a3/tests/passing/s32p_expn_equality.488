@@ -1,0 +1,27 @@
+{
+    var i : integer
+    var bool : boolean
+
+    func a() : integer {
+        result 1
+    }
+
+    func b() : boolean {
+        result true
+    }
+
+    bool := 1 = 100
+    bool := a() = 10
+
+    bool := 1 not= 100
+    bool := a() not= 10
+
+    bool := bool = true
+    bool := true = false
+    bool := false = b()
+
+    bool := bool not= true
+    bool := true not= false
+    bool := false not= b()
+}
+

@@ -23,5 +23,8 @@
 
     % MIXED
     bool := i or false and not a()
+
+    % Conditional
+    bool := (1 + 2 ? true : false) 
 }
 

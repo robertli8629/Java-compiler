@@ -1,0 +1,14 @@
+{
+	%	Result expression type does not match
+	%	return type of enclosing function.
+
+	func F1() : integer {
+
+		result true
+	}
+
+	func F2() : boolean {
+	
+		result 7
+	}
+}

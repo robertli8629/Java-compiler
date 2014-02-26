@@ -1,0 +1,14 @@
+{
+	%	Result expression type matches the
+	%	return type of enclosing function.
+
+	func F1() : integer {
+
+		result 7 
+	}
+
+	func F2() : boolean {
+
+		result true
+	}
+}
