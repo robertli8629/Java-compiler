@@ -2,6 +2,7 @@
 
 forward func f (a:integer) : integer 
 forward proc p (a:integer)
+forward proc p (a:integer)
 
 func f (a:integer) : integer {
 	result a + 1

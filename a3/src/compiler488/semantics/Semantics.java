@@ -165,6 +165,7 @@ public class Semantics {
 			order_number = handle_declaration(decl, symboltable, scope_type, lexic_level, order_number);
 		}
 	    }
+	    
 	    if (showSymbolTable) { 
 	    	printHash(symboltable);
 	    }
@@ -233,8 +234,7 @@ public class Semantics {
 		    }
 		    return order_number + 1;
 		} else { // forward declaration
-// 		    System.out.println("forward");
-		    
+		    check_forward_decl((RoutineDecl)decl);
 		}
 	    }
 	    
@@ -244,8 +244,10 @@ public class Semantics {
 	    return order_number + 1;
 	}
 	
-	/** checks forward declaration */
-	private void check_forward_decl(RoutineDecl decl) { // 
+	/** checks forward declaration
+	 * return -1 if encounters an error
+	*/
+	private int check_forward_decl(RoutineDecl decl) { // 
 // 	    System.out.println("check_forward_decl");
 	
 	    ASTList<ScalarDecl> arg_list = decl.getRoutineBody().getParameters();
@@ -266,16 +268,21 @@ public class Semantics {
 		    RoutineDecl routine = (RoutineDecl)symbol_found.getType().getLink();
 		    RoutineBody rb = routine.getRoutineBody();
 		    if (rb.getBody() == null) { // found a forward decl
+			if (decl.getRoutineBody().getBody() == null) { // forward declaration conflict;
+			    print(decl, "forward declaration for " + name + " already existed");
+			    return -1;
+			}
 			if (symbol_found.getType().getType() == "null" && decl.getType() != null) {
 			    print(decl, name + " is pre-declared as a procedure, not as a function");
-			    return;
+			    return -1;
 			}
 			if (symbol_found.getType().getType() != "null") {
 			    if (decl.getType() == null) {
 				print(decl, name + " is pre-declared as a function, not as a procedure");
-				return;
+				return -1;
 			    } else if (!decl.getType().equalTo(symbol_found.getType().getType())) {
 				print(decl, "return type of " + name + " is different from that of forward declaration");
+				return -1;
 			    }
 			}
 			
@@ -288,6 +295,7 @@ public class Semantics {
 			}
 			if(size_expected != size_used){
 			    print(decl, "forward declaration error: argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
+			    return -1;
 			} else {
 			    int i;
 			    for (i = 0;i < size_used; i++){
@@ -296,24 +304,23 @@ public class Semantics {
 				if((expn.getType() instanceof IntegerType)){
 				    if(!(scalar_decl.getType() instanceof IntegerType)){
 					print(expn, "forward declaration error: expect argument number " + i+1 + " type boolean");
-					return;
+					return -1;
 				    }
 				}
 				if((expn.getType() instanceof BooleanType)){
 				    if(!(scalar_decl.getType() instanceof BooleanType)){
 					print(expn, "forward declaration error: expect argument number " + i+1 + " type integer");
-					return;
+					return -1;
 				    }
 				}
 			    }
 			}
-			return;
+			return 0;
 		    }
 		}
 	    }
 	    
-	    // default return error
-	    return;
+	    return 0;
 	}
 	
 	/** handles declaration part semantic checking */
@@ -583,6 +590,7 @@ public class Semantics {
 	    if (params != null) {
 		LinkedList<ScalarDecl> l = params.get_list();
 		for (ScalarDecl d : l) {
+		    check_if_declared(ht, d);
 		    symbolTable.add_to_symboltable(d, ht, lexic_level, order_number);
 		    order_number++;
 		}
