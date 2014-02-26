@@ -1,0 +1,9 @@
+{
+    var i : integer
+    var a[10], b[4..6] : integer
+
+    i := a[3]
+    i := b[5]
+    i := a[1] + b[4]
+}
+

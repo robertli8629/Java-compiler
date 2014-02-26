@@ -17,6 +17,9 @@ s33p_expn_cond.488:
 s36p_func_call.488:
     Calling function with correct parameters.
 
+s38p_array_1d.488:
+    References to one-dimensional arrays.
+
 s46p_bounds.488:
     Test correct array declarations.
 
@@ -25,6 +28,9 @@ s49p_forward_func.488:
 
 s49p_forward_proc.488:
     Test correct forward procedure declaration, and matching declaration.
+
+s55p_array_2d.488:
+    References to two-dimensional arrays.
 
 Failing
 
@@ -43,6 +49,9 @@ s33p_expn_cond.488:
 s36p_expn_cond.488:
     Calling function with incorrect parameters.
 
+s38f_array_1d.488:
+    One-dimensional references to two-dimensional arrays.
+
 s46f_bounds.488:
     Test various invalid array declarations with bad bounds.
 
@@ -51,4 +60,7 @@ s49f_forward_func.488:
 
 s49f_forward_proc.488:
     Forward procedure declarations never matched in same scope.
+
+s55f_array_2d.488:
+    Two-dimensional references to one-dimensional arrays.
 
