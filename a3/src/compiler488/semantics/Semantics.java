@@ -34,7 +34,7 @@ public class Semantics {
 	public boolean error_flag = false;
 	
 	private boolean showSymbolTable = false;
-     
+	PrintStream ps;
      
      /** SemanticAnalyzer constructor */
 	public Semantics (){
@@ -58,11 +58,21 @@ public class Semantics {
 	   /*  semantic analysis module                 */
 	   /*  GOES HERE                                */
 	   /*********************************************/
+
+	   ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	   ps = new PrintStream(baos);
+	   
 	   this.showSymbolTable = showSymbolTable;
 	   
 	   symbolTable = new SymbolTable();
 
 	   this.traverse((Scope) programAST, null, ScopeType.MAJOR, null, 0);
+
+	   if (showSymbolTable) {
+		   System.out.println("printing out the symbol table: ");
+		   String content = baos.toString();
+		   System.out.println(content);
+	   }
 	   
 	}
 
@@ -152,7 +162,7 @@ public class Semantics {
 		}
 	    }
 	    if (showSymbolTable) { 
-		printHash(symboltable);
+	    	printHash(symboltable);
 	    }
 
 	    // recursion
@@ -520,14 +530,12 @@ public class Semantics {
 	}
 	
 	private void printHash(Hashtable<String,Symbol> ht) {
-// 	    System.out.println("printHash");
 	    Set<String> keyset = ht.keySet();
 	    for (String s : keyset) {
-		System.out.println(s+" :");
-		Symbol sym = ht.get(s);
-		System.out.println(sym.toString());
+			Symbol sym = ht.get(s);
+//			System.out.println(sym.toString());
+			ps.print(sym.toString() + "\n");
 	    }
-// 	    System.out.println("end printHash");
 	}
 	
 	

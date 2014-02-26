@@ -66,8 +66,6 @@ public class Main {
   
   /** User option -- build dummy testing AST */
   public static boolean testingAST   = false;
-  /** User option -- show symbol table */
-  public static boolean showSymbolTable   = false;
 
   /* TRACE options switches */
   /** User option -- trace lexical analysis */
@@ -159,9 +157,6 @@ public class Main {
 		    supressExecution = true;
 		else if (arguments[i].equals("-F")) { // debug mode
 		    testingAST = true;
-		}
-		else if (arguments[i].equals("-H")) { // show symbol table
-		    showSymbolTable = true;
 		}
 		else if (arguments[i].equals("-D")) {
 		    i++;	// advance to next argument
@@ -527,7 +522,7 @@ public class Main {
 	   
 	   
 	   Semantics semantic = new Semantics();
-	   semantic.Initialize(programAST, showSymbolTable);
+	   semantic.Initialize(programAST, dumpSymbolTable);
 	   if (semantic.error_flag) {
 	      System.out.println("Errors occurred during semantic analysis. Execution terminated.");
 	      System.exit(1);
