@@ -2,13 +2,17 @@
 	%	Result expression type matches the
 	%	return type of enclosing function.
 
-	func F1() : integer {
+	var x : integer
+
+	func F() : integer {
 
 		result 7 
 	}
 
-	func F2() : boolean {
+	func G() : boolean {
 
 		result true
 	}
+
+	x := F()
 }
