@@ -1,0 +1,11 @@
+{
+	%	Check that identifier is declared as procedure.
+
+	proc P() {
+		
+		put "Hi!"
+	}
+
+	P()
+
+}
