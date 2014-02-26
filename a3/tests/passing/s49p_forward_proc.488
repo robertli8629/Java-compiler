@@ -1,0 +1,19 @@
+{
+    forward proc a(i : integer)
+
+    proc a(i : integer) {
+        return
+    }
+
+    { % New minor scope
+        forward proc a(i : integer)
+
+        proc a(i : integer) {
+            return
+        }
+
+        % Empty statement
+        {}
+    }
+}
+
