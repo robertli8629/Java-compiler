@@ -15,11 +15,6 @@
         return
     }
 
-    % Wrong parameter name
-    proc a(p : integer) {
-        return
-    }
-
     { % New minor scope
         % Declaration in wrong scope
         proc a(param : integer) {
