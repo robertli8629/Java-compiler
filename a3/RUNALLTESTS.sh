@@ -8,7 +8,7 @@ runtests () {
 for file in `ls ./*.488`
 do
     echo "Running $file"
-    java -jar $COMPILER $file
+    java -jar $COMPILER -X $file
     echo
 done
 }
