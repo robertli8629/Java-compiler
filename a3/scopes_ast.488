@@ -8,6 +8,7 @@
         }
         {
 	        var a : boolean
+	        var b : integer
 	        a := 1
 	        b := 2
 	        c := true

@@ -1,0 +1,8 @@
+Testing Documentation -- CSC488 A3 -- Group 7
+
+AST Testing
+
+Symbol Table Testing
+
+Semantic Analysis Testing
+

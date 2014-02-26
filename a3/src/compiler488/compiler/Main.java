@@ -522,8 +522,11 @@ public class Main {
 	   
 	   
 	   Semantics semantic = new Semantics();
-	   semantic.Initialize(programAST);
-	   
+	   semantic.Initialize(programAST, dumpSymbolTable);
+	   if (semantic.error_flag) {
+	      System.out.println("Errors occurred during semantic analysis. Execution terminated.");
+	      System.exit(1);
+	   }
 	   
 	}
         catch( Exception e) 

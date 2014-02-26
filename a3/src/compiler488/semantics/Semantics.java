@@ -30,7 +30,11 @@ public class Semantics {
 	public FileWriter Tracer;
 	public File f;
 	private SymbolTable symbolTable;
-     
+	/** indicate whether any semantic error occurs */
+	public boolean error_flag = false;
+	
+	private boolean showSymbolTable = false;
+	PrintStream ps;
      
      /** SemanticAnalyzer constructor */
 	public Semantics (){
@@ -43,7 +47,7 @@ public class Semantics {
 
 	/**  semanticsInitialize - called once by the parser at the      */
 	/*                        start of  compilation                 */
-	public void Initialize(Program programAST) {
+	public void Initialize(Program programAST, boolean showSymbolTable) {
 	
 	   /*   Initialize the symbol table             */
 	
@@ -54,11 +58,21 @@ public class Semantics {
 	   /*  semantic analysis module                 */
 	   /*  GOES HERE                                */
 	   /*********************************************/
+
+	   ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	   ps = new PrintStream(baos);
+	   
+	   this.showSymbolTable = showSymbolTable;
 	   
 	   symbolTable = new SymbolTable();
-// 	   symbolTable.Initialize(programAST);
 
-	   this.traverse((Scope) programAST, null, ScopeType.MAJOR, null);
+	   this.traverse((Scope) programAST, null, ScopeType.MAJOR, null, 0);
+
+	   if (showSymbolTable) {
+		   System.out.println("printing out the symbol table: ");
+		   String content = baos.toString();
+		   System.out.println(content);
+	   }
 	   
 	}
 
@@ -125,8 +139,9 @@ public class Semantics {
 	
 	
 	// second parameter is only used when entering a function scope with parameters
-	private void traverse(Scope s, ASTList<ScalarDecl> arg, ScopeType scope_type, Object ref){
+	private void traverse(Scope s, ASTList<ScalarDecl> arg, ScopeType scope_type, Object ref, int lexic_level){
 // 	    System.out.println("enter traverse");
+	    int order_number = 0;
 	    Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
 
 	    ASTList<Declaration> AST_dcl=s.getDeclarations();
@@ -135,7 +150,7 @@ public class Semantics {
 	    symbolTable.symbolstack.push(symboltable);
 	    
 	    if (arg != null) {
-		add_params(symboltable, arg);
+		order_number = add_params(symboltable, arg, lexic_level, order_number);
 	    }
 	    
 	    if (ll != null){
@@ -143,11 +158,12 @@ public class Semantics {
 		while (iterator.hasNext()){
 			Declaration decl = (Declaration)iterator.next();
 			
-			handle_declaration(decl, symboltable, scope_type);
+			order_number = handle_declaration(decl, symboltable, scope_type, lexic_level, order_number);
 		}
 	    }
-// 	    printHash(symboltable);
-	    
+	    if (showSymbolTable) { 
+	    	printHash(symboltable);
+	    }
 
 	    // recursion
 	    ASTList<Stmt> AST_stat=s.getStatements();
@@ -157,7 +173,7 @@ public class Semantics {
 		while (iterator_stmt.hasNext()){
 			Stmt stmt = (Stmt)iterator_stmt.next();
 			
-			handle_statement(stmt, scope_type, ref);
+			handle_statement(stmt, scope_type, ref, lexic_level);
 		}
 	    }
 	    
@@ -165,19 +181,20 @@ public class Semantics {
 // 	    System.out.println("exit traverse");
 	}
 	
-	private void recursive_stmt(ASTList<Stmt> AST_stat, ScopeType scope_type, Object ref){
+	private void recursive_stmt(ASTList<Stmt> AST_stat, ScopeType scope_type, Object ref, int lexic_level){
 	    LinkedList<Stmt> stmt_ll = AST_stat.get_list();
 	    if (stmt_ll != null){
 		ListIterator iterator_stmt = stmt_ll.listIterator();
 		while (iterator_stmt.hasNext()){
 			Stmt stmt = (Stmt)iterator_stmt.next();
 			
-			handle_statement(stmt, scope_type, ref);
+			handle_statement(stmt, scope_type, ref, lexic_level);
 		}
 	    }
 	}
 	
-	private void handle_declaration(Declaration decl, Hashtable<String,Symbol> symboltable, ScopeType scope_type) {
+	// returns next order_number to use
+	private int handle_declaration(Declaration decl, Hashtable<String,Symbol> symboltable, ScopeType scope_type, int lexic_level, int order_number) {
 	
 	    // Semantic analysis S10: check whether variable is declared in currect scope
 	    if (decl instanceof ScalarDecl) {
@@ -190,9 +207,9 @@ public class Semantics {
 		
 		for (DeclarationPart dp : ll_part) {
 // 		    add_to_symboltable(dp, symboltable, decl.getType());
-		    handle_part_declaration(dp, symboltable, scope_type, decl.getType());
+		    order_number = handle_part_declaration(dp, symboltable, scope_type, decl.getType(), lexic_level, order_number);
 		}
-		return;
+		return order_number;
 	    }
 	    
 	    // Semantic analysis S54: associate params if any with scope
@@ -202,14 +219,14 @@ public class Semantics {
 		Scope routine_scope = rb.getBody();
 		if (routine_scope != null) { // not a forward decl
 		    check_forward_decl((RoutineDecl)decl); // S49: if function/procedure declared forward: verify declaration match
-		    symbolTable.add_to_symboltable(decl, symboltable); // add first for recursive definition
+		    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, order_number); // add first for recursive definition
 		    ASTList<ScalarDecl> params = rb.getParameters();
 		    if (decl.getType() == null) {
-			traverse(routine_scope, params, ScopeType.PROCEDURE, null);
+			traverse(routine_scope, params, ScopeType.PROCEDURE, null, lexic_level + 1);
 		    } else {
-			traverse(routine_scope, params, ScopeType.FUNCTION, decl);
+			traverse(routine_scope, params, ScopeType.FUNCTION, decl, lexic_level + 1);
 		    }
-		    return;
+		    return order_number + 1;
 		} else { // forward declaration
 // 		    System.out.println("forward");
 		    
@@ -217,9 +234,9 @@ public class Semantics {
 	    }
 	    
 	    // add it to symbol table
-	    symbolTable.add_to_symboltable(decl, symboltable);
+	    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, order_number);
 	
-	    return;
+	    return order_number + 1;
 	}
 	
 	private void check_forward_decl(RoutineDecl decl) { // 
@@ -293,7 +310,8 @@ public class Semantics {
 	    return;
 	}
 	
-	private void handle_part_declaration(DeclarationPart dp, Hashtable<String,Symbol> symboltable, ScopeType scope_type, Type type) {
+	// returns next order_number to use
+	private int handle_part_declaration(DeclarationPart dp, Hashtable<String,Symbol> symboltable, ScopeType scope_type, Type type, int lexic_level, int order_number) {
 	    
 	    if (dp instanceof ScalarDeclPart) {
 		check_if_declared(symboltable, dp);
@@ -315,10 +333,11 @@ public class Semantics {
 		}
 	    }
 	    
-	    symbolTable.add_to_symboltable(dp, symboltable, type);
+	    symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, order_number);
+	    return order_number + 1;
 	}
 	
-	private void handle_statement(Stmt stmt, ScopeType scope_type, Object ref) {
+	private void handle_statement(Stmt stmt, ScopeType scope_type, Object ref, int lexic_level) {
 	
 	    if(stmt instanceof Scope){
 		Scope scope = (Scope) stmt; // find the scope from stmtlist
@@ -326,7 +345,7 @@ public class Semantics {
 		if (scope_type == ScopeType.MAJOR) {
 		    scope_type = ScopeType.MINOR;
 		}
-		traverse(scope, null, scope_type, ref);
+		traverse(scope, null, scope_type, ref, lexic_level + 1);
 		    
 	    }
 	    
@@ -386,7 +405,7 @@ public class Semantics {
 			break;
 		}
 		for (Stmt whileStmt : whilestmt_ll) {
-		    handle_statement(whileStmt, st, ref);
+		    handle_statement(whileStmt, st, ref, lexic_level);
 		}
 	    }
 	    
@@ -413,9 +432,9 @@ public class Semantics {
 		    scope_type = ScopeType.MINOR;
 		}
 		
-		recursive_stmt(if_stmt.getWhenTrue(), scope_type, ref); // check statements after then
+		recursive_stmt(if_stmt.getWhenTrue(), scope_type, ref, lexic_level); // check statements after then
 		if (if_stmt.getWhenFalse() != null) {
-		    recursive_stmt(if_stmt.getWhenFalse(), scope_type, ref); // check statements after else
+		    recursive_stmt(if_stmt.getWhenFalse(), scope_type, ref, lexic_level); // check statements after else
 		}
 	    }
 	    
@@ -511,14 +530,12 @@ public class Semantics {
 	}
 	
 	private void printHash(Hashtable<String,Symbol> ht) {
-// 	    System.out.println("printHash");
 	    Set<String> keyset = ht.keySet();
 	    for (String s : keyset) {
-		System.out.println(s+" :");
-		Symbol sym = ht.get(s);
-		System.out.println(sym.toString());
+			Symbol sym = ht.get(s);
+//			System.out.println(sym.toString());
+			ps.print(sym.toString() + "\n");
 	    }
-// 	    System.out.println("end printHash");
 	}
 	
 	
@@ -552,14 +569,17 @@ public class Semantics {
 	}
 	
 	// S54: associate params if any with scope
-	private void add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params) {
+	// return next order_number to use
+	private int add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params, int lexic_level, int order_number) {
 // 	    System.out.println("add_params");
 	    if (params != null) {
 		LinkedList<ScalarDecl> l = params.get_list();
 		for (ScalarDecl d : l) {
-		    symbolTable.add_to_symboltable(d, ht);
+		    symbolTable.add_to_symboltable(d, ht, lexic_level, order_number);
+		    order_number++;
 		}
 	    }
+	    return order_number;
 	}
 	
 	
@@ -794,6 +814,7 @@ public class Semantics {
 	// print line/column number with the error message.
 	private void print(AST ast, String string) {
 	    System.out.println("Line: " + ast.getLine() + " Column: " + ast.getCol() + " : " + string);
+	    error_flag = true;
 	}
 	
 

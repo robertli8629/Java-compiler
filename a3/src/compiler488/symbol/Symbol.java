@@ -18,16 +18,18 @@ public class Symbol {
 	/** Symbol  constructor
          *  Create and initialize a symbol table 
 	 */
-	public Symbol  (String name, String kind, int value, SymbolType type){
-	    this.name=name;
-	    this.kind=kind;
-	    this.value=value;
-	    this.type=type;
+	public Symbol  (String name, String kind, int value, SymbolType type, int lexic_level, int order_number){
+	    this.name = name;
+	    this.kind = kind;
+	    this.value = value;
+	    this.type = type;
+	    this.lexic_level = lexic_level;
+	    this.order_number = order_number;
 	}
 	
 	@Override
 	public String toString() {
-		return   "name: " + name + ", kind : " + kind + ", value : " + Integer.toString(value) + ", type: " + type.toString();
+		return   "name: " + name + ", kind : " + kind + ", value : " + Integer.toString(value) + ", type: " + type.toString() + ", lexic_level: " + lexic_level + ", order_number: " + order_number;
 	}
 	
 	public SymbolType getType() {
@@ -47,4 +49,7 @@ public class Symbol {
 	private String kind;
 	private int value;
 	private SymbolType type;
+	private int lexic_level;
+	private int order_number;
+	
 }
