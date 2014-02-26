@@ -2,18 +2,17 @@
 	% Parameter with specified type
 	% already declared in current scope.
 
-	var x : boolean
 
 	func F(num : integer, num : integer) : integer {
 
 		result num
 	}
 
-	func G(a : boolean, a : boolean) : boolean {
+	proc G(a : boolean, a : integer) {
 
-		result a
+		return
 	}
 
-	x := G(true, false)
+	G(true, 1)
 
 }
