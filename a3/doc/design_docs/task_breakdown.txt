@@ -2,6 +2,6 @@ Task Breakdown -- CSC488 A3 -- Group 7
 
 Yuchen Li:
 Minmin Liu:
-Alka Sharma:
-Geoff Haugan:
+Alka Sharma: AST design and implementation, AST testing, semantic analysis testing, testing documentation
+Geoff Haugan: AST design and implementation, AST testing, semantic analysis testing, AST documentation
 
