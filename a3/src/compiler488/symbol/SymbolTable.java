@@ -103,7 +103,19 @@ public class SymbolTable {
 	    symboltable.put(dp.getName(),sym);
 	}
 	
-	
+	/** find the variable from symboltable that appears closest to the top scope */
+	public Symbol find_variable(String name) {
+	    Iterator<Hashtable<String,Symbol>> iter = symbolstack.iterator(); // iterator of the stack iterates from bottom to top
+	    Symbol symbol = null;
+	    Symbol symbol_found = null;
+	    while(iter.hasNext()){
+		symbol=iter.next().get(name);
+		if (symbol != null) {
+		    symbol_found = symbol;
+		}
+	    }
+	    return symbol_found;
+	}
 	
 	
 }

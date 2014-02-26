@@ -456,7 +456,7 @@ public class Semantics {
 		    size_used = arg_ll.size();
 		}
 		
-		Symbol symbol_found = find_variable(name);
+		Symbol symbol_found = symbolTable.find_variable(name);
 		
 		if(symbol_found == null){
 		    print(stmt, "procedure \"" + name + "\" is not defined");
@@ -686,7 +686,7 @@ public class Semantics {
 		    size_used = arg_ll.size();
 		}
 		
-		Symbol symbol_found = find_variable(name);
+		Symbol symbol_found = symbolTable.find_variable(name);
 		
 		if(symbol_found == null){
 		    print(expn, "function \"" + name + "\" is not defined");
@@ -761,7 +761,7 @@ public class Semantics {
         private String variable_analysis(Expn expn){
 	    if(expn instanceof IdentExpn){
 		IdentExpn ident_expn=(IdentExpn) expn;
-		Symbol symbol_found = find_variable(ident_expn.toString());
+		Symbol symbol_found = symbolTable.find_variable(ident_expn.toString());
 		
 		if(symbol_found == null){
 		    print(ident_expn, "variable \"" + ident_expn.toString() + "\" is not defined");
@@ -782,7 +782,7 @@ public class Semantics {
 		    }
 		}
 
-		Symbol symbol_found = find_variable(sub_expn.getVariable());
+		Symbol symbol_found = symbolTable.find_variable(sub_expn.getVariable());
 		
 		if(symbol_found == null){
 		    print(expn, "variable \"" + sub_expn.getVariable() + "\" is not defined");
@@ -803,20 +803,6 @@ public class Semantics {
             }
 
             return "";
-	}
-	
-	/** find the variable from symboltable that appears closest to the top scope */
-	private Symbol find_variable(String name) {
-	    Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
-	    Symbol symbol = null;
-	    Symbol symbol_found = null;
-	    while(iter.hasNext()){
-		symbol=iter.next().get(name);
-		if (symbol != null) {
-		    symbol_found = symbol;
-		}
-	    }
-	    return symbol_found;
 	}
 	
 	/** print line/column number with the error message. */
