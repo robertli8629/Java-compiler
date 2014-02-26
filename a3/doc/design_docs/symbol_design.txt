@@ -20,5 +20,5 @@ to the function/procedure and array declaration, which is useful during the sema
 checking. The last two fields of the Symbol class represents the lexic level and the
 order number of the declared identifier. 
 
-To print out the symbol table, add -D a option when running RUNCOMPILER.sh.
+To print out the symbol table, add -D y option when running RUNCOMPILER.sh.
 
