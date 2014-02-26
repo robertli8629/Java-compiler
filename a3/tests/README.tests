@@ -14,6 +14,9 @@ s32p_expn_equality.488:
 s33p_expn_cond.488:
     Conditional expression with matching types.
 
+s36p_func_call.488:
+    Calling function with correct parameters.
+
 s46p_bounds.488:
     Test correct array declarations.
 
@@ -37,14 +40,15 @@ s32f_expn_equality.488:
 s33p_expn_cond.488:
     Conditional expression with non-matching types.
 
+s36p_expn_cond.488:
+    Calling function with incorrect parameters.
+
 s46f_bounds.488:
     Test various invalid array declarations with bad bounds.
 
 s49f_forward_func.488:
     Forward function declarations never matched in same scope.
-    NOT GETTING CORRECT ERRORS?
 
 s49f_forward_proc.488:
     Forward procedure declarations never matched in same scope.
-    NOT GETTING CORRECT ERRORS?
 

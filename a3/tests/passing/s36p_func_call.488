@@ -1,0 +1,12 @@
+{
+    var i : integer
+    var bool : boolean
+
+    func a(i : integer, bool : boolean) : boolean {
+        result true
+    }
+
+    bool := a(10, true)
+    bool := a(i, a(10, false))
+}
+
