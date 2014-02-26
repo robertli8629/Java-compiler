@@ -15,8 +15,8 @@ import java.io.*;
 
 public class SymbolType {
 	
-	/** Symbol  constructor
-         *  Create and initialize a symbol table 
+	/** SymbolType  constructor
+         *  Create and initialize a SymbolType 
 	 */
 	public SymbolType  (String type, Object link){
 	  this.type=type;
@@ -45,11 +45,6 @@ public class SymbolType {
 		return   "type: " + type + ", link : " + link_str ;
 	}
 
-	/** The rest of Symbol Table
-	 *  Data structures, public and private functions
- 	 *  to implement the Symbol Table
-	 *  GO HERE.				
-	 */
 	private String type;
 	private Object link;
 

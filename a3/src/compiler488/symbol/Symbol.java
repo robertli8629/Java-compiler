@@ -16,7 +16,7 @@ import java.io.*;
 public class Symbol {
 	
 	/** Symbol  constructor
-         *  Create and initialize a symbol table 
+         *  Create and initialize a symbol 
 	 */
 	public Symbol  (String name, String kind, int value, SymbolType type, int lexic_level, int order_number){
 	    this.name = name;
@@ -40,11 +40,6 @@ public class Symbol {
 	    return this.kind;
 	}
 
-	/** The rest of Symbol Table
-	 *  Data structures, public and private functions
- 	 *  to implement the Symbol Table
-	 *  GO HERE.				
-	 */
 	private String name;
 	private String kind;
 	private int value;

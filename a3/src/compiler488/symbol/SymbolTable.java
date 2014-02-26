@@ -65,14 +65,11 @@ public class SymbolTable {
  	 *  to implement the Symbol Table
 	 *  GO HERE.				
 	 */
+	
+	/** the main symbol table stack */
 	public Stack<Hashtable<String,Symbol>> symbolstack;
 	
-	private enum ScopeType {
-	    MAJOR, FUNCTION, PROCEDURE, LOOP, MINOR
-	}
-	
-	
-	
+	/** add declaration to the symbol table */
 	public void add_to_symboltable(Declaration decl, Hashtable<String,Symbol> symboltable, int lexic_level, int order_number) {
 	    Type tp = decl.getType();
 	    SymbolType s_type = null;
@@ -92,7 +89,7 @@ public class SymbolTable {
 	    symboltable.put(decl.getName(),sym);
 	}
 	
-	
+	/** add declaration part to the symbol table */
 	public void add_to_symboltable(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type, int lexic_level, int order_number) {
 	    SymbolType s_type=new SymbolType(type.toString(), null);  
 	    String kind = "unknown";
