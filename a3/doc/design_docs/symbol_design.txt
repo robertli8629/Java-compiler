@@ -1,6 +1,15 @@
 Symbol Table Design -- CSC488 A3 -- Group 7
 
 
+- the symbol table design ?
+     Document basic symbol table operations and scope handling.
+     Should document  how they deal with 
+       major (main program, function, procedure) scopes
+       minor scopes ( {} scopes embedded in major scopes )
+     How do they handle function/procedure parameters?
+     How do the handle array declarations?
+
+
 In our design, the symbol table is a stack of hash table, where each hash table stores 
 all the symbol in the current scope as we traverse the AST tree. When we encounter a new
 scope, a new hash table is created and pushed onto the top of the stack. It keeps adding

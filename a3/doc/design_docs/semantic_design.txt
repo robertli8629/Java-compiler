@@ -1,5 +1,49 @@
 Semantic Analysis Design -- CSC488 A3 -- Group 7
 
 
+   - the semantic analysis design ?
+     Should describe all of the mechanisms that they
+     added to the skeleton to implement semantic analysis.
+     e.g. type tracking, scope tracking, etc.
+     What method did they use to process the AST?
+     
+
+The handout mentions three way to implement semantic analysis. In our
+design, we choose to implement the third way: build all of our semantic
+analysis in a separate class called Semantics. This class contains a method
+named traverse, which does the tree walk starting from the root of the AST.
+This approach requires us to change some of the AST fields from private
+to public. Therefore we have added some public getter and setter method 
+for some of the fields in the AST classes.
+
+From the traverse method, we can deal with each declaration and statement
+from separate methods: handle_declaration and handle_statement. If we find
+another scope within any declarations or statements, we will recursively call
+the traverse method again. If we encounter an expression, the method expn_analysis
+will be called recursively to determine the return type of this whole expression.
+If we encounter any error within the sub-expression, we will only report the source
+of the error and try to fix the error by returning the expected type to the next
+level. Therefore if there is an error within a long expression and the source of 
+the error starts at the very beginning, we will only report the source of the error
+and not repetitively propagate errors every time we process the next sub-expression.
+We check the visibility of variables from the method variable_analysis. The way we 
+check whether the identifier is defined is by looking for the identifier in the 
+symbol table from the bottom scope to the top scope. And if the identifier is defined
+in multiple scopes we will use the one that appear closest to the top (current) scope.
+
+To determine what scope we are currently in for several special semantic checking:
+S50, S51, S52, we introduced the ScopeType enum in Semantic class. Every time we 
+traverse a scope, we assign its corresponding scope type from the enum. Therefore
+we know whether we are in a loop, function or procedure, and we can determine 
+whether the exit, return or result statements are valid. For the special case 
+where both result and exit are valid in a loop inside a function, we introduced
+the enum LOOP_IN_FUNCTION. Thus we will have enough information to make the 
+decision. Similarly for the use of enum LOOP_IN_PROCEDURE. For S35, to determine
+whether the type of the function matches the return type of the expression after 
+the result statement, we pass another special argument called ref to the traverse 
+function. It basically stores the function declaration every time we enter a 
+function scope. Therefore we have enough information to determine the return type
+of the function and can thus determine whether the two types match.
+
 
 
