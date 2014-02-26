@@ -1,0 +1,28 @@
+{
+    var i : integer
+    var bool : boolean
+
+    func a() : boolean {
+        result true
+    }
+
+    % NOT
+    bool := not true
+    bool := not (true or false and true)
+    bool := not a()
+    bool := not i < 2
+    bool := not 0 <= i
+
+    % AND
+    bool := true and false
+    bool := a() and a()
+
+    % OR
+    bool := true or false
+    bool := true or false or (1 < 2)
+
+    % MIXED
+    bool := true or false and not true
+    bool := (1 <= 10) or (i < 2) and not true
+}
+

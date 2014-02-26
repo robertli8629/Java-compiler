@@ -1,0 +1,40 @@
+{
+    var i, arr[10] : integer
+    var bool : boolean
+
+    func a() : integer {
+        result 1
+    }
+
+    i := 1 + 10
+    i := i + a()
+    i := arr[4] + arr[2]
+
+    i := 1 - 10
+    i := i - a()
+    i := arr[4] - arr[2]
+
+    i := 1 * 10
+    i := i * a()
+    i := arr[4] * arr[2]
+
+    i := 1 / 10
+    i := i / a()
+    i := arr[4] / arr[2]
+
+    bool := 1 < 10
+    bool := i < a()
+    bool := arr[4] < arr[2]
+
+    bool := 1 > 10
+    bool := i > a()
+    bool := arr[4] > arr[2]
+
+    bool := 1 <= 10
+    bool := i <= a()
+    bool := arr[4] <= arr[2]
+
+    bool := 1 >= 10
+    bool := i >= a()
+    bool := arr[4] >= arr[2]
+}

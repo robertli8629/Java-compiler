@@ -1,2 +1,38 @@
 Test Case Index -- CSC488 A3 -- Group 7
 
+Passing
+
+s30p_expn_bool.488:
+    Using logical operators with boolean expressions.
+
+s31p_expn_int.488:
+    Using arithmetic and comparison operators with integer expressions.
+
+s46p_bounds.488:
+    Test correct array declarations.
+
+s49p_forward_func.488:
+    Test correct forward function declaration, and matching declaration.
+
+s49p_forward_proc.488:
+    Test correct forward procedure declaration, and matching declaration.
+
+Failing
+
+s30f_expn_bool.488:
+    Using logical operators with non-boolean expressions.
+
+s31f_expn_int.488:
+    Using arithmetic and comparison operators with non-integer expressions.
+
+s46f_bounds.488:
+    Test various invalid array declarations with bad bounds.
+
+s49f_forward_func.488:
+    Forward function declarations never matched in same scope.
+    NOT GETTING CORRECT ERRORS?
+
+s49f_forward_proc.488:
+    Forward procedure declarations never matched in same scope.
+    NOT GETTING CORRECT ERRORS?
+
