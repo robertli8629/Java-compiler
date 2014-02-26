@@ -11,6 +11,9 @@ s31p_expn_int.488:
 s32p_expn_equality.488:
     Equality operators on matching expressions.
 
+s33p_expn_cond.488:
+    Conditional expression with matching types.
+
 s46p_bounds.488:
     Test correct array declarations.
 
@@ -30,6 +33,9 @@ s31f_expn_int.488:
 
 s32f_expn_equality.488:
     Equality operators on non-matching expressions.
+
+s33p_expn_cond.488:
+    Conditional expression with non-matching types.
 
 s46f_bounds.488:
     Test various invalid array declarations with bad bounds.

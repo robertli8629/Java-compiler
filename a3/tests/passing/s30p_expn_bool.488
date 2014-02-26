@@ -24,5 +24,8 @@
     % MIXED
     bool := true or false and not true
     bool := (1 <= 10) or (i < 2) and not true
+
+    % CONDITIONAL
+    bool := (true or false ? true : false)
 }
 
