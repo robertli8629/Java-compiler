@@ -2,6 +2,9 @@ Test Case Index -- CSC488 A3 -- Group 7
 
 Passing
 
+s30p_expn_bool.488:
+    Using logical operators with boolean expressions.
+
 s46p_bounds.488:
     Test correct array declarations.
 
@@ -12,6 +15,9 @@ s49p_forward_proc.488:
     Test correct forward procedure declaration, and matching declaration.
 
 Failing
+
+s30f_expn_bool.488:
+    Using logical operators with non-boolean expressions.
 
 s46f_bounds.488:
     Test various invalid array declarations with bad bounds.
