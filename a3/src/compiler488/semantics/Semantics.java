@@ -185,7 +185,7 @@ public class Semantics {
 // 	    System.out.println("exit traverse");
 	}
 	
-	/** recursive handle statements */
+	/** recursively handle statements */
 	private void recursive_stmt(ASTList<Stmt> AST_stat, ScopeType scope_type, Object ref, int lexic_level){
 	    LinkedList<Stmt> stmt_ll = AST_stat.get_list();
 	    if (stmt_ll != null){
