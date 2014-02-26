@@ -1,6 +1,8 @@
 {
 	%	Result not directly in function.
 
+	var x : integer
+
 	func F() : integer {
 
 		proc P() {
@@ -8,4 +10,6 @@
 			result 8
 		}
 	}
+
+	x := F()
 }
