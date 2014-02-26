@@ -56,3 +56,13 @@ This solved what seemed to be a tricky problem at first and seemed a more
 straightforward approach than creating a number of additional classes
 to meet our needs, which was approach we considered.
 
+One problem with this approach was that declarations inside a MultiDeclaration
+were not properly indented when dumping the AST. To fix this, we altered the
+toString and printOn functions associated with the MultiDeclaration so that
+each declaration inside the MultiDeclaration list would be indented properly
+and printed on its own line. This made our debugging and testing of the AST
+easier. The toString method now includes a print out of all the elements
+inside the MultiDeclaration, and we removed the class-specific printOn
+implementation that was overriding the inhereted version. This fixed the
+indentation problems.
+
