@@ -1,0 +1,12 @@
+{
+	%	Variable and expression in assignment
+	%	are of the same type.
+
+	var x : integer
+	var y : boolean
+
+	x := 5 + 1
+
+	y := true
+
+}
