@@ -1,7 +1,7 @@
 {
     var bool : boolean
 
-    % Declare in process scope
+    % Declare in procedure scope
     proc a() {
         var i : integer
         return
@@ -14,7 +14,7 @@
     {
         var i : integer
 
-        proc a() {
+        proc b() {
             return
         }
 
@@ -23,6 +23,6 @@
 
     % Can't reference
     i := 10
-    a()
+    b()
 }
 
