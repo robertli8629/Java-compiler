@@ -2,6 +2,9 @@ Test Case Index -- CSC488 A3 -- Group 7
 
 Passing
 
+s29p_id_visibility.488:
+    Accessing variables in scopes other than where they are defined.
+
 s30p_expn_bool.488:
     Using logical operators with boolean expressions.
 
@@ -37,6 +40,9 @@ s55p_array_2d.488:
 
 Failing
 
+s29f_id_visibility.488:
+    Accessing variables in scopes where they are not visible.
+
 s30f_expn_bool.488:
     Using logical operators with non-boolean expressions.
 
@@ -49,7 +55,7 @@ s32f_expn_equality.488:
 s33p_expn_cond.488:
     Conditional expression with non-matching types.
 
-s36p_expn_cond.488:
+s36p_func_call.488:
     Calling function with incorrect parameters.
 
 s38f_array_1d.488:

@@ -1,0 +1,22 @@
+{
+    var bool : boolean
+
+    % Declare in process scope
+    proc a() {
+        var i : integer
+        return
+    }
+
+    % Can't reference
+    i := 10
+
+    % Declare in minor scope
+    {
+        var i : integer
+        i := 1
+    }
+
+    % Can't reference
+    i := 10
+}
+

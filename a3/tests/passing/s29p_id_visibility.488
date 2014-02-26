@@ -1,0 +1,34 @@
+{
+    var i : integer
+
+    proc a() {
+
+        % i is global
+        i := 10
+        return
+    }
+
+    { % Nested scopes
+        i := 100
+        {
+            i := 100
+        }
+    }
+
+    % While loop
+    while true do
+        i := i + 1
+
+        % Conditional
+        if i = 200 then
+            i := 0
+            exit
+        fi
+    end
+
+    % Repeat loop
+    repeat
+        i := i + 10
+    until i = 100
+}
+
