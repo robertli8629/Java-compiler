@@ -41,6 +41,7 @@ public class Semantics {
 	
 	}
 	
+	/** represent the type of the scope we are currently traversing */
 	private enum ScopeType {
 	    MAJOR, FUNCTION, PROCEDURE, LOOP, MINOR, LOOP_IN_FUNCTION, LOOP_IN_PROCEDURE
 	}
@@ -137,8 +138,11 @@ public class Semantics {
 	
 	
 	
-	
-	// second parameter is only used when entering a function scope with parameters
+	/** 
+	 * main semantic checking routine
+	 * arg: if not null, it represents parameter list passed by function/procedure declaration scope
+	 * ref: if not null, it represents function declaration, which is used to check the return type of the function
+	 *  */
 	private void traverse(Scope s, ASTList<ScalarDecl> arg, ScopeType scope_type, Object ref, int lexic_level){
 // 	    System.out.println("enter traverse");
 	    int order_number = 0;
@@ -181,6 +185,7 @@ public class Semantics {
 // 	    System.out.println("exit traverse");
 	}
 	
+	/** recursive handle statements */
 	private void recursive_stmt(ASTList<Stmt> AST_stat, ScopeType scope_type, Object ref, int lexic_level){
 	    LinkedList<Stmt> stmt_ll = AST_stat.get_list();
 	    if (stmt_ll != null){
@@ -193,7 +198,7 @@ public class Semantics {
 	    }
 	}
 	
-	// returns next order_number to use
+	/** handles declaration semantic checking */
 	private int handle_declaration(Declaration decl, Hashtable<String,Symbol> symboltable, ScopeType scope_type, int lexic_level, int order_number) {
 	
 	    // Semantic analysis S10: check whether variable is declared in currect scope
@@ -239,6 +244,7 @@ public class Semantics {
 	    return order_number + 1;
 	}
 	
+	/** checks forward declaration */
 	private void check_forward_decl(RoutineDecl decl) { // 
 // 	    System.out.println("check_forward_decl");
 	
@@ -310,7 +316,7 @@ public class Semantics {
 	    return;
 	}
 	
-	// returns next order_number to use
+	/** handles declaration part semantic checking */
 	private int handle_part_declaration(DeclarationPart dp, Hashtable<String,Symbol> symboltable, ScopeType scope_type, Type type, int lexic_level, int order_number) {
 	    
 	    if (dp instanceof ScalarDeclPart) {
@@ -337,6 +343,7 @@ public class Semantics {
 	    return order_number + 1;
 	}
 	
+	/** handles statement semantic checking */
 	private void handle_statement(Stmt stmt, ScopeType scope_type, Object ref, int lexic_level) {
 	
 	    if(stmt instanceof Scope){
@@ -496,6 +503,7 @@ public class Semantics {
 	    return;
 	}
 
+	/** handles output semantic checking */
 	private void handle_output(PutStmt stmt){
 	    ASTList<Printable> outputs = stmt.getOutputs();
 	    LinkedList<Printable> output_ll = outputs.get_list();
@@ -511,6 +519,7 @@ public class Semantics {
 	    }
 	}
 	
+	/** handles input semantic checking */
 	private void handle_input(GetStmt stmt){
 	    ASTList<Readable> inputs = stmt.getInputs();
 	    LinkedList<Readable> input_ll = inputs.get_list();
@@ -529,6 +538,7 @@ public class Semantics {
 	    }
 	}
 	
+	/** print out the symbol table of the given level */
 	private void printHash(Hashtable<String,Symbol> ht) {
 	    Set<String> keyset = ht.keySet();
 	    for (String s : keyset) {
@@ -538,8 +548,7 @@ public class Semantics {
 	    }
 	}
 	
-	
-	// check whether name is declared in current scope
+	/** check whether name is declared in current scope */
 	private void check_if_declared(Hashtable<String,Symbol> ht, DeclarationPart dp) {
 	    String name = dp.getName();
 	    Set<String> keyset = ht.keySet();
@@ -549,7 +558,7 @@ public class Semantics {
 	    }
 	}
 	
-	// check whether name is declared in current scope
+	/** check whether name is declared in current scope */
 	private void check_if_declared(Hashtable<String,Symbol> ht, Declaration decl) {
 	    String name = decl.getName();
 	    Set<String> keyset = ht.keySet();
@@ -568,8 +577,7 @@ public class Semantics {
 	    }
 	}
 	
-	// S54: associate params if any with scope
-	// return next order_number to use
+	/** S54: associate params if any with scope */
 	private int add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params, int lexic_level, int order_number) {
 // 	    System.out.println("add_params");
 	    if (params != null) {
@@ -583,8 +591,7 @@ public class Semantics {
 	}
 	
 	
-	
-	
+	/** handle semantic checking of expressions */
 	private String expn_analysis(Expn expn){
             if(expn instanceof IntConstExpn){
                 return "integer";
@@ -724,7 +731,7 @@ public class Semantics {
             
         }
        
-       
+       /** check whether two list of arguments match */
        private int check_arguments_match(LinkedList<Expn> arg_ll, LinkedList<ScalarDecl> arg_ll_expected) {
 // 	     System.out.println("check_arguments_match");
 	     int i;
@@ -749,7 +756,8 @@ public class Semantics {
        }
 
        
-        // S29: check whether the variable is declared or visible
+        /** handle semantic checking of variables
+         * S29: check whether the variable is declared or visible */
         private String variable_analysis(Expn expn){
 	    if(expn instanceof IdentExpn){
 		IdentExpn ident_expn=(IdentExpn) expn;
@@ -797,7 +805,7 @@ public class Semantics {
             return "";
 	}
 	
-	// find the variable from symboltable that appears closest to the top scope
+	/** find the variable from symboltable that appears closest to the top scope */
 	private Symbol find_variable(String name) {
 	    Iterator<Hashtable<String,Symbol>> iter=symbolTable.symbolstack.iterator(); // iterator of the stack iterates from bottom to top
 	    Symbol symbol = null;
@@ -811,7 +819,7 @@ public class Semantics {
 	    return symbol_found;
 	}
 	
-	// print line/column number with the error message.
+	/** print line/column number with the error message. */
 	private void print(AST ast, String string) {
 	    System.out.println("Line: " + ast.getLine() + " Column: " + ast.getCol() + " : " + string);
 	    error_flag = true;
