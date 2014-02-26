@@ -1,0 +1,19 @@
+{
+	% Parameter with specified type
+	% already declared in current scope.
+
+	var x : boolean
+
+	func F(num : integer, num : integer) : integer {
+
+		result num
+	}
+
+	func G(a : boolean, a : boolean) : boolean {
+
+		result a
+	}
+
+	x := G(true, false)
+
+}
