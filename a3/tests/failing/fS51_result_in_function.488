@@ -1,0 +1,11 @@
+{
+	%	Result not directly in function.
+
+	func F() : integer {
+
+		proc P() {
+
+			result 8
+		}
+	}
+}

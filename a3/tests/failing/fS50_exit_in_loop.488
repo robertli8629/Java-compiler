@@ -1,0 +1,9 @@
+{
+	%	Exit not in loop.
+
+	if true
+	then
+		
+		exit
+	fi
+}
