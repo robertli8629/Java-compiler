@@ -5,6 +5,9 @@ Passing
 s30p_expn_bool.488:
     Using logical operators with boolean expressions.
 
+s31p_expn_int.488:
+    Using arithmetic and comparison operators with integer expressions.
+
 s46p_bounds.488:
     Test correct array declarations.
 
@@ -18,6 +21,9 @@ Failing
 
 s30f_expn_bool.488:
     Using logical operators with non-boolean expressions.
+
+s31f_expn_int.488:
+    Using arithmetic and comparison operators with non-integer expressions.
 
 s46f_bounds.488:
     Test various invalid array declarations with bad bounds.
