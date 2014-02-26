@@ -1,6 +1,8 @@
 {
 	%	Check that result is directly inside a function.
 
+	var x : integer
+
 	func F() : integer {
 
 		var x : integer
@@ -17,4 +19,5 @@
 		end
 	}
 
+	x := F()
 }
