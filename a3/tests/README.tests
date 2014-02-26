@@ -1,2 +1,12 @@
 Test Case Index -- CSC488 A3 -- Group 7
 
+Passing
+
+s46p_bounds.488:
+    Test correct array declarations.
+
+Failing
+
+s46f_bounds.488:
+    Test various invalid array declarations with bad bounds.
+
