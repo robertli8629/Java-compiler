@@ -166,6 +166,9 @@ public class Semantics {
 		}
 	    }
 	    
+	    // if there is any left over forward declaration: throw an error
+	    check_left_over_forward_decl(symboltable);
+	    
 	    if (showSymbolTable) { 
 	    	printHash(symboltable);
 	    }
@@ -184,6 +187,24 @@ public class Semantics {
 	    
 	    symbolTable.symbolstack.pop();
 // 	    System.out.println("exit traverse");
+	}
+	
+	/** check any leftover forward declarations */
+	private void check_left_over_forward_decl(Hashtable<String,Symbol> symboltable) {
+	    
+	    Set<String> keyset = symboltable.keySet();
+	    for (String key : keyset) {
+		Symbol sym = symboltable.get(key);
+		if (sym.getType().getLink() instanceof RoutineDecl){ // found routine decl
+		    RoutineDecl routine = (RoutineDecl)sym.getType().getLink();
+		    RoutineBody rb = routine.getRoutineBody();
+		    if (rb.getBody() == null) { // found a forward decl
+			print(routine, routine + " is not resolved in a real declaration");
+		    }
+		}
+	    }
+	    
+	    return;
 	}
 	
 	/** recursively handle statements */
@@ -224,7 +245,10 @@ public class Semantics {
 		RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
 		Scope routine_scope = rb.getBody();
 		if (routine_scope != null) { // not a forward decl
-		    check_forward_decl((RoutineDecl)decl); // S49: if function/procedure declared forward: verify declaration match
+		    int result = check_forward_decl((RoutineDecl)decl); // S49: if function/procedure declared forward: verify declaration match
+		    if (result < 0) { // forward declaration does not match
+			return order_number + 1;
+		    }
 		    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, order_number); // add first for recursive definition
 		    ASTList<ScalarDecl> params = rb.getParameters();
 		    if (decl.getType() == null) {
@@ -234,7 +258,12 @@ public class Semantics {
 		    }
 		    return order_number + 1;
 		} else { // forward declaration
-		    check_forward_decl((RoutineDecl)decl);
+		    int result = check_forward_decl((RoutineDecl)decl);
+		    if (result < 0) { // forward declaration does not match
+			return order_number + 1;
+		    }    
+		    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, order_number);
+		    return order_number + 1;
 		}
 	    }
 	    

@@ -1,10 +1,10 @@
 {
 
 forward func f (a:integer) : integer 
-forward proc p (a:integer)
+forward proc p (a:boolean)
 forward proc p (a:integer)
 
-func f (a:integer) : integer {
+func f (a:integer) : boolean {
 	result a + 1
 }
 
