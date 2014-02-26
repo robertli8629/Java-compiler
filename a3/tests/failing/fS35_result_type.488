@@ -2,13 +2,17 @@
 	%	Result expression type does not match
 	%	return type of enclosing function.
 
-	func F1() : integer {
+	var x : integer
+
+	func F() : integer {
 
 		result true
 	}
 
-	func F2() : boolean {
+	func G() : boolean {
 	
 		result 7
 	}
+
+	x := F()
 }
