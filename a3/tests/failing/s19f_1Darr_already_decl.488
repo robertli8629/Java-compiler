@@ -1,0 +1,11 @@
+{
+	%	1D array already declared
+	%	in current scope.
+
+	var arr[2] : integer
+
+	var arr[5] : integer
+
+	arr[0] := 1
+
+}
