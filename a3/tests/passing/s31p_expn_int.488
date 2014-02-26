@@ -37,4 +37,10 @@
     bool := 1 >= 10
     bool := i >= a()
     bool := arr[4] >= arr[2]
+
+    put i
+    put i + 100 * 10 / 4 - 50
+    put i + a()
+    put arr[4 * 5 + 10]
 }
+
