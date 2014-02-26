@@ -1,0 +1,12 @@
+{
+	%	Identifier not declared as scalar variable.
+
+	var arr[2] : integer
+
+    func F() : integer { }
+
+	proc P() { }	
+
+   	F := 1
+	P := 2
+}
