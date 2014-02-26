@@ -5,10 +5,14 @@
 
 	func F() : integer {
 
+		var y : integer
+
 		proc P() {
 
 			result 8
 		}
+
+		y := 1
 	}
 
 	x := F()
