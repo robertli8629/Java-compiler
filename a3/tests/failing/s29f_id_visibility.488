@@ -13,10 +13,16 @@
     % Declare in minor scope
     {
         var i : integer
+
+        proc a() {
+            return
+        }
+
         i := 1
     }
 
     % Can't reference
     i := 10
+    a()
 }
 
