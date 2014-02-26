@@ -3,10 +3,12 @@
 
 	var x : integer
 
+	var y : integer
+
 	func F() : integer {	
 
 		result 7
 	}
 
-	x := P()
+	y := x()
 }
