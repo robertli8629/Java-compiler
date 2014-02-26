@@ -1,0 +1,15 @@
+{
+	%	Forward procedure already declared
+	%	in current scope.
+
+	forward proc P()
+
+	forward proc P()
+
+	proc P() {
+
+		put "Hi"
+	}
+
+	P()
+}
