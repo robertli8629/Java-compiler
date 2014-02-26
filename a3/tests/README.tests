@@ -40,6 +40,15 @@ s55p_array_2d.488:
 
 Failing
 
+bad_stmts.488
+    Variety of poorly formed statements.
+
+bad_expr.488
+    Variety of poorly formed expressions.
+
+bad_misc_tests.488
+    Selection of varoius poorly formed language constructs.
+
 s29f_id_visibility.488:
     Accessing variables in scopes where they are not visible.
 
