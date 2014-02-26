@@ -17,11 +17,6 @@
         result true
     }
 
-    % Wrong parameter name (Should this be an error?)
-    func a(p : integer) : integer {
-        result 1
-    }
-
     { % New minor scope
         % Declaration not in same scope
         func a(param : integer) : integer {

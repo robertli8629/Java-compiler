@@ -1,0 +1,17 @@
+{
+	%	Procedure already declared
+	% 	in current scope.
+
+
+	proc P(a : integer) {
+
+		return
+	}
+
+	proc P() {
+
+		return
+	}
+
+	P()	
+}
