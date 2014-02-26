@@ -1,0 +1,12 @@
+{
+	%	Identifier not declared as a function.
+
+	var x : integer
+
+	func F() : integer {	
+
+		result 7
+	}
+
+	x := P()
+}

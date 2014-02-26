@@ -1,0 +1,10 @@
+{
+	%	Identifier not declared as procedure.
+
+	proc P() {
+	
+		put "Hi"
+	}
+
+	F()
+}
