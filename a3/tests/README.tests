@@ -2,6 +2,27 @@ Test Case Index -- CSC488 A3 -- Group 7
 
 Passing
 
+pS34_assign_type.488:
+	Variable and expression in assignment of same type.
+
+pS35_result_type.488:
+	Result expression type matches return type of function.
+
+pS40_ident_decl_as_func.488:
+	Identifier is declared as a function when used as such.
+
+pS41_ident_decl_as_proc.488:
+	Identifier is declared as a procedure when used as such.
+
+pS43_num_arg_eq_num_param.488:
+	Number of arguments equal formal parameters.
+
+pS50_exit_in_loop.488:
+	Exit statement is in loop.
+
+pS51_result_in_function.488:
+	Result statement is directly in function.
+
 s29p_id_visibility.488:
     Accessing variables in scopes other than where they are defined.
 
@@ -40,14 +61,62 @@ s55p_array_2d.488:
 
 Failing
 
-bad_stmts.488
+bad_stmts.488:
     Variety of poorly formed statements.
 
-bad_expr.488
+bad_expr.488:
     Variety of poorly formed expressions.
 
-bad_misc_tests.488
-    Selection of varoius poorly formed language constructs.
+bad_misc_tests.488:
+    Selection of various poorly formed language constructs.
+
+fS34_assign_type.488:
+	Variable and expression in assignment not of same type.
+
+fS35_result_type.488:
+	Expression type of result and return type of enclosing function are mismatched.
+
+fS37_ident_decl_as_scalar.488:
+	Identifiers used as scalar variables but not declared as scalars.
+
+fS40_ident_decl_as_func.488:
+	Identifier not declared as function.
+
+fS41_ident_decl_as_proc.488:
+	Identifiers not declared as procedures.
+
+fS43_num_arg_eq_num_param.488:
+	Number of arguments not equal to number of formal parameters.
+
+fS50_exit_in_loop.488:
+	Exit statement not in loop.
+
+fS51_result_in_function.488:
+	Result statement not directly in function.
+
+fS52_return_in_procedure.488:
+	Return statement not directly in procedure.
+
+s10f_scalar_already_decl.488:
+	Declaring scalar variables that are already declared in current scope.
+
+s11f_forw_func_already_decl.488:
+	Declaring forward functions already declared in current scope.
+
+s12f_func_already_decl.488:
+	Declaring functions already declared in current scope.
+
+s15f_param_already_decl.488:
+	Declaring parameters already declared in current scope.
+
+s17f_forw_proc_already_decl.488:
+	Declaring forward procedures already declared in current scope.
+
+s18f_proc_already_decl.488:
+	Declaring procedures already declared in current scope.
+
+s19f_1Darr_already_decl.488:
+	Declaring 1D arrays already declared in current scope.
 
 s29f_id_visibility.488:
     Accessing variables in scopes where they are not visible.
@@ -75,6 +144,9 @@ s39f_param.488:
 
 s46f_bounds.488:
     Test various invalid array declarations with bad bounds.
+
+s48f_2Darr_already_decl.488:
+	Declaring 2D arrays already declared in current scope.
 
 s49f_forward_func.488:
     Forward function declarations never matched in same scope.
