@@ -1,6 +1,9 @@
 Test Case Index -- CSC488 A3 -- Group 7
 
-Passing
+PASSING
+
+A1a.488 through A1e_2.488:
+    Existing full program examples from A1.
 
 pS34_assign_type.488:
 	Variable and expression in assignment of same type.
@@ -22,6 +25,9 @@ pS50_exit_in_loop.488:
 
 pS51_result_in_function.488:
 	Result statement is directly in function.
+
+pS52_return_in_procedure.488:
+    Return statement direcly in procedure.
 
 s29p_id_visibility.488:
     Accessing variables in scopes other than where they are defined.
@@ -59,7 +65,7 @@ s49p_forward_proc.488:
 s55p_array_2d.488:
     References to two-dimensional arrays.
 
-Failing
+FAILING
 
 bad_stmts.488:
     Variety of poorly formed statements.
