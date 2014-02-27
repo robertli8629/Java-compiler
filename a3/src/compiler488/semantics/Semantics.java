@@ -803,7 +803,7 @@ public class Semantics {
 		if(symbol_found == null){
 		    print(ident_expn, "variable \"" + ident_expn.toString() + "\" is not defined");
 		} else {
-		    if (symbol_found.getKind().equals("func")) {
+		    if (symbol_found.getKind().equals("func") || symbol_found.getKind().equals("array")) {
 			print(ident_expn, ident_expn.toString() + " is not a valid variable");
 			return "";
 		    }
