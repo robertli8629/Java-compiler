@@ -2,6 +2,35 @@ Testing Documentation -- CSC488 A3 -- Group 7
 
 AST Testing
 
+To test the AST as we were building it, we chose to build it piece by piece
+from the bottom up so that after each step we would have one new testable
+part that we could write a program to exercise and use the compiler
+to dump the AST's structure (with the -D a option).
+
+We began with a single statement type, the assignment statement, and built
+a tree of nodes for only those production rules that would be used to parse
+an assignment of an integer to a scalar variable. This required completing
+parts of the expression rules, as well as the statement and scope/program
+rules. Once complete, we were able to write a simple program that contained
+only an assignment like this and look at the structure of the AST via printout
+to see if it matched the expected node structure.
+
+From there, we started building up additional branches of the tree. More
+statements at first, then declarations, each time completing the parts of the
+tree that each relied on and testing those specific rules.
+
+We included in the tests directory a subdirectory called ast. This includes
+the files we gradually built up from single statements and declarations into
+larger programs as more and more of the AST was built. We used these files to
+test at each step until we were satisfied the tree was coming together as
+expected.
+
+Once a first pass at the whole tree was complete, we began running it through
+our semantic analysis procedure to determine if any tweaks were needed. Once
+this was running smoothly, we added line and column number information from
+the lexer into the AST nodes. We tested this by adding this information to
+the error messages our semantic analyzer was outputting.
+
 Symbol Table Testing
 
 Semantic Analysis Testing
