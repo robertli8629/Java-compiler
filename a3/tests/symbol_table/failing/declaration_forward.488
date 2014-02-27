@@ -1,0 +1,10 @@
+{
+	% CSC488 declaration forward test-Failing case
+	func bigger(x:integer):integer{
+	    result test(5)+x
+	}
+	func test(x:integer):integer{
+	    result x+2
+	}
+	put bigger(5)
+}

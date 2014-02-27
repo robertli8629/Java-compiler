@@ -1,0 +1,9 @@
+{
+	% CSC488 declaration array test-Passing case
+    
+	var x[3]:integer
+	x[1]:=1
+	x[2]:=2
+	x[3]:=3
+	put x[2]
+}

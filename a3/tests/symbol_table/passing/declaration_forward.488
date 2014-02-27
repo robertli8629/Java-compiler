@@ -1,0 +1,11 @@
+{
+	% CSC488 declaration forward test-Passing case
+	forward func test(x:integer):integer
+	func bigger(x:integer):integer{
+	    result test(5)+x
+	}
+	func test(x:integer):integer{
+	    result x+2
+	}
+	put bigger(5)
+}

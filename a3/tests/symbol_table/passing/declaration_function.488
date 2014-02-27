@@ -1,0 +1,8 @@
+{
+	% CSC488 declaration function test-Passing case
+    
+	func test(x:integer):integer{
+	    result x+3
+	}
+	put test(5)
+}
