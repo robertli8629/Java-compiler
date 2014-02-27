@@ -6,3 +6,28 @@ Symbol Table Testing
 
 Semantic Analysis Testing
 
+Document the testing that was done, what test cases
+were used, and what parts of the compiler were tested.
+
+We divided our semantic operator tests into passing and failing test cases,
+and focused on tests for semantic operators in the declarations, statements 
+checking, expression type checking, and functions, procedures and arguments
+categories. 
+
+We only wrote failing test cases for tests where we needed to check that 
+each kind of identifier being declared was not already declared in the current 
+scope. We did not write passing tests for such cases since we used declarations
+for all kinds of identifiers in our other passing test cases. Thus, in the 
+declarations category, we wrote failing tests for semantic operators s10 - s12, 
+s15, s17 - s19, and s48. We also wrote both passing and failing test cases for
+semantic operators s46 and s49.
+
+In the statements checking category, we wrote both failing and passing test 
+cases for all of those semantic operators. For the s50 failing test we tested
+whether an error would occur both when the two kinds of exit statements were
+enclosed in non-loop statements, a procedure scope, and when simply stated 
+on their own. Similarly for s51, s52 fail tests we tested whether an error
+would still occur if return/result statements where stated on their own, 
+and in enclosing statements and function scopes etc.
+
+ 
