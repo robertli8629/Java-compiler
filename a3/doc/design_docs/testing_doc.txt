@@ -59,4 +59,6 @@ on their own. Similarly for s51, s52 fail tests we tested whether an error
 would still occur if return/result statements where stated on their own, 
 and in enclosing statements and function scopes etc.
 
- 
+We used the same approach for expressions type checking and function/proc, and
+argument usage, writing both failing and passing test cases for each semantic 
+operator that we could do a semantic check on. 
