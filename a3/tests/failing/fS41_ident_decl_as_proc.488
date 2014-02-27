@@ -1,10 +1,14 @@
 {
 	%	Identifier not declared as procedure.
-
-	proc P() {
 	
-		put "Hi"
+	var x : integer
+
+	func P() : integer {
+
+		result 1
 	}
 
-	F()
+	P()
+
+	x()	
 }
