@@ -3,6 +3,12 @@
 
 	var x, y : integer
 
+	proc P() {
+
+		exit
+
+	}
+
 	if true
 	then
 		
@@ -34,5 +40,6 @@
 	else
 		exit when true
 	fi		
-		
+
+			
 }
