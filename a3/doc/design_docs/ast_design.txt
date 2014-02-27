@@ -1,5 +1,6 @@
 AST Design Document -- CSC488 A3 -- Group 7
 
+
 In building the AST, we attempted to make changes to the provided AST node
 classes very economically, only adding things we felt necessary and otherwise
 using the code provided.

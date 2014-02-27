@@ -1,20 +1,12 @@
 Semantic Analysis Design -- CSC488 A3 -- Group 7
 
 
-   - the semantic analysis design ?
-     Should describe all of the mechanisms that they
-     added to the skeleton to implement semantic analysis.
-     e.g. type tracking, scope tracking, etc.
-     What method did they use to process the AST?
-     
-
-The handout mentions three way to implement semantic analysis. In our
-design, we choose to implement the third way: build all of our semantic
-analysis in a separate class called Semantics. This class contains a method
-named traverse, which does the tree walk starting from the root of the AST.
-This approach requires us to change some of the AST fields from private
-to public. Therefore we have added some public getter and setter method 
-for some of the fields in the AST classes.
+The handout mentions three way to implement semantic analysis. In our design, 
+we choose to implement the third way: build all of our semantic analysis in a 
+separate class called Semantics. This class contains a method named traverse, 
+which does the tree walk starting from the root of the AST. This approach requires 
+us to change some of the AST fields from private to public. Therefore we have added 
+some public getter and setter method for some of the fields in the AST classes.
 
 From the traverse method, we can deal with each declaration and statement
 from separate methods: handle_declaration and handle_statement. If we find
@@ -26,6 +18,7 @@ of the error and try to fix the error by returning the expected type to the next
 level. Therefore if there is an error within a long expression and the source of 
 the error starts at the very beginning, we will only report the source of the error
 and not repetitively propagate errors every time we process the next sub-expression.
+
 We check the visibility of variables from the method variable_analysis. The way we 
 check whether the identifier is defined is by looking for the identifier in the 
 symbol table from the bottom scope to the top scope. And if the identifier is defined

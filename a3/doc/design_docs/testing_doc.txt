@@ -1,5 +1,6 @@
 Testing Documentation -- CSC488 A3 -- Group 7
 
+
 AST Testing
 
 To test the AST as we were building it, we chose to build it piece by piece
@@ -31,7 +32,15 @@ this was running smoothly, we added line and column number information from
 the lexer into the AST nodes. We tested this by adding this information to
 the error messages our semantic analyzer was outputting.
 
+
 Symbol Table Testing
+
+We test the correctness of symbol table by running a set of test cases under
+the debug mode of the main program so that the symbol table can be printed 
+out. We manually check whether the variables in the symbol table have the 
+correct values in their fields. The test set mainly include declarations
+of various parts from the grammar.
+
 
 Semantic Analysis Testing
 
