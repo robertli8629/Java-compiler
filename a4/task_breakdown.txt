@@ -5,6 +5,8 @@ g0sharma
 	document for errors.
 
 g1liyuch
+	Design work for code templates. Documenting expressions and everything
+	else of statements section. Code review and modification of sample programs.
 
 g0haugan
     Design work for code templates. Storage, assignment and if statement,
@@ -12,4 +14,4 @@ g0haugan
     work/checking for sample program 1.
 
 g1minmin
-
+	Design work for code templates. Coding for all 3 sample programs.
