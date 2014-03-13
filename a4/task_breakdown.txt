@@ -9,9 +9,9 @@ g1liyuch
 	else of statements section. Code review and modification of sample programs.
 
 g0haugan
-    Design work for code templates. Storage, assignment and if statement,
-    functions, everything else sections of code template document. Some
-    work/checking for sample program 1.
+	Design work for code templates. Storage, assignment and if statement,
+	functions, everything else sections of code template document. Some
+	work/checking for sample program 1.
 
 g1minmin
 	Design work for code templates. Coding for all 3 sample programs.
