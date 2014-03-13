@@ -1,0 +1,13 @@
+CSC488 -- Assignment 4 -- Who-Did-What
+
+g0sharma
+
+g1liyuch
+
+g0haugan
+    Design work for code templates. Storage, assignment and if statement,
+    functions, everything else sections of code template document. Some
+    work/checking for sample program 1.
+
+g1minmin
+
