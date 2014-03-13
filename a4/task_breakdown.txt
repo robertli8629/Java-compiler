@@ -1,6 +1,8 @@
 CSC488 -- Assignment 4 -- Who-Did-What
 
 g0sharma
+	Design work for code templates. While and repeat statements, checked
+	document for errors.
 
 g1liyuch
 
