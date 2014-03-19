@@ -37,6 +37,8 @@ public class Semantics {
 	PrintStream ps;
 	
 	int current_order_number = 0;
+	// array to store current order_number in each lexic_level, support at most 10 LL
+	int[] current_order_number_ll = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
      
      /** SemanticAnalyzer constructor */
 	public Semantics (){
@@ -154,8 +156,6 @@ public class Semantics {
 	    
 	    symbolTable.symbolstack.push(symboltable);
 	    
-	    
-	    
 	    if (arg != null) {
 		order_number = add_params(symboltable, arg, lexic_level, order_number);
 	    }
@@ -176,6 +176,7 @@ public class Semantics {
 	    	printHash(symboltable);
 	    }
 
+	    // use current_order_number to continue counting ONs in minor scope
 	    current_order_number = order_number;
 	    
 	    // recursion
@@ -238,7 +239,6 @@ public class Semantics {
 		LinkedList<DeclarationPart> ll_part=decl_list.get_list();
 		
 		for (DeclarationPart dp : ll_part) {
-// 		    add_to_symboltable(dp, symboltable, decl.getType());
 		    order_number = handle_part_declaration(dp, symboltable, scope_type, decl.getType(), lexic_level, order_number);
 		}
 		return order_number;
@@ -254,7 +254,8 @@ public class Semantics {
 		    if (result < 0) { // forward declaration does not match
 			return order_number + 1;
 		    }
-		    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, order_number); // add first for recursive definition
+		    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, current_order_number_ll[lexic_level]); // add first for recursive definition
+		    current_order_number_ll[lexic_level]++;
 		    ASTList<ScalarDecl> params = rb.getParameters();
 		    if (decl.getType() == null) {
 			traverse(routine_scope, params, ScopeType.PROCEDURE, null, lexic_level + 1, 0);
@@ -267,13 +268,15 @@ public class Semantics {
 		    if (result < 0) { // forward declaration does not match
 			return order_number + 1;
 		    }    
-		    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, order_number);
+		    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, current_order_number_ll[lexic_level]);
+		    current_order_number_ll[lexic_level]++;
 		    return order_number + 1;
 		}
 	    }
 	    
 	    // add it to symbol table
-	    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, order_number);
+	    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, current_order_number_ll[lexic_level]);
+	    current_order_number_ll[lexic_level]++;
 	
 	    current_order_number++;
 	    return order_number + 1;
@@ -381,8 +384,8 @@ public class Semantics {
 		}
 	    }
 	    
-	    symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, order_number);
-	    
+	    symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, current_order_number_ll[lexic_level]);
+	    current_order_number_ll[lexic_level]++;
 	    current_order_number++;
 	    return order_number + 1;
 	}
@@ -628,7 +631,8 @@ public class Semantics {
 		LinkedList<ScalarDecl> l = params.get_list();
 		for (ScalarDecl d : l) {
 		    check_if_declared(ht, d);
-		    symbolTable.add_to_symboltable(d, ht, lexic_level, order_number);
+		    symbolTable.add_to_symboltable(d, ht, lexic_level, current_order_number_ll[lexic_level]);
+		    current_order_number_ll[lexic_level]++;
 		    order_number++;
 		    current_order_number++;
 		}
