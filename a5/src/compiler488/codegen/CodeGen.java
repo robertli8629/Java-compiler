@@ -59,6 +59,12 @@ public class CodeGen
     public CodeGen()
 	{
 	// YOUR CONSTRUCTOR GOES HERE.
+	
+	// test
+	Machine.setPC( (short) 0 ) ;		/* where code to be executed begins */
+	Machine.setMSP((short)  1 );   	/* where memory stack begins */
+	Machine.setMLP((short) ( Machine.memorySize -1 ) );	
+	
 	}
 
     // Utility procedures used for code generation GO HERE.

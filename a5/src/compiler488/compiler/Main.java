@@ -581,6 +581,9 @@ public class Main {
 	   // programAST.doCodeGen() ;
 	   // or
 	   // codeGen.doIt( programAST );
+	   
+	   CodeGen codeGen = new CodeGen();
+	   
 	}
         catch( Exception e) 
 	    {
