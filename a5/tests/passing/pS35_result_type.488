@@ -1,0 +1,18 @@
+{
+	%	Result expression type matches the
+	%	return type of enclosing function.
+
+	var x : integer
+
+	func F() : integer {
+
+		result 7 
+	}
+
+	func G() : boolean {
+
+		result true
+	}
+
+	x := F()
+}

@@ -1,0 +1,165 @@
+Test Case Index -- CSC488 A3 -- Group 7
+
+PASSING
+
+A1a.488 through A1e_2.488:
+    Existing full program examples from A1.
+
+pS34_assign_type.488:
+	Variable and expression in assignment of same type.
+
+pS35_result_type.488:
+	Result expression type matches return type of function.
+
+pS40_ident_decl_as_func.488:
+	Identifier is declared as a function when used as such.
+
+pS41_ident_decl_as_proc.488:
+	Identifier is declared as a procedure when used as such.
+
+pS43_num_arg_eq_num_param.488:
+	Number of arguments equal formal parameters.
+
+pS50_exit_in_loop.488:
+	Exit statement is in loop.
+
+pS51_result_in_function.488:
+	Result statement is directly in function.
+
+pS52_return_in_procedure.488:
+    Return statement direcly in procedure.
+
+s29p_id_visibility.488:
+    Accessing variables in scopes other than where they are defined.
+
+s30p_expn_bool.488:
+    Using logical operators with boolean expressions.
+
+s31p_expn_int.488:
+    Using arithmetic and comparison operators with integer expressions.
+
+s32p_expn_equality.488:
+    Equality operators on matching expressions.
+
+s33p_expn_cond.488:
+    Conditional expression with matching types.
+
+s36p_func_call.488:
+    Calling function with correct parameters.
+
+s38p_array_1d.488:
+    References to one-dimensional arrays.
+
+s39p_param.488:
+    Reference parameters in functions and procedures.
+
+s46p_bounds.488:
+    Test correct array declarations.
+
+s49p_forward_func.488:
+    Test correct forward function declaration, and matching declaration.
+
+s49p_forward_proc.488:
+    Test correct forward procedure declaration, and matching declaration.
+
+s55p_array_2d.488:
+    References to two-dimensional arrays.
+
+FAILING
+
+bad_stmts.488:
+    Variety of poorly formed statements.
+
+bad_expr.488:
+    Variety of poorly formed expressions.
+
+bad_misc_tests.488:
+    Selection of various poorly formed language constructs.
+
+fS34_assign_type.488:
+	Variable and expression in assignment not of same type.
+
+fS35_result_type.488:
+	Expression type of result and return type of enclosing function are mismatched.
+
+fS37_ident_decl_as_scalar.488:
+	Identifiers used as scalar variables but not declared as scalars.
+
+fS40_ident_decl_as_func.488:
+	Identifier not declared as function.
+
+fS41_ident_decl_as_proc.488:
+	Identifiers not declared as procedures.
+
+fS43_num_arg_eq_num_param.488:
+	Number of arguments not equal to number of formal parameters.
+
+fS50_exit_in_loop.488:
+	Exit statement not in loop.
+
+fS51_result_in_function.488:
+	Result statement not directly in function.
+
+fS52_return_in_procedure.488:
+	Return statement not directly in procedure.
+
+s10f_scalar_already_decl.488:
+	Declaring scalar variables that are already declared in current scope.
+
+s11f_forw_func_already_decl.488:
+	Declaring forward functions already declared in current scope.
+
+s12f_func_already_decl.488:
+	Declaring functions already declared in current scope.
+
+s15f_param_already_decl.488:
+	Declaring parameters already declared in current scope.
+
+s17f_forw_proc_already_decl.488:
+	Declaring forward procedures already declared in current scope.
+
+s18f_proc_already_decl.488:
+	Declaring procedures already declared in current scope.
+
+s19f_1Darr_already_decl.488:
+	Declaring 1D arrays already declared in current scope.
+
+s29f_id_visibility.488:
+    Accessing variables in scopes where they are not visible.
+
+s30f_expn_bool.488:
+    Using logical operators with non-boolean expressions.
+
+s31f_expn_int.488:
+    Using arithmetic and comparison operators with non-integer expressions.
+
+s32f_expn_equality.488:
+    Equality operators on non-matching expressions.
+
+s33p_expn_cond.488:
+    Conditional expression with non-matching types.
+
+s36p_func_call.488:
+    Calling function with incorrect parameters.
+
+s38f_array_1d.488:
+    One-dimensional references to two-dimensional arrays.
+
+s39f_param.488:
+    Incorrect references to parameters in functions and procedures.
+
+s46f_bounds.488:
+    Test various invalid array declarations with bad bounds.
+
+s48f_2Darr_already_decl.488:
+	Declaring 2D arrays already declared in current scope.
+
+s49f_forward_func.488:
+    Forward function declarations never matched in same scope.
+
+s49f_forward_proc.488:
+    Forward procedure declarations never matched in same scope.
+
+s55f_array_2d.488:
+    Two-dimensional references to one-dimensional arrays.
+

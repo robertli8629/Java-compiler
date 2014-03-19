@@ -1,0 +1,7 @@
+{
+	% CSC488 one declaration test-Passing case
+    
+	var x:integer
+	x:=3
+	put x
+}

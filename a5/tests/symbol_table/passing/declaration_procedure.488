@@ -1,0 +1,9 @@
+{
+	% CSC488 declaration procedure test-Passing case
+    
+	proc test(x:integer){
+	    put x
+	    return
+	}
+	test(5)
+}

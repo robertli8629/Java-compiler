@@ -1,0 +1,33 @@
+{
+	%	Result not directly in function.
+
+	var x : integer
+
+	func F() : integer {
+
+		var y : integer
+
+		proc P() {
+
+			result 8
+		}
+
+		y := 1
+	}
+
+	result 1
+
+	if true
+	then
+
+		result 3
+	fi
+
+	x := 1
+
+	while x < 2
+	do
+		result 1
+	end
+
+}

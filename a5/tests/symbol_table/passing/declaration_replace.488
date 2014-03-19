@@ -1,0 +1,14 @@
+{
+	% CSC488 declaration replace test-Passing case
+    
+	var x:boolean
+	x:=true
+	{
+	  var x:integer
+	  x:=3
+	  put x
+	}
+	if(x) then{
+	  put "pass"
+	}fi
+}

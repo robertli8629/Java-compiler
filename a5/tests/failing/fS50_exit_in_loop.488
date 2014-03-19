@@ -1,0 +1,45 @@
+{
+	%	Exit not in loop.
+
+	var x, y : integer
+
+	proc P() {
+
+		exit
+
+	}
+
+	if true
+	then
+		
+		exit
+	fi
+
+	exit
+
+	if true 
+	then
+
+		exit when true
+	fi
+
+	exit when true
+
+	if false
+	then
+
+		x := 1
+	else
+		exit
+	fi
+
+	if false
+	then
+
+		y := 1
+	else
+		exit when true
+	fi		
+
+			
+}

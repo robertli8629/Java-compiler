@@ -1,0 +1,17 @@
+{
+	%	Forward function declared already
+	% 	in current scope.
+
+	forward func F() : integer
+
+	forward func F() : integer
+
+	var x : integer
+
+	func F() : integer {
+	
+		result 3
+	}
+
+	x := F()		
+}

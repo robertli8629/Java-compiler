@@ -1,0 +1,18 @@
+{
+	%	Function declaration already
+	% 	declared in current scope.
+
+	var x : integer
+
+	func F(a : integer) : integer {
+
+		result a + 1
+	}
+
+	func F() : integer {
+
+		result 1
+	}
+
+	x := F()	
+}

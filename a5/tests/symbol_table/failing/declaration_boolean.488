@@ -1,0 +1,6 @@
+{
+	% CSC488 declaration boolean test-Failing case
+    
+	var x:boolean
+	x:=3
+}

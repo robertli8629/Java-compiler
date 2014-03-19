@@ -1,0 +1,798 @@
+// CSC488S Winter 2013/2014  
+//
+// File:  csc488.cup
+//
+// Package and import specifications section.
+
+package compiler488.parser;
+
+import java_cup.runtime.*;		// Must always import this.
+import compiler488.ast.stmt.*;
+import compiler488.ast.expn.*;
+import compiler488.ast.decl.*;
+import compiler488.ast.type.*;
+import compiler488.ast.Readable;
+import compiler488.ast.Printable;
+import compiler488.ast.ASTList;
+
+/* User code components 1: action code components.
+ * Code to be used inside the actions triggered when productions are matched.
+ * If any common code is needed for more than one action , put it here.
+ */
+action code {:
+
+:};
+
+/* User code components 2: parser code components. 
+ * Modifications to the default generated parser
+ */
+parser code {:
+
+	String lastError;
+	
+    /** Override the report_error method so it will display the line and
+     * column of where the error occurred in the input as well as the
+     * reason for the error which is passed into the method in the
+     * String 'message'.
+     * @param message  error message to print
+     * @param info     symbol containing line/column numbers
+     */
+    public void report_error(String message, Object info)
+	{
+	String st =  "Error";
+   
+        if (info instanceof java_cup.runtime.Symbol)
+	    {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+
+	    /* s.left is supposed to hold the line number of the error.
+	     * s.right is supposed to hold the column number.
+             * If either is < 0 the parser may have run off the end of the program
+             * and a Syntax Error message without line number may be printed.
+	     */
+   
+            if (s.left >= 0)				// Check line number.
+		{
+                st += " in line " + (s.left + 1);
+                if (s.right >= 0)			// Check column number.
+                    st += ", column " + (s.right + 1);
+		}
+            else
+               st += " at end of input " ;
+           }
+	    st += ": " + message;
+        System.err.println (st);
+        lastError = st;
+	}
+   
+    /** Override the report_fatal_error method to use the report_error method. */
+    /** @throws SyntaxErrorException						*/
+    public void report_fatal_error (String message, Object info) throws SyntaxErrorException
+	{
+        report_error (message, info);
+        throw new SyntaxErrorException (lastError); 
+	}
+   
+:};
+
+/* User code components 3: initialization code.
+ * If you want some code to be executed before the parser asks for the first
+ * token, add it here.
+ */
+init with {:
+:};
+
+/* User code components 4: scanner specification code.
+ * If you need to override the way the parser asks the scanner for the
+ * next token, put your preferred method here.  Uncomment the line following
+ * this comment, replace the line after that with your code, and uncomment
+ * the line after that.
+ */
+// scan with {:
+// your code goes here
+// :};
+
+/* Symbol lists section.
+ * The names of terminals and non-terminals are not allowed to be CUP
+ * reserved words.  These include "code", "action", "parser", "terminal",
+ * "non", "nonterminal", "init", "scan", "with", "start", "precedence",
+ * "left", "right", "nonassoc", "import", and "package".
+ */
+
+// DEFINITIONS for CSC488S Source Language  Winter  2013/2014 
+
+// Terminals returned by the scanner with no value attached.  
+terminal 	BOOLEAN,	INTEGER,	DO	;
+terminal	ELSE,	END,	EXIT,   FI,	FORWARD, FUNC	;
+terminal	IF,	GET, 	PROCEDURE,	PUT	;
+terminal	WHILE,	REPEAT,	UNTIL,	VAR,	NEWLINE	;
+terminal	RESULT,	RETURN,	THEN,	WHEN	;
+
+// Special-character terminals, no value attached
+terminal	AND,	OR,	NOT,	TRUE,	FALSE	;
+terminal	L_PAREN	,R_PAREN,L_SQUARE, R_SQUARE, L_CURLEY, R_CURLEY  	;
+terminal	EQUAL,	GREATER,LESS,	COMMA,  DOT, COLON	;
+terminal	PLUS,	MINUS,	TIMES,  DIVIDE, QUESTION	;
+
+// Terminals returned by the scanner with a value.
+terminal String  IDENT	;
+terminal Integer INTCONST	;
+terminal String  TEXTCONST	;
+
+// Non-terminals that have no value.
+// nonterminal xxx
+
+// Non-terminals that have a value.
+// nonterminal type  nameList ;
+
+nonterminal Program program ;
+nonterminal Scope scope ;
+nonterminal Expn constant, primary, factor, term, arithExpn, compareExpn ;
+nonterminal Expn negation, conjunction, expression, variable ;
+nonterminal ASTList<Stmt> statements ;
+nonterminal Stmt statement ;
+nonterminal Type type ;
+nonterminal DeclarationPart variablename ;
+nonterminal ArrayDeclPart bound ;
+nonterminal IntConstExpn generalBound ;
+nonterminal ASTList<DeclarationPart> variablenames ;
+nonterminal Declaration declaration ;
+nonterminal ASTList<Declaration> declarations ;
+nonterminal RoutineDecl functionHead, procedureHead ;
+nonterminal ScalarDecl parameter ;
+nonterminal ASTList<ScalarDecl> parameters ;
+nonterminal RoutineBody parameterList ;
+nonterminal ASTList<Expn> argumentList, arguments ;
+nonterminal ASTList<Readable> inputs ;
+nonterminal Printable output ;
+nonterminal ASTList<Printable> outputs ;
+
+// CSC488S PLEASE NOTE: your grammar CAN NOT use the 'precedence'
+// feature of java-cup. The lines below should remain
+// commented.
+//
+//precedence left PLUS, MINUS;
+//precedence left TIMES, DIVIDE;		// Higher precedence.
+
+// The grammar section.
+
+// This specifies the initial symbol of the grammar.
+start with program;
+
+/* Notice that sometimes the action must be inside the production rule,
+ * not after it.  This is a subtle yet significant difference from YACC.
+ * This is because the CUP parser is looking ahead one token.  It ALWAYS
+ * reads one more token before it will act on the production.
+ */
+
+program		::=	scope:s          // the main program
+                {:
+                    Program prog = new Program(s);
+                    prog.setPos(sleft, sright);
+                    RESULT = prog;
+                :}
+                ;
+
+scope		::=	L_CURLEY:lc1 declarations:d statements:s R_CURLEY 
+							// scope with declarations and statements
+                {:
+                    Scope sc = new Scope(d, s);
+                    sc.setPos(lc1left, lc1right);
+                    RESULT = sc;
+                :}
+
+		|	L_CURLEY:lc2 statements:stmt  R_CURLEY 		// scope with statments only
+            {:
+                Scope sc = new Scope(stmt);
+                sc.setPos(lc2left, lc2right);
+                RESULT = sc;
+            :}
+
+		|	L_CURLEY:lc3  R_CURLEY			// empty scope
+            {:
+                Scope sc = new Scope();
+                sc.setPos(lc3left, lc3right);
+                RESULT = sc;
+            :}
+		;
+
+statements	::=	statement:s				// sequence of statements
+                {:
+                    ASTList<Stmt> list =
+                        new ASTList<Stmt>(s);
+                    list.setPos(sleft, sright);
+                    RESULT = list;
+                :}
+
+		|	statements:stmtList statement:stmt
+            {: RESULT = stmtList.addLast(stmt); :}
+		;
+
+declarations	::=	declaration:d		// sequence of declarations
+                    {:
+                        ASTList<Declaration> list =
+                            new ASTList<Declaration>(d);
+                        list.setPos(dleft, dright);
+                        RESULT = list;
+                    :}
+
+		|	declarations:declList declaration:decl
+            {: RESULT = declList.addLast(decl); :}
+		;
+
+
+statement	::=	variable:e1 COLON EQUAL expression:e2		// assignment statement
+                {:
+                    AssignStmt a = new AssignStmt(e1, e2);
+                    a.setPos(e1left, e1right);
+                    RESULT = a;
+                :}
+
+		|	IF:i1 expression:e3 THEN statements:s1 FI 	// if statements
+			{:
+                IfStmt if1 = new IfStmt();
+				if1.setCondition(e3);
+				if1.setWhenTrue(s1);
+                if1.setPos(i1left, i1right);
+			    RESULT = if1;
+			:}
+
+		|	IF:i2 expression:e4 THEN statements:s3 ELSE statements:s3a FI
+			{:
+				IfStmt if2 = new IfStmt();
+				if2.setCondition(e4);
+				if2.setWhenTrue(s3);
+				if2.setWhenFalse(s3a);
+                if2.setPos(i2left, i2right);
+			    RESULT = if2;
+			:}
+
+		|	WHILE:w expression:e5 DO statements:s3 END	// while statement 
+			{:
+				WhileDoStmt wstmt = new WhileDoStmt();
+				wstmt.setExpn(e5);
+				wstmt.setBody(s3);
+                wstmt.setPos(wleft, wright);
+				RESULT = wstmt;
+			:}
+
+		|   REPEAT:r statements:s4 UNTIL expression:e6	// repeat statement
+			{:
+				RepeatUntilStmt rstmt = new RepeatUntilStmt();
+				rstmt.setExpn(e6);
+				rstmt.setBody(s4);
+                rstmt.setPos(rleft, rright);
+				RESULT = rstmt;
+			:}
+
+		|	EXIT:x1					// exit statements
+            {:
+                ExitStmt ex = new ExitStmt();
+                ex.setPos(x1left, x1right);
+                RESULT = ex;
+            :}
+
+		|	EXIT:x2 WHEN expression:e6
+            {:
+                ExitStmt ex = new ExitStmt();
+                ex.setExpn(e6);
+                ex.setPos(x2left, x2right);
+                RESULT = ex;
+            :}
+
+		|	RESULT:r1 expression:e7 	// return from function
+            {:
+                ResultStmt res = new ResultStmt();
+                res.setValue(e7);
+                res.setPos(r1left, r1right);
+                RESULT = res;
+            :}
+
+		|	RETURN:r2 					// return from procedure
+            {:
+                ReturnStmt res = new ReturnStmt();
+                res.setPos(r2left, r2right);
+                RESULT = res;
+            :}
+
+		|	PUT:p outputs:outs			// output statment
+            {:
+                PutStmt put = new PutStmt();
+                put.setOutputs(outs);
+                put.setPos(pleft, pright);
+                RESULT = put;
+            :}
+
+		|	GET:g  inputs:ins				// input statement
+            {:
+                GetStmt get = new GetStmt();
+                get.setInputs(ins);
+                get.setPos(gleft, gright);
+                RESULT = get;
+            :}
+
+		|	IDENT:id L_PAREN  argumentList:argList  R_PAREN 	// call procedure 
+            {:
+                ProcedureCallStmt proc = new ProcedureCallStmt();
+                proc.setArguments(argList);
+                proc.setName(id);
+                proc.setPos(idleft, idright);
+                RESULT = proc;
+            :}
+
+		|	scope:s					// embedded scope
+            {: RESULT = s; :}
+		;
+
+declaration	::=	VAR:v variablenames:var COLON type:t		// declare scalar/array variables
+                {:
+                   MultiDeclarations decl = new MultiDeclarations();
+                   decl.setElements(var);
+                   decl.setType(t);
+                   decl.setPos(vleft, vright);
+                   RESULT = decl;
+                :}
+
+		|	functionHead:fh1  scope:sc1			// function declaration
+			{:
+                RoutineBody rb = fh1.getRoutineBody(); 
+		        rb.setBody(sc1);
+                rb.setPos(sc1left, sc1right);
+		        RESULT = fh1;
+            :}
+
+		|	procedureHead:ph1  scope:sc2			// procedure declaration
+            {:
+                RoutineBody rb = ph1.getRoutineBody();
+                rb.setBody(sc2);
+                rb.setPos(sc2left, sc2right);
+                RESULT = ph1;
+            :}
+                
+
+		|   FORWARD:f1 functionHead:fh2			// forward function declaration
+			{:
+                fh2.setPos(f1left, f1right);
+                RESULT = fh2;
+            :}
+
+		|	FORWARD:f2 procedureHead:ph2			// forward procedure declaration
+            {:  
+                ph2.setPos(f2left, f2right);
+                RESULT = ph2;
+            :}
+		;
+
+variablenames	::=	variablename:var  		// list of variables being declared
+                    {:
+                        ASTList<DeclarationPart> list  =
+                            new ASTList<DeclarationPart>(var);
+                        list.setPos(varleft, varright);
+                        RESULT = list;
+                    :}
+
+		|	variablenames:varList COMMA variablename:var2 
+            {: RESULT = varList.addLast(var2); :}
+		;
+
+variablename	::=	IDENT:id1 					// scalar variable
+				    {:
+                        ScalarDeclPart decl = new ScalarDeclPart();
+                        decl.setName(id1);
+                        decl.setPos(id1left, id1right);
+                        RESULT = decl;
+                    :}	
+
+		|	IDENT:id2 L_SQUARE bound:b1 R_SQUARE		// 1 dimensional array
+		    {:
+                b1.setName(id2);
+                b1.setPos(id2left, id2right);
+		        RESULT = b1; 
+			:}	
+
+		|	IDENT:id3 L_SQUARE bound:b2 COMMA bound:b3 R_SQUARE // 2 dimensional array
+			{:
+                b2.setName(id3);
+                b2.setLowerBoundary2(b3.getLowerBoundary1());
+                b2.setUpperBoundary2(b3.getUpperBoundary1());
+                b2.setSize(b2.getSize() * b3.getSize()); // Correct size calculation?
+                b2.setPos(id3left, id3right);
+                RESULT = b2;
+            :}
+		;
+
+bound		::=     INTCONST:i				// integer array bound
+                    {:
+                        ArrayDeclPart decl = new ArrayDeclPart();
+                        decl.setLowerBoundary1(1);
+                        decl.setUpperBoundary1(i);
+                        decl.setSize(i);
+                        RESULT = decl; 
+					:}
+
+		|       generalBound:g1 DOT DOT generalBound:g2	// explicit lower/upper bounds
+                {:
+                    ArrayDeclPart decl = new ArrayDeclPart();
+                    decl.setLowerBoundary1(g1.getValue());
+                    decl.setUpperBoundary1(g2.getValue());
+                    decl.setSize((g1.getValue() - g2.getValue()) + 1);
+                    RESULT = decl; 
+				:}
+		;
+
+generalBound	::=	INTCONST:i1			// positive array bound
+					{: RESULT = new IntConstExpn(i1); :}
+
+		|	MINUS INTCONST:i2			// negative array bound
+		    {: RESULT = new IntConstExpn(-i2); :}
+		;
+
+type		::=	INTEGER				// integer type
+                {: RESULT = new IntegerType(); :}
+
+		|	BOOLEAN				// boolean type
+            {: RESULT = new BooleanType(); :}
+		;
+
+functionHead	::=	FUNC:f IDENT:id L_PAREN parameterList:pl R_PAREN COLON type:t
+                    // function head
+					{:
+                        RoutineDecl routine = new RoutineDecl(); 
+						routine.setType(t);
+						routine.setName(id);
+                        routine.setPos(fleft, fright);
+						routine.setRoutineBody(pl);
+						RESULT = routine;
+                    :}
+		;
+
+procedureHead	::=	PROCEDURE:p  IDENT:id L_PAREN parameterList:pl  R_PAREN
+                    // procedure head
+                    {:
+                       RoutineDecl routine = new RoutineDecl();
+					   routine.setName(id);
+				       routine.setRoutineBody(pl);
+                       routine.setPos(pleft, pright);
+					   RESULT = routine;
+                    :}
+		;
+
+outputs		::=	output:out1			// list of output expressions
+                {:
+                    ASTList<Printable> list = new ASTList<Printable>(out1);
+                    list.setPos(out1left, out1right);
+                    RESULT = list;
+                :}
+
+		|	outputs:outList COMMA output:out2
+            {: RESULT = outList.addLast(out2); :}
+		;
+
+output		::=	expression:e	// integer expression
+                {: RESULT = e; :}
+
+		|	TEXTCONST:t		// text constant
+            {:
+                TextConstExpn text = new TextConstExpn();
+                text.setValue(t);
+                text.setPos(tleft, tright);
+                RESULT = text;
+            :}
+
+		|	NEWLINE:n			// newline constant
+            {:
+                NewlineConstExpn line = new NewlineConstExpn();
+                line.setPos(nleft, nright);
+                RESULT = line;
+            :}
+		;
+
+inputs		::=	variable:v1		// list of variables being read into
+                {:
+                    ASTList<Readable> list =
+                        new ASTList<Readable>((Readable) v1);
+                    list.setPos(v1left, v1right);
+                    RESULT = list;
+                :}
+
+		|	inputs:inputList COMMA variable:v2
+            {: RESULT = inputList.addLast((Readable) v2); :}
+		;
+
+argumentList	::=	arguments:args		//  function/procedure arguments
+                    {: RESULT = args; :}
+
+		|	//  EMPTY
+            {: RESULT = new ASTList<Expn>(); :}
+		;
+
+arguments	::=	expression:e		// list of function/procedure arguments
+                {:
+                    ASTList<Expn> list = new ASTList<Expn>(e);
+                    list.setPos(eleft, eright);
+                    RESULT = list;
+                :}
+
+		|	arguments:argList COMMA expression:exp
+            {: RESULT = argList.addLast(exp); :}
+		;
+
+parameterList	::=	parameters:plist		//  function/procedure formal parameters
+					{:
+                        RoutineBody routbody = new RoutineBody();
+					    routbody.setParameters(plist);
+					    RESULT = routbody;
+                    :}
+
+		|	//  EMPTY
+            {: RESULT = new RoutineBody(); :}
+		;
+
+parameters	::=	parameter:p1			// list of function/procedure formal parameters
+				{:
+                    ASTList<ScalarDecl> params = new ASTList<ScalarDecl>(p1);
+                    params.setPos(p1left, p1right);
+                    RESULT = params;
+                :}
+
+		|	parameters:plist COMMA parameter:p2
+			{: RESULT = plist.addLast(p2); :}
+		;
+
+parameter	::=	IDENT:id COLON type:t		// declare one parameter
+				{:
+                    ScalarDecl param = new ScalarDecl();   
+                    param.setType(t);
+		            param.setName(id);
+                    param.setPos(idleft, idright);
+			        RESULT = param;
+                :}
+		;
+
+expression	::=	conjunction:c1			// disjunctions, associate left-to-right
+            {: 
+				RESULT = c1; 
+			:}
+
+		|	expression:e OR conjunction:c2
+			{:
+				BoolExpn bExp = new BoolExpn();
+				bExp.setOpSymbol("or");
+				bExp.setLeft(e);
+				bExp.setRight(c2);
+				bExp.setPos(eleft, eright);
+				RESULT = bExp;
+			:}
+		;
+
+conjunction	::=	negation:n1			// conjunctions, associate left-to-right
+            {: RESULT = n1; :}
+
+		|	conjunction:c AND negation:n2
+			{:
+				BoolExpn bExp = new BoolExpn();
+				bExp.setOpSymbol("and");
+				bExp.setLeft(c);
+				bExp.setRight(n2);
+				bExp.setPos(cleft, cright);
+				RESULT = bExp;
+			:}
+		;
+
+negation	::=	compareExpn:c 			// negations
+                {: RESULT = c; :}
+
+		|	NOT:n1 negation:n
+			{:
+				NotExpn ne = new NotExpn();
+				ne.setOpSymbol("not");
+				ne.setOperand(n);
+				ne.setPos(n1left, n1right);
+				RESULT = ne;
+			:}
+		;
+
+compareExpn	::=	arithExpn:a1			// comparisons, do not associate
+                {: RESULT = a1; :}
+
+		|	arithExpn:a2 EQUAL arithExpn:a3
+			{:
+				EqualsExpn eqExp1 = new EqualsExpn();
+				eqExp1.setOpSymbol("=");
+				eqExp1.setLeft(a2);
+				eqExp1.setRight(a3);
+				eqExp1.setPos(a2left, a2right);
+				RESULT = eqExp1;	
+			:}
+
+		| 	arithExpn:a4 NOT EQUAL arithExpn:a5
+			{:
+				EqualsExpn eqExp2 = new EqualsExpn();
+				eqExp2.setOpSymbol("not=");
+				eqExp2.setLeft(a4);
+				eqExp2.setRight(a5);
+				eqExp2.setPos(a4left, a4right);
+				RESULT = eqExp2;
+			:}
+
+		|	arithExpn:a6 LESS arithExpn:a7
+			{:
+				CompareExpn coExp3 = new CompareExpn();
+				coExp3.setOpSymbol("<");
+				coExp3.setLeft(a6);
+				coExp3.setRight(a7);
+				coExp3.setPos(a6left, a6right);
+				RESULT = coExp3;
+			:}
+
+		|	arithExpn:a8 LESS EQUAL arithExpn:a9
+			{:
+				CompareExpn coExp4 = new CompareExpn();
+				coExp4.setOpSymbol("<=");
+				coExp4.setLeft(a8);
+				coExp4.setRight(a9);
+				coExp4.setPos(a8left, a8right);
+				RESULT = coExp4;
+			:}
+
+		|	arithExpn:a10 GREATER arithExpn:a11
+			{:
+				CompareExpn coExp5 = new CompareExpn();
+				coExp5.setOpSymbol(">");
+				coExp5.setLeft(a10);
+				coExp5.setRight(a11);
+				coExp5.setPos(a10left, a10right);
+				RESULT = coExp5;
+			:}
+
+		|	arithExpn:a12 GREATER EQUAL arithExpn:a13
+			{:
+				CompareExpn coExp6 = new CompareExpn();
+				coExp6.setOpSymbol(">=");
+				coExp6.setLeft(a12);
+				coExp6.setRight(a13);
+				coExp6.setPos(a12left, a12right);
+				RESULT = coExp6;
+			:}
+		;
+
+arithExpn	::=	term:t1				// expressions, associate + , - left-to-right
+                {: RESULT = t1; :}
+
+		|	arithExpn:a1  PLUS  term:t2
+			{:
+				ArithExpn ae1 = new ArithExpn();
+				ae1.setOpSymbol("+");
+				ae1.setRight(t2);
+				ae1.setLeft(a1);
+				ae1.setPos(a1left, a1right);
+				RESULT = ae1;
+			:}
+
+		|	arithExpn:a2  MINUS term:t3
+			{:
+				ArithExpn ae2 = new ArithExpn();
+				ae2.setOpSymbol("-");
+				ae2.setLeft(a2);
+				ae2.setRight(t3);
+				ae2.setPos(a2left, a2right);
+				RESULT = ae2;
+			:}
+		;
+
+term		::=	factor:f1 		// terms, associate * , /   left-to-right
+            {: RESULT = f1; :}
+
+		|	term:t1 TIMES factor:f2
+			{:
+				ArithExpn ae1 = new ArithExpn();
+				ae1.setLeft(t1);
+				ae1.setRight(f2);
+				ae1.setOpSymbol("*");
+				ae1.setPos(t1left, t1right);
+				RESULT = ae1;
+			:}
+
+		|	term:t2 DIVIDE factor:f3
+			{:
+				ArithExpn ae2 = new ArithExpn();
+				ae2.setLeft(t2);
+				ae2.setRight(f3);
+				ae2.setOpSymbol("/");
+				ae2.setPos(t2left, t2right);
+				RESULT = ae2;	
+			:}
+		;
+
+factor		::=	primary:p
+                {: RESULT = p; :}				
+
+		|	MINUS:m factor:f			// unary minus
+			{:
+				UnaryMinusExpn mf = new UnaryMinusExpn(f);
+				mf.setPos(mleft, mright);
+				RESULT = mf;
+			:}
+		;
+
+primary		::=	constant:c				// integer or boolean constant
+                {: RESULT = c; :}
+
+		|	variable:v				// scalar, array element 
+            {: RESULT = v; :}
+
+		| 	L_PAREN:lpa1  expression:e1  R_PAREN		// parenthesized expression
+            {: 
+				ParenthExpn pExpn = new ParenthExpn(e1); 
+				pExpn.setPos(lpa1left, lpa1right);
+				RESULT = pExpn; 
+			:}
+
+		|	L_PAREN:lpa2  expression:e2 QUESTION expression:e3 COLON expression:e4 R_PAREN
+								// conditional expression
+            {:
+                ConditionalExpn condEx = new ConditionalExpn();
+                condEx.setCondition(e2);
+                condEx.setTrueValue(e3);
+                condEx.setFalseValue(e4);
+				condEx.setPos(lpa2left, lpa2right);
+                RESULT = condEx;
+            :}
+
+		|	IDENT:id L_PAREN argumentList:al R_PAREN 	// function call
+			{:	
+				FunctionCallExpn func = new FunctionCallExpn(); 
+			   	func.setIdent(id);
+				func.setArguments(al);
+				func.setPos(idleft, idright);
+				RESULT = func;
+			:}
+		;
+
+constant	::=	INTCONST:i	// integer constant
+                {:
+					IntConstExpn intExpn = new IntConstExpn(i); 
+					intExpn.setPos(ileft, iright);
+					RESULT = intExpn; 
+				:}
+
+		|	TRUE:t		// constant true
+				{:	
+					BoolConstExpn bExpn1 = new BoolConstExpn(true); 
+					bExpn1.setPos(tleft, tright);
+					RESULT = bExpn1; 
+				:}
+
+		|	FALSE:f		// constant false
+				{:  
+					BoolConstExpn bExpn2 = new BoolConstExpn(false); 
+					bExpn2.setPos(fleft, fright);
+					RESULT = bExpn2; 
+				:}
+		;
+
+variable	::=	IDENT:id1			// scalar variable or parameter
+                {: 
+					IdentExpn idExpn = new IdentExpn(id1); 
+					idExpn.setPos(id1left, id1right);
+					RESULT = idExpn;
+				:}
+
+		|	IDENT:id2 L_SQUARE expression:e1 R_SQUARE	// element of 1 dimensional array
+            {:
+                SubsExpn sub = new SubsExpn(e1, null);
+                sub.setVariable(id2);
+				sub.setPos(id2left, id2right);
+                RESULT = sub;
+            :}
+                
+		|   IDENT:id3 L_SQUARE expression:e2 COMMA expression:e3 R_SQUARE
+            // element of 2 dimensional array
+            {:
+                SubsExpn sub = new SubsExpn(e2, e3);
+                sub.setVariable(id3);
+				sub.setPos(id3left, id3right);
+                RESULT = sub;
+            :}
+		;
+

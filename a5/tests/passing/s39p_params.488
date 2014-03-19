@@ -1,0 +1,18 @@
+{
+    var bool : boolean
+
+    func a(i : integer, bool : boolean) : boolean {
+        bool := i < 100
+        result bool
+    }
+
+    proc b(i : integer, bool : boolean) {
+        i := i + 10
+        bool := false
+        return
+    }
+
+    bool := a(10, false)
+    b(10, false)
+}
+

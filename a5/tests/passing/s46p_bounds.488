@@ -1,0 +1,18 @@
+{
+    % Good array declarations
+    var a[10] : integer
+    var b[5..6] : integer
+    var c[1] : integer
+    var d[4, 1] : integer
+
+    % 2D
+    var e[10, 20] : boolean
+    var f[5], g[3, 12] : boolean
+    var h[23, 23] : integer
+    var i[1..1, 10..10] : integer
+    var j[-10..-4, -4..-4] : integer
+
+    % Any statement
+    {}
+}
+

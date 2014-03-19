@@ -1,0 +1,28 @@
+{
+    forward proc a(param : integer)
+
+    % Wrong number of formal parameters
+    proc a() {
+        return
+    }
+
+    proc a(i : integer, j : integer) {
+        return
+    }
+
+    % Wrong formal parameter type 
+    proc a(param : boolean) {
+        return
+    }
+
+    { % New minor scope
+        % Declaration in wrong scope
+        proc a(param : integer) {
+            return
+        }
+
+        % Empty statement
+        {}
+    }
+}
+

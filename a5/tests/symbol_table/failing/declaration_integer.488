@@ -1,0 +1,6 @@
+{
+	% CSC488 declaration integer test-Failing case
+    
+	var x:integer
+	x:=true
+}

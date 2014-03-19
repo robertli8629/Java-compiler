@@ -1,0 +1,29 @@
+{
+	%	Return not directly in procedure.
+
+	var x : integer
+
+	func F() : integer {
+
+		x := 1
+		while x < 2
+		do
+			return
+		end
+	}
+
+	if true
+	then
+		return
+	fi
+
+	if false
+	then
+		x := 1
+	else
+		return
+	fi
+
+	return
+
+}

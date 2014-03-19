@@ -1,0 +1,24 @@
+{
+	%	Scalar variable already declared 
+	%	in current scope.
+
+	var x : integer
+	
+	var x : boolean
+
+	var y : integer
+
+	func F() : integer {
+
+		var y : integer
+
+		var y : integer
+
+		var x : boolean
+
+		x := true
+	}
+
+	y := 2	
+
+}

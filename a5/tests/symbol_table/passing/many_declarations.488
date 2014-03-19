@@ -1,0 +1,11 @@
+{
+	% CSC488 many declarations test-Passing case
+
+	var x:integer
+	var y:integer
+	var z:integer
+	x:=3
+	y:=x+1
+	z:=x+2
+	put x,y,z
+}

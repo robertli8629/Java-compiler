@@ -1,0 +1,7 @@
+{
+	% CSC488 declaration replace test-Failing case
+    
+	var x:boolean
+	var x:integer
+	x:=1
+}
