@@ -35,6 +35,8 @@ public class Semantics {
 	
 	private boolean showSymbolTable = false;
 	PrintStream ps;
+	
+	int current_order_number = 0;
      
      /** SemanticAnalyzer constructor */
 	public Semantics (){
@@ -67,7 +69,7 @@ public class Semantics {
 	   
 	   symbolTable = st;
 
-	   this.traverse((Scope) programAST, null, ScopeType.MAJOR, null, 0);
+	   this.traverse((Scope) programAST, null, ScopeType.MAJOR, null, 0, 0);
 
 	   if (showSymbolTable) {
 		   System.out.println("printing out the symbol table: ");
@@ -143,15 +145,16 @@ public class Semantics {
 	 * arg: if not null, it represents parameter list passed by function/procedure declaration scope
 	 * ref: if not null, it represents function declaration, which is used to check the return type of the function
 	 *  */
-	private void traverse(Scope s, ASTList<ScalarDecl> arg, ScopeType scope_type, Object ref, int lexic_level){
+	private void traverse(Scope s, ASTList<ScalarDecl> arg, ScopeType scope_type, Object ref, int lexic_level, int order_number){
 // 	    System.out.println("enter traverse");
-	    int order_number = 0;
 	    Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
 
 	    ASTList<Declaration> AST_dcl=s.getDeclarations();
 	    LinkedList<Declaration> ll=AST_dcl.get_list();
 	    
 	    symbolTable.symbolstack.push(symboltable);
+	    
+	    
 	    
 	    if (arg != null) {
 		order_number = add_params(symboltable, arg, lexic_level, order_number);
@@ -173,6 +176,8 @@ public class Semantics {
 	    	printHash(symboltable);
 	    }
 
+	    current_order_number = order_number;
+	    
 	    // recursion
 	    ASTList<Stmt> AST_stat=s.getStatements();
 	    LinkedList<Stmt> stmt_ll=AST_stat.get_list();
@@ -252,9 +257,9 @@ public class Semantics {
 		    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, order_number); // add first for recursive definition
 		    ASTList<ScalarDecl> params = rb.getParameters();
 		    if (decl.getType() == null) {
-			traverse(routine_scope, params, ScopeType.PROCEDURE, null, lexic_level + 1);
+			traverse(routine_scope, params, ScopeType.PROCEDURE, null, lexic_level + 1, 0);
 		    } else {
-			traverse(routine_scope, params, ScopeType.FUNCTION, decl, lexic_level + 1);
+			traverse(routine_scope, params, ScopeType.FUNCTION, decl, lexic_level + 1, 0);
 		    }
 		    return order_number + 1;
 		} else { // forward declaration
@@ -270,6 +275,7 @@ public class Semantics {
 	    // add it to symbol table
 	    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, order_number);
 	
+	    current_order_number++;
 	    return order_number + 1;
 	}
 	
@@ -376,6 +382,8 @@ public class Semantics {
 	    }
 	    
 	    symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, order_number);
+	    
+	    current_order_number++;
 	    return order_number + 1;
 	}
 	
@@ -388,7 +396,7 @@ public class Semantics {
 		if (scope_type == ScopeType.MAJOR) {
 		    scope_type = ScopeType.MINOR;
 		}
-		traverse(scope, null, scope_type, ref, lexic_level + 1);
+		traverse(scope, null, scope_type, ref, lexic_level, current_order_number);
 		    
 	    }
 	    
@@ -622,6 +630,7 @@ public class Semantics {
 		    check_if_declared(ht, d);
 		    symbolTable.add_to_symboltable(d, ht, lexic_level, order_number);
 		    order_number++;
+		    current_order_number++;
 		}
 	    }
 	    return order_number;
