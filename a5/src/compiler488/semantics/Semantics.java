@@ -36,7 +36,6 @@ public class Semantics {
 	private boolean showSymbolTable = false;
 	PrintStream ps;
 	
-	int current_order_number = 0;
 	// array to store current order_number in each lexic_level, support at most 10 LL
 	int[] current_order_number_ll = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
      
@@ -175,9 +174,6 @@ public class Semantics {
 	    if (showSymbolTable) { 
 	    	printHash(symboltable);
 	    }
-
-	    // use current_order_number to continue counting ONs in minor scope
-	    current_order_number = order_number;
 	    
 	    // recursion
 	    ASTList<Stmt> AST_stat=s.getStatements();
@@ -278,7 +274,6 @@ public class Semantics {
 	    symbolTable.add_to_symboltable(decl, symboltable, lexic_level, current_order_number_ll[lexic_level]);
 	    current_order_number_ll[lexic_level]++;
 	
-	    current_order_number++;
 	    return order_number + 1;
 	}
 	
@@ -386,7 +381,6 @@ public class Semantics {
 	    
 	    symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, current_order_number_ll[lexic_level]);
 	    current_order_number_ll[lexic_level]++;
-	    current_order_number++;
 	    return order_number + 1;
 	}
 	
@@ -399,7 +393,7 @@ public class Semantics {
 		if (scope_type == ScopeType.MAJOR) {
 		    scope_type = ScopeType.MINOR;
 		}
-		traverse(scope, null, scope_type, ref, lexic_level, current_order_number);
+		traverse(scope, null, scope_type, ref, lexic_level, 0);
 		    
 	    }
 	    
@@ -634,7 +628,6 @@ public class Semantics {
 		    symbolTable.add_to_symboltable(d, ht, lexic_level, current_order_number_ll[lexic_level]);
 		    current_order_number_ll[lexic_level]++;
 		    order_number++;
-		    current_order_number++;
 		}
 	    }
 	    return order_number;
