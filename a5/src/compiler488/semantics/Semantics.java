@@ -23,7 +23,7 @@ import compiler488.ast.AST;
  */
 public class Semantics {
 	
-        /** flag for tracing semantic analysis */
+    /** flag for tracing semantic analysis */
 	private boolean traceSemantics = false;
 	/** file sink for semantic analysis trace */
 	private String traceFile = new String();
@@ -635,7 +635,7 @@ public class Semantics {
             }
             
             if(expn instanceof UnaryMinusExpn){
-		Expn operand = ((UnaryMinusExpn)expn).getOperand();
+            	Expn operand = ((UnaryMinusExpn)expn).getOperand();
                 if(!(expn_analysis(operand).equals("integer"))){ // S31: check integer type
                         print(expn, "bad operand type for unary : " + operand + " has to be integer");
                 }
@@ -658,7 +658,7 @@ public class Semantics {
             }
             
             if(expn instanceof NotExpn){ // S30: check boolean type
-		Expn operand = ((NotExpn)expn).getOperand();
+            	Expn operand = ((NotExpn)expn).getOperand();
                 if(!(expn_analysis(operand).equals("boolean"))){
                         print(expn, "bad operand type for not : " + operand + " has to be boolean");
                 }
@@ -678,7 +678,7 @@ public class Semantics {
             
             if(expn instanceof EqualsExpn){
                 EqualsExpn equals_expn=(EqualsExpn) expn;
-		if(!(expn_analysis(equals_expn.getLeft()).equals(expn_analysis(equals_expn.getRight())))){ // S32: check that left and right operand have same type
+                if(!(expn_analysis(equals_expn.getLeft()).equals(expn_analysis(equals_expn.getRight())))){ // S32: check that left and right operand have same type
                         print(expn, "uncomparable types between " + equals_expn.getLeft() + " and " + equals_expn.getRight());
                 }
                 return "boolean";
@@ -705,7 +705,7 @@ public class Semantics {
                 if(!(expn_analysis(cond_expn.getCondition()).equals("boolean"))){ // S30: check boolean type
                         print(expn, "bad conditional expression : " + cond_expn.getCondition() + " has to be boolean");
                 }
-		if(!(expn_analysis(cond_expn.getTrueValue()).equals(expn_analysis(cond_expn.getFalseValue())))){ // S33: Both exprs in conditional are the same type
+                if(!(expn_analysis(cond_expn.getTrueValue()).equals(expn_analysis(cond_expn.getFalseValue())))){ // S33: Both exprs in conditional are the same type
                         print(expn, "incompatible types between " + cond_expn.getTrueValue() + " and " + cond_expn.getFalseValue());
                 }
                 return expn_analysis(cond_expn.getTrueValue()); // S24: set result type of conditional expressions
@@ -714,49 +714,49 @@ public class Semantics {
             if(expn instanceof FunctionCallExpn){ // S43: check argument number match
                 FunctionCallExpn func_expn=(FunctionCallExpn) expn;
 		
-		int size_used = 0;
-		String name = func_expn.getIdent();
-		ASTList<Expn> arg_list = func_expn.getArguments();
-		LinkedList<Expn> arg_ll = null;
-		if (arg_list != null) {
-		    arg_ll = arg_list.get_list();
-		    size_used = arg_ll.size();
-		}
-		
-		Symbol symbol_found = symbolTable.find_variable(name);
-		
-		if(symbol_found == null){
-		    print(expn, "function \"" + name + "\" is not defined");
-		} else {
-		    if(symbol_found.getType().getLink() instanceof RoutineDecl){
-			if (symbol_found.getType().getType() == "null") {
-			    print(expn, name + " is declared as a procedure, not as a function");
-			    return "";
-			}
-			RoutineDecl routine=(RoutineDecl) symbol_found.getType().getLink();
-			ASTList<ScalarDecl> arg_list_expected = routine.getRoutineBody().getParameters();
-			int size_expected = 0;
-			if (arg_list_expected != null) {
-			    size_expected = arg_list_expected.get_list().size();
-			}
-			
-			if(size_expected != size_used){
-			    print(expn, "argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
-			} else {
-			    if (size_expected == 0) {
-				return symbol_found.getType().getType();
-			    }
-			    int n = check_arguments_match(arg_ll, arg_list_expected.get_list()); // return "" if error
-			    if (n < 0) {
+                int size_used = 0;
+                String name = func_expn.getIdent();
+				ASTList<Expn> arg_list = func_expn.getArguments();
+				LinkedList<Expn> arg_ll = null;
+				if (arg_list != null) {
+				    arg_ll = arg_list.get_list();
+				    size_used = arg_ll.size();
+				}
+				
+				Symbol symbol_found = symbolTable.find_variable(name);
+				
+				if(symbol_found == null){
+				    print(expn, "function \"" + name + "\" is not defined");
+				} else {
+				    if(symbol_found.getType().getLink() instanceof RoutineDecl){
+					if (symbol_found.getType().getType() == "null") {
+					    print(expn, name + " is declared as a procedure, not as a function");
+					    return "";
+					}
+					RoutineDecl routine=(RoutineDecl) symbol_found.getType().getLink();
+					ASTList<ScalarDecl> arg_list_expected = routine.getRoutineBody().getParameters();
+					int size_expected = 0;
+					if (arg_list_expected != null) {
+					    size_expected = arg_list_expected.get_list().size();
+					}
+					
+					if(size_expected != size_used){
+					    print(expn, "argument size mismatch for " + routine + " : expect " + size_expected + " arguments, used " + size_used + " arguments");
+					} else {
+					    if (size_expected == 0) {
+						return symbol_found.getType().getType();
+					    }
+					    int n = check_arguments_match(arg_ll, arg_list_expected.get_list()); // return "" if error
+					    if (n < 0) {
+						return "";
+					    }
+					}
+					return symbol_found.getType().getType();
+				    } else {
+					print(expn, name + " is not declared as a function");
+				    }
+				}
 				return "";
-			    }
-			}
-			return symbol_found.getType().getType();
-		    } else {
-			print(expn, name + " is not declared as a function");
-		    }
-		}
-		return "";
 		
             }
             
@@ -773,20 +773,20 @@ public class Semantics {
 // 	     System.out.println("check_arguments_match");
 	     int i;
 	     for(i = 0; i < arg_ll.size(); i++){
-		Expn expn = arg_ll.get(i);
-		ScalarDecl decl = arg_ll_expected.get(i);
-		if(expn_analysis(expn).equals("integer")){
-		    if(!(decl.getType() instanceof IntegerType)){
-			print(expn, "type error: expect argument number " + i+1 + " type boolean");
-			return -1;
-		    }
-		}
-		if(expn_analysis(expn).equals("boolean")){
-		    if(!(decl.getType() instanceof BooleanType)){
-			print(expn, "type error: expect argument number " + i+1 + " type integer");
-			return -1;
-		    }
-		}
+			Expn expn = arg_ll.get(i);
+			ScalarDecl decl = arg_ll_expected.get(i);
+			if(expn_analysis(expn).equals("integer")){
+			    if(!(decl.getType() instanceof IntegerType)){
+				print(expn, "type error: expect argument number " + i+1 + " type boolean");
+				return -1;
+			    }
+			}
+			if(expn_analysis(expn).equals("boolean")){
+			    if(!(decl.getType() instanceof BooleanType)){
+				print(expn, "type error: expect argument number " + i+1 + " type integer");
+				return -1;
+			    }
+			}
 	     }
 	     
 	     return 0;
@@ -796,50 +796,50 @@ public class Semantics {
         /** handle semantic checking of variables
          * S29: check whether the variable is declared or visible */
         private String variable_analysis(Expn expn){
-	    if(expn instanceof IdentExpn){
-		IdentExpn ident_expn=(IdentExpn) expn;
-		Symbol symbol_found = symbolTable.find_variable(ident_expn.toString());
-		
-		if(symbol_found == null){
-		    print(ident_expn, "variable \"" + ident_expn.toString() + "\" is not defined");
-		} else {
-		    if (symbol_found.getKind().equals("func") || symbol_found.getKind().equals("array")) {
-			print(ident_expn, ident_expn.toString() + " is not a valid variable");
-			return "";
-		    }
-		    return symbol_found.getType().getType();
-		}
+		    if(expn instanceof IdentExpn){
+				IdentExpn ident_expn=(IdentExpn) expn;
+				Symbol symbol_found = symbolTable.find_variable(ident_expn.toString());
+				
+				if(symbol_found == null){
+				    print(ident_expn, "variable \"" + ident_expn.toString() + "\" is not defined");
+				} else {
+				    if (symbol_found.getKind().equals("func") || symbol_found.getKind().equals("array")) {
+					print(ident_expn, ident_expn.toString() + " is not a valid variable");
+					return "";
+				    }
+				    return symbol_found.getType().getType();
+				}
             }
 
             if(expn instanceof SubsExpn){ // array check
-		SubsExpn sub_expn=(SubsExpn) expn;
-
-		if(!(expn_analysis(sub_expn.getSubscript1()).equals("integer"))){ // S31: integer type check
-		    print(expn, "First index should be integer");
-		}
-		if(sub_expn.getSubscript2() != null){
-		    if(!(expn_analysis(sub_expn.getSubscript2()).equals("integer"))){
-			print(expn, "Second index should be integer");
-		    }
-		}
-
-		Symbol symbol_found = symbolTable.find_variable(sub_expn.getVariable());
+				SubsExpn sub_expn=(SubsExpn) expn;
 		
-		if(symbol_found == null){
-		    print(expn, "variable \"" + sub_expn.getVariable() + "\" is not defined");
-		} else { // S38, S55: 1 dimentional / 2 dimentional array check
-		    if(symbol_found.getType().getLink() instanceof ArrayDeclPart){
-			ArrayDeclPart array=(ArrayDeclPart) symbol_found.getType().getLink();
-			if(array.isTwoDimensional() && sub_expn.getSubscript2() == null){
-			    print(expn, sub_expn.getVariable()+" should be two dimensional array");
-			} else if (!array.isTwoDimensional() && sub_expn.getSubscript2() != null) {
-			    print(expn, sub_expn.getVariable()+" should be one dimensional array");
-			}
-		    } else {
-			print(expn, sub_expn.getVariable() + " is not declared as an array");
-		    }
-		    return symbol_found.getType().getType();
-		}
+				if(!(expn_analysis(sub_expn.getSubscript1()).equals("integer"))){ // S31: integer type check
+				    print(expn, "First index should be integer");
+				}
+				if(sub_expn.getSubscript2() != null){
+				    if(!(expn_analysis(sub_expn.getSubscript2()).equals("integer"))){
+					print(expn, "Second index should be integer");
+				    }
+				}
+		
+				Symbol symbol_found = symbolTable.find_variable(sub_expn.getVariable());
+				
+				if(symbol_found == null){
+				    print(expn, "variable \"" + sub_expn.getVariable() + "\" is not defined");
+				} else { // S38, S55: 1 dimentional / 2 dimentional array check
+				    if(symbol_found.getType().getLink() instanceof ArrayDeclPart){
+					ArrayDeclPart array=(ArrayDeclPart) symbol_found.getType().getLink();
+					if(array.isTwoDimensional() && sub_expn.getSubscript2() == null){
+					    print(expn, sub_expn.getVariable()+" should be two dimensional array");
+					} else if (!array.isTwoDimensional() && sub_expn.getSubscript2() != null) {
+					    print(expn, sub_expn.getVariable()+" should be one dimensional array");
+					}
+				    } else {
+					print(expn, sub_expn.getVariable() + " is not declared as an array");
+				    }
+				    return symbol_found.getType().getType();
+				}
 		
             }
 
