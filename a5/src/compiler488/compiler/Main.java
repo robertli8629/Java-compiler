@@ -520,9 +520,9 @@ public class Main {
 	   // or
 	   // Semantics.doIt( programAST );
 	   
-	   
+	   SymbolTable symbolTable = new SymbolTable();
 	   Semantics semantic = new Semantics();
-	   semantic.Initialize(programAST, dumpSymbolTable);
+	   semantic.Initialize(programAST, dumpSymbolTable, symbolTable);
 	   if (semantic.error_flag) {
 	      System.out.println("Errors occurred during semantic analysis. Execution terminated.");
 	      System.exit(1);

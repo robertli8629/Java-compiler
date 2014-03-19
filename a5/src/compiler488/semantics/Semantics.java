@@ -48,7 +48,7 @@ public class Semantics {
 
 	/**  semanticsInitialize - called once by the parser at the      */
 	/*                        start of  compilation                 */
-	public void Initialize(Program programAST, boolean showSymbolTable) {
+	public void Initialize(Program programAST, boolean showSymbolTable, SymbolTable st) {
 	
 	   /*   Initialize the symbol table             */
 	
@@ -65,7 +65,7 @@ public class Semantics {
 	   
 	   this.showSymbolTable = showSymbolTable;
 	   
-	   symbolTable = new SymbolTable();
+	   symbolTable = st;
 
 	   this.traverse((Scope) programAST, null, ScopeType.MAJOR, null, 0);
 
