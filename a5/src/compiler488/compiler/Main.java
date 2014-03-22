@@ -585,7 +585,7 @@ public class Main {
 	   // codeGen.doIt( programAST );
 	   
 	   CodeGen codeGen = new CodeGen();
-	   codeGen.Initialize(symbolTable);
+	   codeGen.Initialize(programAST, symbolTable);
 	   
 	}
         catch( Exception e) 

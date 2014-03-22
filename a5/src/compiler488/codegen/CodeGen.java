@@ -64,7 +64,7 @@ public class CodeGen
 
     private short current_msp = 0;
     private SymbolTable symbolTable;
-    private SymbolTable local_st;
+    private SymbolTable global_st;
     /**  
      *  Constructor to initialize code generation
      */
@@ -83,27 +83,35 @@ public class CodeGen
      */
 
    /** Additional initialization for Code Generation (if required) */
-   public void Initialize(SymbolTable st) throws MemoryAddressException
+   public void Initialize(Program programAST, SymbolTable st) throws MemoryAddressException
 	{
 	/********************************************************/
 	/* Initialization code for the code generator GOES HERE */
 	/* This procedure is called once before codeGeneration  */      
 	/*                                                      */
 	/********************************************************/
-	symbolTable = st;
-	local_st = new SymbolTable();
+	global_st = st;
+	symbolTable = new SymbolTable();
 	
-	System.out.println(symbolTable.current_order_number_ll[0]);
-	System.out.println(symbolTable.current_order_number_ll[1]);
+	System.out.println(global_st.current_order_number_ll[0]);
+	System.out.println(global_st.current_order_number_ll[1]);
 	
-	int alloc_size = symbolTable.current_order_number_ll[0];
+	int alloc_size = global_st.current_order_number_ll[0];
 	
 	Machine.setPC( (short) 0 ) ;		/* where code to be executed begins */
 	
+	// init main scope
+	Machine.writeMemory(current_msp++, (short)5); // PUSHMT
+	Machine.writeMemory(current_msp++, (short)6); // SETD
+	Machine.writeMemory(current_msp++, (short)0); // 0
 	push(Machine.UNDEFINED); // PUSH UNDEFINED
 	push(alloc_size); // PUSH main_needed_words
 	Machine.writeMemory(current_msp++, (short)10); // DUPN
 	
+	// start main scope
+	traverse((Scope) programAST, null, null, 0);
+	
+	// exit main scope
 	Machine.writeMemory(current_msp++, (short)0); // HALT
 	
 	Machine.setMSP(current_msp);   	/* where memory stack begins */
@@ -168,7 +176,7 @@ public class CodeGen
      
      
      	/** 
-	 * main semantic checking routine
+	 * main code generation routine
 	 * arg: if not null, it represents parameter list passed by function/procedure declaration scope
 	 * ref: if not null, it represents function declaration, which is used to check the return type of the function
 	 *  */
@@ -179,7 +187,7 @@ public class CodeGen
 	ASTList<Declaration> AST_dcl=s.getDeclarations();
 	LinkedList<Declaration> ll=AST_dcl.get_list();
 	
-	local_st.symbolstack.push(symboltable);
+	symbolTable.symbolstack.push(symboltable);
 	
 	if (arg != null) {
 // 	    order_number = add_params(symboltable, arg, lexic_level, order_number);
@@ -190,7 +198,7 @@ public class CodeGen
 	    while (iterator.hasNext()){
 		    Declaration decl = (Declaration)iterator.next();
 		    
-// 		    handle_declaration(decl, symboltable, scope_type, lexic_level);
+		    handle_declaration(decl, symboltable, lexic_level);
 	    }
 	}
 	
@@ -198,6 +206,7 @@ public class CodeGen
 // 	    if (showSymbolTable) { 
 // 	    	printHash(symboltable);
 // 	    }
+// 	printHash(symboltable);
 	
 	// recursion
 	ASTList<Stmt> AST_stat=s.getStatements();
@@ -207,12 +216,69 @@ public class CodeGen
 	    while (iterator_stmt.hasNext()){
 		    Stmt stmt = (Stmt)iterator_stmt.next();
 		    
-// 		    handle_statement(stmt, scope_type, ref, lexic_level);
+// 		    handle_statement(stmt, ref, lexic_level);
 	    }
 	}
 	
-	local_st.symbolstack.pop();
+	symbolTable.symbolstack.pop();
 	
+    }
+    
+    /** handles declaration */
+    private void handle_declaration(Declaration decl, Hashtable<String,Symbol> symboltable, int lexic_level) {
+	
+	if (decl instanceof MultiDeclarations) {
+	    ASTList<DeclarationPart> decl_list = ((MultiDeclarations)decl).getElements();
+	    LinkedList<DeclarationPart> ll_part=decl_list.get_list();
+	    
+	    for (DeclarationPart dp : ll_part) {
+		handle_part_declaration(dp, symboltable, decl.getType(), lexic_level);
+	    }
+	    return;
+	}
+	
+	// Semantic analysis S54: associate params if any with scope
+	if (decl instanceof RoutineDecl) {
+	
+	    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
+	    Scope routine_scope = rb.getBody();
+	    if (routine_scope != null) { // not a forward decl
+
+		symbolTable.add_to_symboltable(decl, symboltable, lexic_level, symbolTable.current_order_number_ll[lexic_level]); // add first for recursive definition
+		symbolTable.current_order_number_ll[lexic_level]++;
+		ASTList<ScalarDecl> params = rb.getParameters();
+		if (decl.getType() == null) { // procedure
+		    traverse(routine_scope, params, null, lexic_level + 1);
+		} else { // function
+		    traverse(routine_scope, params, decl, lexic_level + 1);
+		}
+		return;
+	    }
+	}
+	
+	// add it to symbol table
+	symbolTable.add_to_symboltable(decl, symboltable, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
+	symbolTable.current_order_number_ll[lexic_level]++;
+    
+	return;
+    }
+    
+    
+    /** handles declaration part */
+    private void handle_part_declaration(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type, int lexic_level) {
+	
+	symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
+	symbolTable.current_order_number_ll[lexic_level]++;
+	return;
+    }
+    
+    private void printHash(Hashtable<String,Symbol> ht) {
+	Set<String> keyset = ht.keySet();
+	for (String s : keyset) {
+	    Symbol sym = ht.get(s);
+	    System.out.println(sym.toString());
+// 		ps.print(sym.toString() + "\n");
+	}
     }
 	
 	
