@@ -130,6 +130,8 @@ public class Main {
    *  All implementations of tracing should write on this stream 
    */
   public static PrintStream traceStream = null ;
+  
+  private static SymbolTable symbolTable;
 
   /** 
    *  process command line arguments to Main program. <BR>
@@ -520,7 +522,7 @@ public class Main {
 	   // or
 	   // Semantics.doIt( programAST );
 	   
-	   SymbolTable symbolTable = new SymbolTable();
+	   symbolTable = new SymbolTable();
 	   Semantics semantic = new Semantics();
 	   semantic.Initialize(programAST, dumpSymbolTable, symbolTable);
 	   if (semantic.error_flag) {
@@ -583,6 +585,7 @@ public class Main {
 	   // codeGen.doIt( programAST );
 	   
 	   CodeGen codeGen = new CodeGen();
+	   codeGen.Initialize(symbolTable);
 	   
 	}
         catch( Exception e) 

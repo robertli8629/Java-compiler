@@ -69,6 +69,9 @@ public class SymbolTable {
 	/** the main symbol table stack */
 	public Stack<Hashtable<String,Symbol>> symbolstack;
 	
+	public int[] current_order_number_ll = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	
+	
 	/** add declaration to the symbol table */
 	public void add_to_symboltable(Declaration decl, Hashtable<String,Symbol> symboltable, int lexic_level, int order_number) {
 	    Type tp = decl.getType();

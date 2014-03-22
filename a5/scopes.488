@@ -2,6 +2,7 @@
 
   var i:integer
   var j:integer
+  var k:integer
   
   proc testproc(a:integer, b:integer) {
     var i:integer
