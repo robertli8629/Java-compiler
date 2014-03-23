@@ -90,4 +90,12 @@ public class ArrayDeclPart extends DeclarationPart {
 	public void setSize(Integer size) {
 		this.size = size;
 	}
+	
+	public int calculate_array_size() {
+	    if (isTwoDimensional) { //2D
+		return (ub1 - lb1 + 1) * (ub2 - lb2 + 1);
+	    } else { // 1D
+		return ub1 - lb1 + 1;
+	    }
+	}
 }

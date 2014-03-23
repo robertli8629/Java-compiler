@@ -2,7 +2,7 @@
 
   var i:integer
   var j:integer
-  var k:integer
+  var k[10,3]:integer
   
   proc testproc(a:integer, b:integer) {
     var i:integer
@@ -52,6 +52,7 @@
 
   {
     var i:integer
+    var k[10,3]:integer
     i:=10
   }
 

@@ -377,12 +377,19 @@ public class Semantics {
 			print(dp, "array " + adp.toString() + " : lower boundary greater than upper boundary");
 		    }
 		}
+		int size = adp.calculate_array_size();
+		
+		symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
+		symbolTable.current_order_number_ll[lexic_level] += size;
+		return order_number + 1;
 	    }
 	    
 	    symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
 	    symbolTable.current_order_number_ll[lexic_level]++;
 	    return order_number + 1;
 	}
+	
+	
 	
 	/** handles statement semantic checking */
 	private void handle_statement(Stmt stmt, ScopeType scope_type, Object ref, int lexic_level) {
