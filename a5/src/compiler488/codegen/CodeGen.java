@@ -291,8 +291,95 @@ public class CodeGen
 	Machine.writeMemory(current_msp++, (short)4);
         Machine.writeMemory(current_msp++, (short)value);
     }
-
-    
+    private void addr(short LL, short ON) throws MemoryAddressException {
+	Machine.writeMemory(current_msp++,(short)1);
+	Machine.writeMemory(current_msp++,LL);
+	Machine.writeMemory(current_msp++,ON);
+    }
+    private void generate_statement(Stmt stmt) throws MemoryAddressException{
+	if(stmt instanceof Scope){
+	}
+	if(stmt instanceof AssignStmt){
+	    AssignStmt asgn_stmt = (AssignStmt) stmt;
+	    IdentExpn expn=(IdentExpn)asgn_stmt.getLval();
+	    Symbol symbol=symbolTable.find_variable(expn.getIdent());
+	    addr(symbol.getll(),symbol.geton());
+	    generate_expression(asgn_stmt.getRval());
+	    Machine.writeMemory(current_msp++,(short)3);//STORE
+	    return;
+	}
+	if(stmt instanceof IfStmt){
+	    IfStmt if_stmt = (IfStmt) stmt;
+	    generate_expression(if_stmt.getCondition());
+	    short save_BF_address=(short)(current_msp+1);
+	    push((short)0);
+	    Machine.writeMemory(current_msp++,(short)12);//BF
+	    
+	    ASTList<Stmt> stmt_list = if_stmt.getWhenTrue();
+            LinkedList<Stmt> stmt_ll = stmt_list.get_list();
+            int i;
+            for(i = 0; i < stmt_ll.size(); i++){
+                Stmt list_stmt = stmt_ll.get(i);
+                generate_statement(list_stmt);
+            }
+            if(if_stmt.getWhenFalse()!=null){
+		short save_BR_address=(short)(current_msp+1);
+		push((short)0);
+		Machine.writeMemory(current_msp++,(short)11);//BR
+		
+		Machine.writeMemory(save_BF_address,current_msp);
+		ASTList<Stmt> false_list = if_stmt.getWhenFalse();
+		LinkedList<Stmt> false_ll = false_list.get_list();
+		for(i = 0; i < false_ll.size(); i++){
+		    Stmt fasle_stmt = false_ll.get(i);
+		    generate_statement(fasle_stmt);
+		}
+		
+		Machine.writeMemory(save_BR_address,current_msp);
+            }else{
+		Machine.writeMemory(save_BF_address,current_msp);
+            }
+            return;
+	}
+	if (stmt instanceof LoopingStmt){
+	    LoopingStmt loop_stmt=(LoopingStmt) stmt;
+	    if(loop_stmt instanceof RepeatUntilStmt){
+		short save_BF_address= current_msp;
+		ASTList<Stmt> body_list = loop_stmt.getBody();
+		LinkedList<Stmt> body_ll = body_list.get_list();
+		int i;
+		for(i = 0; i < body_ll.size(); i++){
+		    Stmt body_stmt = body_ll.get(i);
+		    generate_statement(body_stmt);
+		}
+		
+		generate_expression(loop_stmt.getExpn());
+		Machine.writeMemory(current_msp++,(short)4);
+		Machine.writeMemory(current_msp++,save_BF_address);
+		Machine.writeMemory(current_msp++,(short)12);//BF
+		return;
+	    }else{
+		short save_BR_address=current_msp;
+		generate_expression(loop_stmt.getExpn());
+		short save_BF_address=(short)(current_msp+1);
+		push((short)0);
+		Machine.writeMemory(current_msp++,(short)12);//BF
+		
+		ASTList<Stmt> body_list = loop_stmt.getBody();
+		LinkedList<Stmt> body_ll = body_list.get_list();
+		int i;
+		for(i = 0; i < body_ll.size(); i++){
+		    Stmt body_stmt = body_ll.get(i);
+		    generate_statement(body_stmt);
+		}
+		
+		push(save_BR_address);
+		Machine.writeMemory(current_msp++,(short)11);//BR
+		Machine.writeMemory(save_BF_address,current_msp);
+		return;
+	    }
+	}
+    }
     private void generate_expression(Expn expn) throws MemoryAddressException{
         if(expn instanceof IntConstExpn){
             IntConstExpn int_expn=(IntConstExpn)expn;

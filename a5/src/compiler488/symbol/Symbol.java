@@ -39,7 +39,12 @@ public class Symbol {
 	public String getKind() {
 	    return this.kind;
 	}
-
+	public short getll(){
+	    return (short)this.lexic_level;
+	}
+	public short geton(){
+	    return (short)this.order_number;
+	}
 	private String name;
 	private String kind;
 	private int value;
