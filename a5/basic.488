@@ -1,0 +1,9 @@
+{
+
+
+  var x:integer
+
+  x := 10+1
+  put 2+x+x+x
+
+}

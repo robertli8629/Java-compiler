@@ -180,7 +180,7 @@ public class CodeGen
 	 * arg: if not null, it represents parameter list passed by function/procedure declaration scope
 	 * ref: if not null, it represents function declaration, which is used to check the return type of the function
 	 *  */
-    private void traverse(Scope s, ASTList<ScalarDecl> arg, Object ref, int lexic_level){
+    private void traverse(Scope s, ASTList<ScalarDecl> arg, Object ref, int lexic_level) throws MemoryAddressException {
 
 	Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
 
@@ -217,6 +217,7 @@ public class CodeGen
 		    Stmt stmt = (Stmt)iterator_stmt.next();
 		    
 // 		    handle_statement(stmt, ref, lexic_level);
+		    generate_statement(stmt, lexic_level);
 	    }
 	}
 	
@@ -225,7 +226,7 @@ public class CodeGen
     }
     
     /** handles declaration */
-    private void handle_declaration(Declaration decl, Hashtable<String,Symbol> symboltable, int lexic_level) {
+    private void handle_declaration(Declaration decl, Hashtable<String,Symbol> symboltable, int lexic_level) throws MemoryAddressException {
 	
 	if (decl instanceof MultiDeclarations) {
 	    ASTList<DeclarationPart> decl_list = ((MultiDeclarations)decl).getElements();
@@ -265,7 +266,7 @@ public class CodeGen
     
     
     /** handles declaration part */
-    private void handle_part_declaration(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type, int lexic_level) {
+    private void handle_part_declaration(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type, int lexic_level) throws MemoryAddressException {
 	
 	symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
 	symbolTable.current_order_number_ll[lexic_level]++;
@@ -291,13 +292,17 @@ public class CodeGen
 	Machine.writeMemory(current_msp++, (short)4);
         Machine.writeMemory(current_msp++, (short)value);
     }
+    
     private void addr(short LL, short ON) throws MemoryAddressException {
 	Machine.writeMemory(current_msp++,(short)1);
 	Machine.writeMemory(current_msp++,LL);
 	Machine.writeMemory(current_msp++,ON);
     }
-    private void generate_statement(Stmt stmt) throws MemoryAddressException{
+    
+    private void generate_statement(Stmt stmt, int lexic_level) throws MemoryAddressException{
 	if(stmt instanceof Scope){
+	    Scope scope = (Scope) stmt; // find the scope from stmtlist
+	    traverse(scope, null, null, lexic_level);
 	}
 	if(stmt instanceof AssignStmt){
 	    AssignStmt asgn_stmt = (AssignStmt) stmt;
@@ -320,7 +325,7 @@ public class CodeGen
             int i;
             for(i = 0; i < stmt_ll.size(); i++){
                 Stmt list_stmt = stmt_ll.get(i);
-                generate_statement(list_stmt);
+                generate_statement(list_stmt, lexic_level);
             }
             if(if_stmt.getWhenFalse()!=null){
 		short save_BR_address=(short)(current_msp+1);
@@ -332,7 +337,7 @@ public class CodeGen
 		LinkedList<Stmt> false_ll = false_list.get_list();
 		for(i = 0; i < false_ll.size(); i++){
 		    Stmt fasle_stmt = false_ll.get(i);
-		    generate_statement(fasle_stmt);
+		    generate_statement(fasle_stmt, lexic_level);
 		}
 		
 		Machine.writeMemory(save_BR_address,current_msp);
@@ -350,7 +355,7 @@ public class CodeGen
 		int i;
 		for(i = 0; i < body_ll.size(); i++){
 		    Stmt body_stmt = body_ll.get(i);
-		    generate_statement(body_stmt);
+		    generate_statement(body_stmt, lexic_level);
 		}
 		
 		generate_expression(loop_stmt.getExpn());
@@ -370,7 +375,7 @@ public class CodeGen
 		int i;
 		for(i = 0; i < body_ll.size(); i++){
 		    Stmt body_stmt = body_ll.get(i);
-		    generate_statement(body_stmt);
+		    generate_statement(body_stmt, lexic_level);
 		}
 		
 		push(save_BR_address);
@@ -379,7 +384,27 @@ public class CodeGen
 		return;
 	    }
 	}
+	
+	if (stmt instanceof PutStmt) {
+	    PutStmt put_stmt = (PutStmt) stmt;
+	    handle_output(put_stmt);
+	}
     }
+    
+    private void handle_output(PutStmt stmt) throws MemoryAddressException {
+	ASTList<Printable> outputs = stmt.getOutputs();
+	LinkedList<Printable> output_ll = outputs.get_list();
+	for(Printable output : output_ll){
+	    if ((output instanceof TextConstExpn) || (output instanceof NewlineConstExpn)) {
+		continue;
+	    } else if (output instanceof Expn){
+		Expn expn = (Expn) output;
+		generate_expression(expn);
+		Machine.writeMemory(current_msp++,(short)25); //PRINTI
+	    }
+	}
+    }
+    
     private void generate_expression(Expn expn) throws MemoryAddressException{
         if(expn instanceof IntConstExpn){
             IntConstExpn int_expn=(IntConstExpn)expn;
@@ -511,7 +536,7 @@ public class CodeGen
             return;
         }
         if ((expn instanceof IdentExpn) || (expn instanceof SubsExpn)) {
-//             generate_variable(expn);
+            generate_variable(expn);
         }
         if(expn instanceof FunctionCallExpn){
             FunctionCallExpn func_expn=(FunctionCallExpn) expn;
@@ -548,5 +573,26 @@ public class CodeGen
         }
     }
 	
+    private void generate_variable(Expn expn) throws MemoryAddressException {
+	if(expn instanceof IdentExpn){
+	    IdentExpn ident_expn=(IdentExpn) expn;
+	    Symbol symbol = symbolTable.find_variable(ident_expn.toString());
+	    
+	    addr(symbol.getll(),symbol.geton());
+	    Machine.writeMemory(current_msp++, (short)2); //LOAD
 
+	}
+
+	if(expn instanceof SubsExpn){ // array 
+	    SubsExpn sub_expn=(SubsExpn) expn;
+
+	    Symbol symbol = symbolTable.find_variable(sub_expn.getVariable());
+	    
+	}
+
+	return;
+    }
+
+    
+    
 }
