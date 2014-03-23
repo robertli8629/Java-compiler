@@ -217,7 +217,8 @@ public class CodeGen
 		    Stmt stmt = (Stmt)iterator_stmt.next();
 		    
 // 		    handle_statement(stmt, ref, lexic_level);
-		    generate_statement(stmt, lexic_level);
+		    LinkedList<Short> ls = new LinkedList<Short>();
+		    generate_statement(stmt, ls, lexic_level);
 	    }
 	}
 	
@@ -299,96 +300,201 @@ public class CodeGen
 	Machine.writeMemory(current_msp++,ON);
     }
     
-    private void generate_statement(Stmt stmt, int lexic_level) throws MemoryAddressException{
-	if(stmt instanceof Scope){
+    private void generate_statement(Stmt stmt, LinkedList<Short> l, int lexic_level) throws MemoryAddressException{
+        if(stmt instanceof Scope){
 	    Scope scope = (Scope) stmt; // find the scope from stmtlist
 	    traverse(scope, null, null, lexic_level);
 	}
-	if(stmt instanceof AssignStmt){
-	    AssignStmt asgn_stmt = (AssignStmt) stmt;
-	    IdentExpn expn=(IdentExpn)asgn_stmt.getLval();
-	    Symbol symbol=symbolTable.find_variable(expn.getIdent());
-	    addr(symbol.getll(),symbol.geton());
-	    generate_expression(asgn_stmt.getRval());
-	    Machine.writeMemory(current_msp++,(short)3);//STORE
-	    return;
-	}
-	if(stmt instanceof IfStmt){
-	    IfStmt if_stmt = (IfStmt) stmt;
-	    generate_expression(if_stmt.getCondition());
-	    short save_BF_address=(short)(current_msp+1);
-	    push((short)0);
-	    Machine.writeMemory(current_msp++,(short)12);//BF
-	    
-	    ASTList<Stmt> stmt_list = if_stmt.getWhenTrue();
+        if(stmt instanceof AssignStmt){
+            AssignStmt asgn_stmt = (AssignStmt) stmt;
+            IdentExpn expn=(IdentExpn)asgn_stmt.getLval();
+            Symbol symbol=symbolTable.find_variable(expn.getIdent());
+            addr(symbol.getll(),symbol.geton());
+            generate_expression(asgn_stmt.getRval());
+            Machine.writeMemory(current_msp++,(short)3);//STORE
+            return;
+        }
+        if(stmt instanceof IfStmt){
+            IfStmt if_stmt = (IfStmt) stmt;
+            generate_expression(if_stmt.getCondition());
+            short save_BF_address=(short)(current_msp+1);
+            push((short)0);
+            Machine.writeMemory(current_msp++,(short)12);//BF
+       
+            ASTList<Stmt> stmt_list = if_stmt.getWhenTrue();
             LinkedList<Stmt> stmt_ll = stmt_list.get_list();
             int i;
             for(i = 0; i < stmt_ll.size(); i++){
                 Stmt list_stmt = stmt_ll.get(i);
-                generate_statement(list_stmt, lexic_level);
+                generate_statement(list_stmt, l, lexic_level);
             }
             if(if_stmt.getWhenFalse()!=null){
-		short save_BR_address=(short)(current_msp+1);
-		push((short)0);
-		Machine.writeMemory(current_msp++,(short)11);//BR
-		
-		Machine.writeMemory(save_BF_address,current_msp);
-		ASTList<Stmt> false_list = if_stmt.getWhenFalse();
-		LinkedList<Stmt> false_ll = false_list.get_list();
-		for(i = 0; i < false_ll.size(); i++){
-		    Stmt fasle_stmt = false_ll.get(i);
-		    generate_statement(fasle_stmt, lexic_level);
-		}
-		
-		Machine.writeMemory(save_BR_address,current_msp);
+                short save_BR_address=(short)(current_msp+1);
+                push((short)0);
+                Machine.writeMemory(current_msp++,(short)11);//BR
+               
+                Machine.writeMemory(save_BF_address,current_msp);
+                ASTList<Stmt> false_list = if_stmt.getWhenFalse();
+                LinkedList<Stmt> false_ll = false_list.get_list();
+                for(i = 0; i < false_ll.size(); i++){
+                    Stmt fasle_stmt = false_ll.get(i);
+                    generate_statement(fasle_stmt, l, lexic_level);
+                }
+               
+                Machine.writeMemory(save_BR_address,current_msp);
             }else{
-		Machine.writeMemory(save_BF_address,current_msp);
+                Machine.writeMemory(save_BF_address,current_msp);
             }
             return;
-	}
-	if (stmt instanceof LoopingStmt){
-	    LoopingStmt loop_stmt=(LoopingStmt) stmt;
-	    if(loop_stmt instanceof RepeatUntilStmt){
-		short save_BF_address= current_msp;
-		ASTList<Stmt> body_list = loop_stmt.getBody();
-		LinkedList<Stmt> body_ll = body_list.get_list();
-		int i;
-		for(i = 0; i < body_ll.size(); i++){
-		    Stmt body_stmt = body_ll.get(i);
-		    generate_statement(body_stmt, lexic_level);
-		}
-		
-		generate_expression(loop_stmt.getExpn());
-		Machine.writeMemory(current_msp++,(short)4);
-		Machine.writeMemory(current_msp++,save_BF_address);
-		Machine.writeMemory(current_msp++,(short)12);//BF
-		return;
-	    }else{
-		short save_BR_address=current_msp;
-		generate_expression(loop_stmt.getExpn());
-		short save_BF_address=(short)(current_msp+1);
-		push((short)0);
-		Machine.writeMemory(current_msp++,(short)12);//BF
-		
-		ASTList<Stmt> body_list = loop_stmt.getBody();
-		LinkedList<Stmt> body_ll = body_list.get_list();
-		int i;
-		for(i = 0; i < body_ll.size(); i++){
-		    Stmt body_stmt = body_ll.get(i);
-		    generate_statement(body_stmt, lexic_level);
-		}
-		
-		push(save_BR_address);
-		Machine.writeMemory(current_msp++,(short)11);//BR
-		Machine.writeMemory(save_BF_address,current_msp);
-		return;
-	    }
-	}
-	
-	if (stmt instanceof PutStmt) {
-	    PutStmt put_stmt = (PutStmt) stmt;
-	    handle_output(put_stmt);
-	}
+        }
+        if (stmt instanceof LoopingStmt){
+            LoopingStmt loop_stmt=(LoopingStmt) stmt;
+            LinkedList<Short> exit_list=new LinkedList<Short>();
+            if(loop_stmt instanceof RepeatUntilStmt){
+                short save_BF_address= current_msp;
+                ASTList<Stmt> body_list = loop_stmt.getBody();
+                LinkedList<Stmt> body_ll = body_list.get_list();
+                int i;
+                for(i = 0; i < body_ll.size(); i++){
+                    Stmt body_stmt = body_ll.get(i);
+                    generate_statement(body_stmt, exit_list, lexic_level);
+                }
+               
+                generate_expression(loop_stmt.getExpn());
+                Machine.writeMemory(current_msp++,(short)4);
+                Machine.writeMemory(current_msp++,save_BF_address);
+                Machine.writeMemory(current_msp++,(short)12);//BF
+                Iterator<Short> iterator = exit_list.iterator();
+                while(iterator.hasNext()){
+                    Machine.writeMemory(iterator.next(),current_msp);
+                }
+                return;
+            }else{
+                short save_BR_address=current_msp;
+                generate_expression(loop_stmt.getExpn());
+                short save_BF_address=(short)(current_msp+1);
+                push((short)0);
+                Machine.writeMemory(current_msp++,(short)12);//BF
+               
+                ASTList<Stmt> body_list = loop_stmt.getBody();
+                LinkedList<Stmt> body_ll = body_list.get_list();
+                int i;
+                for(i = 0; i < body_ll.size(); i++){
+                    Stmt body_stmt = body_ll.get(i);
+                    generate_statement(body_stmt, exit_list, lexic_level);
+                }
+               
+                push(save_BR_address);
+                Machine.writeMemory(current_msp++,(short)11);//BR
+                Machine.writeMemory(save_BF_address,current_msp);
+                Iterator<Short> iterator = exit_list.iterator();
+                while(iterator.hasNext()){
+                    Machine.writeMemory(iterator.next(),current_msp);
+                }
+                return;
+            }
+        }
+        if (stmt instanceof ExitStmt){
+            ExitStmt exit_stmt = (ExitStmt) stmt;      
+            if(exit_stmt.getExpn()==null){
+                l.add((short)(current_msp+1));
+                push((short)0);
+                Machine.writeMemory(current_msp++,(short)11);//BR
+                return;
+            }else{
+                generate_expression(exit_stmt.getExpn());
+                push((short)1);
+                Machine.writeMemory(current_msp++,(short)15);//SUB
+                Machine.writeMemory(current_msp++,(short)13);//NEG
+                l.add((short)(current_msp+1));
+                push((short)0);
+                Machine.writeMemory(current_msp++,(short)12);//BF
+            }
+        }
+        if (stmt instanceof ResultStmt){
+            ResultStmt result_stmt = (ResultStmt) stmt;
+            generate_expression(result_stmt.getValue());
+            Machine.writeMemory(current_msp++,(short)3);
+       
+//             push();
+            Machine.writeMemory(current_msp++,(short)8);//POPN
+            Machine.writeMemory(current_msp++,(short)6);//SETD
+            Machine.writeMemory(current_msp++,(short)11);//BR
+       
+            return;
+        }
+        if (stmt instanceof ReturnStmt){
+//             push();
+            Machine.writeMemory(current_msp++,(short)8);//POPN
+            Machine.writeMemory(current_msp++,(short)6);//SETD
+            Machine.writeMemory(current_msp++,(short)11);//BR
+            return;
+        }
+        if(stmt instanceof GetStmt){
+            GetStmt get_stmt=(GetStmt) stmt;
+            ASTList<Readable> inputs = get_stmt.getInputs();
+            LinkedList<Readable> input_ll = inputs.get_list();
+            for(Readable input : input_ll){
+                if(input instanceof IdentExpn){
+                    IdentExpn expn = (IdentExpn) input;
+                    Symbol symbol=symbolTable.find_variable(expn.getIdent());
+                    addr(symbol.getll(),symbol.geton());
+               
+               
+                } else if (input instanceof SubsExpn) {
+                    SubsExpn expn = (SubsExpn) input;
+                    Symbol symbol=symbolTable.find_variable(expn.getVariable());
+                    addr(symbol.getll(),symbol.geton());
+               
+                }
+                Machine.writeMemory(current_msp++,(short)24);
+                Machine.writeMemory(current_msp++,(short)3);
+            }
+            return;
+        }
+        if(stmt instanceof PutStmt){
+            PutStmt put_stmt=(PutStmt) stmt;
+            ASTList<Printable> outputs = put_stmt.getOutputs();
+            LinkedList<Printable> output_ll = outputs.get_list();
+            for(Printable output : output_ll){
+                if (output instanceof TextConstExpn){
+                    TextConstExpn text=(TextConstExpn)output;
+                    String string=text.getValue();
+                    for (int i=0;i<string.length();i++){
+                        push((short)string.charAt(i));
+                        Machine.writeMemory(current_msp++,(short)23);//PRINTC
+                    }
+                    return;
+                }else if(output instanceof NewlineConstExpn) {
+                    push((short)'\n');
+                    Machine.writeMemory(current_msp++,(short)23);//PRINTC
+                } else if (output instanceof Expn){
+                    Expn expn = (Expn) output;
+                    generate_expression(expn);
+                    Machine.writeMemory(current_msp++,(short)25);//PRINTI
+                }
+            }
+        }
+        if(stmt instanceof ProcedureCallStmt){
+            ProcedureCallStmt proc_stmt = (ProcedureCallStmt)stmt;
+            short save_BR_address=(short)(current_msp+1);
+            push((short)0);
+            Machine.writeMemory(current_msp++,(short)1);//ADDR
+       
+            Machine.writeMemory(current_msp++,(short)5);//PUSHMT
+            Machine.writeMemory(current_msp++,(short)6);//SETD
+       
+            ASTList<Expn> arg_list = proc_stmt.getArguments();
+            LinkedList<Expn> arg_ll = arg_list.get_list();
+            int i;
+            for(i = 0; i < arg_ll.size(); i++){
+                Expn arg_expn = arg_ll.get(i);
+                generate_expression(arg_expn);
+            }
+
+            push((short)0);
+            Machine.writeMemory(current_msp++,(short)11);
+        }
     }
     
     private void handle_output(PutStmt stmt) throws MemoryAddressException {
