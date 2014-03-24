@@ -100,6 +100,9 @@ public class CodeGen
 	
 	Machine.setPC( (short) 0 ) ;		/* where code to be executed begins */
 	
+	// debug
+// 	Machine.writeMemory(current_msp++, (short)26); // TRON
+	
 	// init main scope
 	Machine.writeMemory(current_msp++, (short)5); // PUSHMT
 	Machine.writeMemory(current_msp++, (short)6); // SETD
@@ -579,22 +582,32 @@ public class CodeGen
                 Machine.writeMemory(current_msp++, (short)20); //OR
                 return;
             }
-            if(bool_expn.getOpSymbol().equals("=")){
+        }
+        if(expn instanceof EqualsExpn){
+            EqualsExpn equals_expn=(EqualsExpn) expn;
+            generate_expression(equals_expn.getLeft());
+            generate_expression(equals_expn.getRight());
+            if(equals_expn.getOpSymbol().equals("=")){
                 Machine.writeMemory(current_msp++, (short)18); //EQ
                 return;
             }
-            if(bool_expn.getOpSymbol().equals("not=")){
+            if(equals_expn.getOpSymbol().equals("not=")){
                 Machine.writeMemory(current_msp++, (short)18); //EQ
                 push(1);
                 Machine.writeMemory(current_msp++, (short)15); //SUB
                 Machine.writeMemory(current_msp++, (short)13); //NEG
                 return;
             }
-            if(bool_expn.getOpSymbol().equals("<")){
+        }
+        if(expn instanceof CompareExpn){
+            CompareExpn compare_expn=(CompareExpn) expn;
+            generate_expression(compare_expn.getLeft());
+            generate_expression(compare_expn.getRight());
+            if(compare_expn.getOpSymbol().equals("<")){
                 Machine.writeMemory(current_msp++, (short)19); //LT
                 return;
             }
-            if(bool_expn.getOpSymbol().equals("<=")){
+            if(compare_expn.getOpSymbol().equals("<=")){
                 Machine.writeMemory(current_msp++, (short)21); //SWAP
                 Machine.writeMemory(current_msp++, (short)19); //LT
                 push(1);
@@ -602,12 +615,12 @@ public class CodeGen
                 Machine.writeMemory(current_msp++, (short)13); //NEG
                 return;
             }
-            if(bool_expn.getOpSymbol().equals(">")){
+            if(compare_expn.getOpSymbol().equals(">")){
                 Machine.writeMemory(current_msp++, (short)21); //SWAP
                 Machine.writeMemory(current_msp++, (short)19); //LT
                 return;
             }
-            if(bool_expn.getOpSymbol().equals(">=")){
+            if(compare_expn.getOpSymbol().equals(">=")){
                 Machine.writeMemory(current_msp++, (short)19); //LT
                 push(1);
                 Machine.writeMemory(current_msp++, (short)15); //SUB
