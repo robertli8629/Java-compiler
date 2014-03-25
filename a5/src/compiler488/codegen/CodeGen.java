@@ -305,10 +305,10 @@ public class CodeGen
     
     private void generate_statement(Stmt stmt, LinkedList<Short> l, int lexic_level) throws MemoryAddressException{
         if(stmt instanceof Scope){
-	    Scope scope = (Scope) stmt; // find the scope from stmtlist
+	    Scope scope = (Scope) stmt; 
 	    traverse(scope, null, null, lexic_level);
 	}
-        if(stmt instanceof AssignStmt){
+        if(stmt instanceof AssignStmt) {
             AssignStmt asgn_stmt = (AssignStmt) stmt;
             IdentExpn expn=(IdentExpn)asgn_stmt.getLval();
             Symbol symbol=symbolTable.find_variable(expn.getIdent());
@@ -317,7 +317,7 @@ public class CodeGen
             Machine.writeMemory(current_msp++,(short)3);//STORE
             return;
         }
-        if(stmt instanceof IfStmt){
+        if(stmt instanceof IfStmt) {
             IfStmt if_stmt = (IfStmt) stmt;
             generate_expression(if_stmt.getCondition());
             short save_BF_address=(short)(current_msp + 1);
@@ -397,7 +397,7 @@ public class CodeGen
                 return;
             }
         }
-        if (stmt instanceof ExitStmt){
+        if (stmt instanceof ExitStmt) {
             ExitStmt exit_stmt = (ExitStmt) stmt;      
             if (exit_stmt.getExpn() == null) { // exit stmt
                 l.add((short)(current_msp+1));
@@ -414,7 +414,7 @@ public class CodeGen
                 Machine.writeMemory(current_msp++,(short)12); //BF
             }
         }
-        if (stmt instanceof ResultStmt){
+        if (stmt instanceof ResultStmt) {
             ResultStmt result_stmt = (ResultStmt) stmt;
             generate_expression(result_stmt.getValue());
             Machine.writeMemory(current_msp++,(short)3);
@@ -426,14 +426,14 @@ public class CodeGen
        
             return;
         }
-        if (stmt instanceof ReturnStmt){
+        if (stmt instanceof ReturnStmt) {
 //             push();
             Machine.writeMemory(current_msp++,(short)8);//POPN
             Machine.writeMemory(current_msp++,(short)6);//SETD
             Machine.writeMemory(current_msp++,(short)11);//BR
             return;
         }
-        if(stmt instanceof GetStmt){
+        if(stmt instanceof GetStmt) {
             GetStmt get_stmt=(GetStmt) stmt;
             ASTList<Readable> inputs = get_stmt.getInputs();
             LinkedList<Readable> input_ll = inputs.get_list();
@@ -455,7 +455,7 @@ public class CodeGen
             }
             return;
         }
-        if(stmt instanceof PutStmt){
+        if(stmt instanceof PutStmt) {
             PutStmt put_stmt=(PutStmt) stmt;
             ASTList<Printable> outputs = put_stmt.getOutputs();
             LinkedList<Printable> output_ll = outputs.get_list();
@@ -477,7 +477,7 @@ public class CodeGen
                 }
             }
         }
-        if(stmt instanceof ProcedureCallStmt){
+        if(stmt instanceof ProcedureCallStmt) {
             ProcedureCallStmt proc_stmt = (ProcedureCallStmt)stmt;
             short save_BR_address=(short)(current_msp+1);
             push((short)0);
