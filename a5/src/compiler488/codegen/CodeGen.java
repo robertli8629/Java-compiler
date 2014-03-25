@@ -327,11 +327,11 @@ public class CodeGen
             ASTList<Stmt> stmt_list = if_stmt.getWhenTrue();
             LinkedList<Stmt> stmt_ll = stmt_list.get_list();
             int i;
-            for(i = 0; i < stmt_ll.size(); i++){
+            for (i = 0; i < stmt_ll.size(); i++) {
                 Stmt list_stmt = stmt_ll.get(i);
                 generate_statement(list_stmt, l, lexic_level);
             }
-            if(if_stmt.getWhenFalse()!=null){
+            if (if_stmt.getWhenFalse()!=null) {
                 short save_BR_address=(short)(current_msp + 1);
                 push(Machine.UNDEFINED);
                 Machine.writeMemory(current_msp++,(short)11);//BR
@@ -345,7 +345,7 @@ public class CodeGen
                 }
                
                 Machine.writeMemory(save_BR_address, current_msp);
-            }else{
+            } else {
                 Machine.writeMemory(save_BF_address, current_msp);
             }
             return;
@@ -358,7 +358,7 @@ public class CodeGen
                 ASTList<Stmt> body_list = loop_stmt.getBody();
                 LinkedList<Stmt> body_ll = body_list.get_list();
                 int i;
-                for(i = 0; i < body_ll.size(); i++){
+                for (i = 0; i < body_ll.size(); i++) {
                     Stmt body_stmt = body_ll.get(i);
                     generate_statement(body_stmt, exit_list, lexic_level);
                 }
@@ -368,8 +368,8 @@ public class CodeGen
                 Machine.writeMemory(current_msp++,save_BF_address);
                 Machine.writeMemory(current_msp++,(short)12); // BF
                 Iterator<Short> iterator = exit_list.iterator();
-                while(iterator.hasNext()){
-                    Machine.writeMemory(iterator.next(),current_msp);
+                while (iterator.hasNext()) {
+                    Machine.writeMemory(iterator.next(), current_msp);
                 }
                 return;
             } else { // WhileDoStmt
@@ -382,7 +382,7 @@ public class CodeGen
                 ASTList<Stmt> body_list = loop_stmt.getBody();
                 LinkedList<Stmt> body_ll = body_list.get_list();
                 int i;
-                for(i = 0; i < body_ll.size(); i++){
+                for (i = 0; i < body_ll.size(); i++) {
                     Stmt body_stmt = body_ll.get(i);
                     generate_statement(body_stmt, exit_list, lexic_level);
                 }
@@ -391,7 +391,7 @@ public class CodeGen
                 Machine.writeMemory(current_msp++,(short)11);//BR
                 Machine.writeMemory(save_BF_address,current_msp);
                 Iterator<Short> iterator = exit_list.iterator();
-                while(iterator.hasNext()){
+                while (iterator.hasNext()) {
                     Machine.writeMemory(iterator.next(),current_msp);
                 }
                 return;
@@ -433,12 +433,12 @@ public class CodeGen
             Machine.writeMemory(current_msp++,(short)11);//BR
             return;
         }
-        if(stmt instanceof GetStmt) {
+        if (stmt instanceof GetStmt) {
             GetStmt get_stmt=(GetStmt) stmt;
             ASTList<Readable> inputs = get_stmt.getInputs();
             LinkedList<Readable> input_ll = inputs.get_list();
             for(Readable input : input_ll){
-                if(input instanceof IdentExpn){
+                if (input instanceof IdentExpn) {
                     IdentExpn expn = (IdentExpn) input;
                     Symbol symbol=symbolTable.find_variable(expn.getIdent());
                     addr(symbol.getll(),symbol.geton());
@@ -455,15 +455,15 @@ public class CodeGen
             }
             return;
         }
-        if(stmt instanceof PutStmt) {
+        if (stmt instanceof PutStmt) {
             PutStmt put_stmt=(PutStmt) stmt;
             ASTList<Printable> outputs = put_stmt.getOutputs();
             LinkedList<Printable> output_ll = outputs.get_list();
-            for(Printable output : output_ll){
-                if (output instanceof TextConstExpn){
+            for (Printable output : output_ll) {
+                if (output instanceof TextConstExpn) {
                     TextConstExpn text=(TextConstExpn)output;
                     String string=text.getValue();
-                    for (int i=0; i<string.length(); i++){
+                    for (int i=0; i<string.length(); i++) {
                         push((short)string.charAt(i));
                         Machine.writeMemory(current_msp++, (short)23);//PRINTC
                     }
@@ -477,7 +477,7 @@ public class CodeGen
                 }
             }
         }
-        if(stmt instanceof ProcedureCallStmt) {
+        if (stmt instanceof ProcedureCallStmt) {
             ProcedureCallStmt proc_stmt = (ProcedureCallStmt)stmt;
             short save_BR_address=(short)(current_msp+1);
             push((short)0);
@@ -489,7 +489,7 @@ public class CodeGen
             ASTList<Expn> arg_list = proc_stmt.getArguments();
             LinkedList<Expn> arg_ll = arg_list.get_list();
             int i;
-            for(i = 0; i < arg_ll.size(); i++){
+            for (i = 0; i < arg_ll.size(); i++) {
                 Expn arg_expn = arg_ll.get(i);
                 generate_expression(arg_expn);
             }
@@ -512,25 +512,25 @@ public class CodeGen
         }
         if (expn instanceof ArithExpn) {
             ArithExpn arith_expn=(ArithExpn) expn;
-            if(arith_expn.getOpSymbol().equals("+")){
+            if (arith_expn.getOpSymbol().equals("+")) {
                 generate_expression(arith_expn.getLeft());
                 generate_expression(arith_expn.getRight());
                 Machine.writeMemory(current_msp++, (short)14);
                 return;
             }
-            if(arith_expn.getOpSymbol().equals("-")){
+            if (arith_expn.getOpSymbol().equals("-")) {
                 generate_expression(arith_expn.getLeft());
                 generate_expression(arith_expn.getRight());
                 Machine.writeMemory(current_msp++, (short)15);
                 return;
             }
-            if(arith_expn.getOpSymbol().equals("*")){
+            if (arith_expn.getOpSymbol().equals("*")) {
                 generate_expression(arith_expn.getLeft());
                 generate_expression(arith_expn.getRight());
                 Machine.writeMemory(current_msp++, (short)16);
                 return;
             }
-            if(arith_expn.getOpSymbol().equals("/")){
+            if (arith_expn.getOpSymbol().equals("/")) {
                 generate_expression(arith_expn.getLeft());
                 generate_expression(arith_expn.getRight());
                 Machine.writeMemory(current_msp++, (short)17);
@@ -539,10 +539,10 @@ public class CodeGen
         }
         if (expn instanceof BoolConstExpn) {
             BoolConstExpn bool_expn=(BoolConstExpn) expn;
-            if(bool_expn.getValue()){
+            if (bool_expn.getValue()) {
                 push(Machine.MACHINE_TRUE);
                 return;
-            }else{
+            } else {
                 push(Machine.MACHINE_FALSE);
                 return;
             }
@@ -559,11 +559,11 @@ public class CodeGen
             BoolExpn bool_expn=(BoolExpn) expn;
             generate_expression(bool_expn.getLeft());
             generate_expression(bool_expn.getRight());
-            if(bool_expn.getOpSymbol().equals("and")){
+            if (bool_expn.getOpSymbol().equals("and")) {
                 Machine.writeMemory(current_msp++, (short)16); //MUL
                 return;
             }
-            if(bool_expn.getOpSymbol().equals("or")){
+            if (bool_expn.getOpSymbol().equals("or")) {
                 Machine.writeMemory(current_msp++, (short)20); //OR
                 return;
             }
@@ -572,11 +572,11 @@ public class CodeGen
             EqualsExpn equals_expn=(EqualsExpn) expn;
             generate_expression(equals_expn.getLeft());
             generate_expression(equals_expn.getRight());
-            if(equals_expn.getOpSymbol().equals("=")){
+            if (equals_expn.getOpSymbol().equals("=")) {
                 Machine.writeMemory(current_msp++, (short)18); //EQ
                 return;
             }
-            if(equals_expn.getOpSymbol().equals("not=")){
+            if (equals_expn.getOpSymbol().equals("not=")) {
                 Machine.writeMemory(current_msp++, (short)18); //EQ
                 push(1);
                 Machine.writeMemory(current_msp++, (short)15); //SUB
@@ -588,11 +588,11 @@ public class CodeGen
             CompareExpn compare_expn=(CompareExpn) expn;
             generate_expression(compare_expn.getLeft());
             generate_expression(compare_expn.getRight());
-            if(compare_expn.getOpSymbol().equals("<")){
+            if (compare_expn.getOpSymbol().equals("<")) {
                 Machine.writeMemory(current_msp++, (short)19); //LT
                 return;
             }
-            if(compare_expn.getOpSymbol().equals("<=")){
+            if (compare_expn.getOpSymbol().equals("<=")) {
                 Machine.writeMemory(current_msp++, (short)21); //SWAP
                 Machine.writeMemory(current_msp++, (short)19); //LT
                 push(1);
@@ -600,12 +600,12 @@ public class CodeGen
                 Machine.writeMemory(current_msp++, (short)13); //NEG
                 return;
             }
-            if(compare_expn.getOpSymbol().equals(">")){
+            if (compare_expn.getOpSymbol().equals(">")) {
                 Machine.writeMemory(current_msp++, (short)21); //SWAP
                 Machine.writeMemory(current_msp++, (short)19); //LT
                 return;
             }
-            if(compare_expn.getOpSymbol().equals(">=")){
+            if (compare_expn.getOpSymbol().equals(">=")) {
                 Machine.writeMemory(current_msp++, (short)19); //LT
                 push(1);
                 Machine.writeMemory(current_msp++, (short)15); //SUB
@@ -663,7 +663,7 @@ public class CodeGen
             ASTList<Expn> arg_list = func_expn.getArguments();
             LinkedList<Expn> arg_ll = arg_list.get_list();
             int i;
-            for(i = 0; i < arg_ll.size(); i++){
+            for (i = 0; i < arg_ll.size(); i++) {
                 Expn arg_expn = arg_ll.get(i);
                 generate_expression(arg_expn);
             }
@@ -678,7 +678,7 @@ public class CodeGen
     }
 	
     private void generate_variable(Expn expn) throws MemoryAddressException {
-	if(expn instanceof IdentExpn){
+	if (expn instanceof IdentExpn) {
 	    IdentExpn ident_expn=(IdentExpn) expn;
 	    Symbol symbol = symbolTable.find_variable(ident_expn.toString());
 	    
@@ -687,7 +687,7 @@ public class CodeGen
 
 	}
 
-	if(expn instanceof SubsExpn){ // array 
+	if (expn instanceof SubsExpn) { // array 
 	    SubsExpn sub_expn=(SubsExpn) expn;
 
 	    Symbol symbol = symbolTable.find_variable(sub_expn.getVariable());
