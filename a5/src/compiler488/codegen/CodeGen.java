@@ -499,20 +499,6 @@ public class CodeGen
         }
     }
     
-    private void handle_output(PutStmt stmt) throws MemoryAddressException {
-	ASTList<Printable> outputs = stmt.getOutputs();
-	LinkedList<Printable> output_ll = outputs.get_list();
-	for(Printable output : output_ll){
-	    if ((output instanceof TextConstExpn) || (output instanceof NewlineConstExpn)) {
-		continue;
-	    } else if (output instanceof Expn){
-		Expn expn = (Expn) output;
-		generate_expression(expn);
-		Machine.writeMemory(current_msp++,(short)25); //PRINTI
-	    }
-	}
-    }
-    
     private void generate_expression(Expn expn) throws MemoryAddressException{
         if(expn instanceof IntConstExpn){
             IntConstExpn int_expn=(IntConstExpn)expn;
