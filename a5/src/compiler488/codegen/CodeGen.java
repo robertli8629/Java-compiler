@@ -500,17 +500,17 @@ public class CodeGen
     }
     
     private void generate_expression(Expn expn) throws MemoryAddressException{
-        if(expn instanceof IntConstExpn){
+        if (expn instanceof IntConstExpn) {
             IntConstExpn int_expn=(IntConstExpn)expn;
             push(int_expn.getValue());
             return;
         }
-        if(expn instanceof UnaryMinusExpn){
+        if (expn instanceof UnaryMinusExpn) {
             UnaryMinusExpn unary_expn=(UnaryMinusExpn) expn;
             generate_expression(unary_expn.getOperand());
             Machine.writeMemory(current_msp++, (short)13);
         }
-        if(expn instanceof ArithExpn){
+        if (expn instanceof ArithExpn) {
             ArithExpn arith_expn=(ArithExpn) expn;
             if(arith_expn.getOpSymbol().equals("+")){
                 generate_expression(arith_expn.getLeft());
@@ -537,7 +537,7 @@ public class CodeGen
                 return;
             }
         }
-        if(expn instanceof BoolConstExpn){
+        if (expn instanceof BoolConstExpn) {
             BoolConstExpn bool_expn=(BoolConstExpn) expn;
             if(bool_expn.getValue()){
                 push(Machine.MACHINE_TRUE);
@@ -547,7 +547,7 @@ public class CodeGen
                 return;
             }
         }
-        if(expn instanceof NotExpn){
+        if (expn instanceof NotExpn) {
             NotExpn not_expn=(NotExpn) expn;
             generate_expression(not_expn.getOperand());
             push(1);
@@ -555,7 +555,7 @@ public class CodeGen
             Machine.writeMemory(current_msp++, (short)13); //NEG
             return;
         }
-        if(expn instanceof BoolExpn){
+        if (expn instanceof BoolExpn) {
             BoolExpn bool_expn=(BoolExpn) expn;
             generate_expression(bool_expn.getLeft());
             generate_expression(bool_expn.getRight());
@@ -568,7 +568,7 @@ public class CodeGen
                 return;
             }
         }
-        if(expn instanceof EqualsExpn){
+        if (expn instanceof EqualsExpn) {
             EqualsExpn equals_expn=(EqualsExpn) expn;
             generate_expression(equals_expn.getLeft());
             generate_expression(equals_expn.getRight());
@@ -584,7 +584,7 @@ public class CodeGen
                 return;
             }
         }
-        if(expn instanceof CompareExpn){
+        if (expn instanceof CompareExpn) {
             CompareExpn compare_expn=(CompareExpn) expn;
             generate_expression(compare_expn.getLeft());
             generate_expression(compare_expn.getRight());
@@ -613,12 +613,12 @@ public class CodeGen
                 return;
             }
         }
-        if(expn instanceof ParenthExpn){
+        if (expn instanceof ParenthExpn) {
             ParenthExpn parent_expn=(ParenthExpn) expn;
             generate_expression(parent_expn.getParenth());
             return;
         }
-        if(expn instanceof ConditionalExpn){
+        if (expn instanceof ConditionalExpn) {
             ConditionalExpn cond_expn=(ConditionalExpn) expn;
             generate_expression(cond_expn.getCondition());
             Machine.writeMemory(current_msp++, (short)4); //PUSH
@@ -642,7 +642,7 @@ public class CodeGen
         if ((expn instanceof IdentExpn) || (expn instanceof SubsExpn)) {
             generate_variable(expn);
         }
-        if(expn instanceof FunctionCallExpn){
+        if (expn instanceof FunctionCallExpn) {
             FunctionCallExpn func_expn=(FunctionCallExpn) expn;
             Machine.writeMemory(current_msp++, (short)4);
             short undefined_address=current_msp;
