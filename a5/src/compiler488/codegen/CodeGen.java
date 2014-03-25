@@ -450,8 +450,8 @@ public class CodeGen
                     addr(symbol.getll(),symbol.geton());
                
                 }
-                Machine.writeMemory(current_msp++,(short)24);
-                Machine.writeMemory(current_msp++,(short)3);
+                Machine.writeMemory(current_msp++,(short)24); //READI
+                Machine.writeMemory(current_msp++,(short)3); //STORE
             }
             return;
         }
@@ -463,18 +463,17 @@ public class CodeGen
                 if (output instanceof TextConstExpn){
                     TextConstExpn text=(TextConstExpn)output;
                     String string=text.getValue();
-                    for (int i=0;i<string.length();i++){
+                    for (int i=0; i<string.length(); i++){
                         push((short)string.charAt(i));
-                        Machine.writeMemory(current_msp++,(short)23);//PRINTC
+                        Machine.writeMemory(current_msp++, (short)23);//PRINTC
                     }
-                    return;
-                }else if(output instanceof NewlineConstExpn) {
+                } else if (output instanceof NewlineConstExpn) {
                     push((short)'\n');
-                    Machine.writeMemory(current_msp++,(short)23);//PRINTC
+                    Machine.writeMemory(current_msp++, (short)23);//PRINTC
                 } else if (output instanceof Expn){
                     Expn expn = (Expn) output;
                     generate_expression(expn);
-                    Machine.writeMemory(current_msp++,(short)25);//PRINTI
+                    Machine.writeMemory(current_msp++, (short)25);//PRINTI
                 }
             }
         }
