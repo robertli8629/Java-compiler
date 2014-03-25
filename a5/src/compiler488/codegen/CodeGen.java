@@ -320,8 +320,8 @@ public class CodeGen
         if(stmt instanceof IfStmt){
             IfStmt if_stmt = (IfStmt) stmt;
             generate_expression(if_stmt.getCondition());
-            short save_BF_address=(short)(current_msp+1);
-            push((short)0);
+            short save_BF_address=(short)(current_msp + 1);
+            push(Machine.UNDEFINED);
             Machine.writeMemory(current_msp++,(short)12);//BF
        
             ASTList<Stmt> stmt_list = if_stmt.getWhenTrue();
@@ -332,8 +332,8 @@ public class CodeGen
                 generate_statement(list_stmt, l, lexic_level);
             }
             if(if_stmt.getWhenFalse()!=null){
-                short save_BR_address=(short)(current_msp+1);
-                push((short)0);
+                short save_BR_address=(short)(current_msp + 1);
+                push(Machine.UNDEFINED);
                 Machine.writeMemory(current_msp++,(short)11);//BR
                
                 Machine.writeMemory(save_BF_address,current_msp);
@@ -344,9 +344,9 @@ public class CodeGen
                     generate_statement(fasle_stmt, l, lexic_level);
                 }
                
-                Machine.writeMemory(save_BR_address,current_msp);
+                Machine.writeMemory(save_BR_address, current_msp);
             }else{
-                Machine.writeMemory(save_BF_address,current_msp);
+                Machine.writeMemory(save_BF_address, current_msp);
             }
             return;
         }
