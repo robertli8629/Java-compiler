@@ -350,10 +350,10 @@ public class CodeGen
             }
             return;
         }
-        if (stmt instanceof LoopingStmt){
+        if (stmt instanceof LoopingStmt) {
             LoopingStmt loop_stmt=(LoopingStmt) stmt;
             LinkedList<Short> exit_list=new LinkedList<Short>();
-            if(loop_stmt instanceof RepeatUntilStmt){
+            if (loop_stmt instanceof RepeatUntilStmt) {
                 short save_BF_address= current_msp;
                 ASTList<Stmt> body_list = loop_stmt.getBody();
                 LinkedList<Stmt> body_ll = body_list.get_list();
@@ -364,19 +364,19 @@ public class CodeGen
                 }
                
                 generate_expression(loop_stmt.getExpn());
-                Machine.writeMemory(current_msp++,(short)4);
+                Machine.writeMemory(current_msp++,(short)4); // PUSH
                 Machine.writeMemory(current_msp++,save_BF_address);
-                Machine.writeMemory(current_msp++,(short)12);//BF
+                Machine.writeMemory(current_msp++,(short)12); // BF
                 Iterator<Short> iterator = exit_list.iterator();
                 while(iterator.hasNext()){
                     Machine.writeMemory(iterator.next(),current_msp);
                 }
                 return;
-            }else{
+            } else { // WhileDoStmt
                 short save_BR_address=current_msp;
                 generate_expression(loop_stmt.getExpn());
                 short save_BF_address=(short)(current_msp+1);
-                push((short)0);
+                push(Machine.UNDEFINED);
                 Machine.writeMemory(current_msp++,(short)12);//BF
                
                 ASTList<Stmt> body_list = loop_stmt.getBody();
@@ -399,19 +399,19 @@ public class CodeGen
         }
         if (stmt instanceof ExitStmt){
             ExitStmt exit_stmt = (ExitStmt) stmt;      
-            if(exit_stmt.getExpn()==null){
+            if (exit_stmt.getExpn() == null) { // exit stmt
                 l.add((short)(current_msp+1));
                 push((short)0);
-                Machine.writeMemory(current_msp++,(short)11);//BR
+                Machine.writeMemory(current_msp++,(short)11); //BR
                 return;
-            }else{
+            } else { // exit when stmt
                 generate_expression(exit_stmt.getExpn());
                 push((short)1);
-                Machine.writeMemory(current_msp++,(short)15);//SUB
-                Machine.writeMemory(current_msp++,(short)13);//NEG
+                Machine.writeMemory(current_msp++, (short)15); //SUB
+                Machine.writeMemory(current_msp++, (short)13); //NEG
                 l.add((short)(current_msp+1));
                 push((short)0);
-                Machine.writeMemory(current_msp++,(short)12);//BF
+                Machine.writeMemory(current_msp++,(short)12); //BF
             }
         }
         if (stmt instanceof ResultStmt){

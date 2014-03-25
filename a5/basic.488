@@ -12,5 +12,19 @@
   }
   fi
   put "x: ", x, newline, newline
+  
+  x := 0
+  while (x<10) do {
+      x := x+1
+  } end
+  
+  put "x: ", x, newline, newline
+  
+  x := 0
+  repeat {
+      x := x+1
+  } until (x=10)
+  
+  put "x: ", x, newline, newline
 
 }
