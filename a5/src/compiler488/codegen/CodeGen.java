@@ -112,7 +112,7 @@ public class CodeGen
 	Machine.writeMemory(current_msp++, (short)10); // DUPN
 	
 	// start main scope
-	traverse((Scope) programAST, null, null, 0);
+	traverse((Scope) programAST, null, null, 0,null);
 	
 	// exit main scope
 	Machine.writeMemory(current_msp++, (short)0); // HALT
@@ -183,7 +183,7 @@ public class CodeGen
 	 * arg: if not null, it represents parameter list passed by function/procedure declaration scope
 	 * ref: if not null, it represents function declaration, which is used to check the return type of the function
 	 *  */
-    private void traverse(Scope s, ASTList<ScalarDecl> arg, Object ref, int lexic_level) throws MemoryAddressException {
+    private void traverse(Scope s, ASTList<ScalarDecl> arg, Object ref, int lexic_level,LinkedList<Short> l) throws MemoryAddressException {
 
 	Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
 
@@ -218,10 +218,11 @@ public class CodeGen
 	    ListIterator iterator_stmt = stmt_ll.listIterator();
 	    while (iterator_stmt.hasNext()){
 		    Stmt stmt = (Stmt)iterator_stmt.next();
-		    
+		    if(l==null){
+			l=new LinkedList<Short>();
+		    }
 // 		    handle_statement(stmt, ref, lexic_level);
-		    LinkedList<Short> ls = new LinkedList<Short>();
-		    generate_statement(stmt, ls, lexic_level);
+		    generate_statement(stmt, l, lexic_level);
 	    }
 	}
 	
@@ -254,10 +255,10 @@ public class CodeGen
 		symbolTable.current_order_number_ll[lexic_level]++;
 		ASTList<ScalarDecl> params = rb.getParameters();
 		if (decl.getType() == null) { // procedure
-		    traverse(routine_scope, params, null, lexic_level + 1);
+		    traverse(routine_scope, params, null, lexic_level + 1,null);
 		    Machine.writeMemory(save_BR_address,current_msp);
 		} else { // function
-		    traverse(routine_scope, params, decl, lexic_level + 1);
+		    traverse(routine_scope, params, decl, lexic_level + 1,null);
 		    Machine.writeMemory(save_BR_address,current_msp);
 		}
 		return;
@@ -309,7 +310,7 @@ public class CodeGen
     private void generate_statement(Stmt stmt, LinkedList<Short> l, int lexic_level) throws MemoryAddressException{
         if(stmt instanceof Scope){
 	    Scope scope = (Scope) stmt; 
-	    traverse(scope, null, null, lexic_level);
+	    traverse(scope, null, null, lexic_level,l);
 	}
         if(stmt instanceof AssignStmt) {
             AssignStmt asgn_stmt = (AssignStmt) stmt;
@@ -401,10 +402,10 @@ public class CodeGen
         if (stmt instanceof ExitStmt) {
             ExitStmt exit_stmt = (ExitStmt) stmt;      
             if (exit_stmt.getExpn() == null) { // exit stmt
+                push((short)0);
                 l.add((short)(current_msp+1));
                 push((short)0);
-                Machine.writeMemory(current_msp++,(short)11); //BR
-                return;
+                Machine.writeMemory(current_msp++,(short)12); //BR
             } else { // exit when stmt
                 generate_expression(exit_stmt.getExpn());
                 push((short)1);
