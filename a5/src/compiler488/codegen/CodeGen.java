@@ -661,11 +661,11 @@ public class CodeGen
         }
         if (expn instanceof FunctionCallExpn) {
             FunctionCallExpn func_expn=(FunctionCallExpn) expn;
-            Machine.writeMemory(current_msp++, (short)4);
+            Machine.writeMemory(current_msp++, (short)4); //PUSH
             short undefined_address=current_msp;
             current_msp++;
        
-            Machine.writeMemory(current_msp++, (short)4);
+            Machine.writeMemory(current_msp++, (short)4); //PUSH
             short after_function_address=current_msp;
             current_msp++;
        
