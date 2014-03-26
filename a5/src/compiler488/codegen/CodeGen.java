@@ -183,7 +183,7 @@ public class CodeGen
 	 * arg: if not null, it represents parameter list passed by function/procedure declaration scope
 	 * ref: if not null, it represents function declaration, which is used to check the return type of the function
 	 *  */
-    private void traverse(Scope s, ASTList<ScalarDecl> arg, Object ref, int lexic_level,LinkedList<Short> l) throws MemoryAddressException {
+    private void traverse(Scope s, ASTList<ScalarDecl> arg, Object ref, int lexic_level, LinkedList<Short> l) throws MemoryAddressException {
 
 	Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
 
@@ -193,7 +193,7 @@ public class CodeGen
 	symbolTable.symbolstack.push(symboltable);
 	
 	if (arg != null) {
-// 	    order_number = add_params(symboltable, arg, lexic_level, order_number);
+	    add_params(symboltable, arg, lexic_level);
 	}
 	
 	if (ll != null){
@@ -245,11 +245,13 @@ public class CodeGen
 	if (decl instanceof RoutineDecl) {
 	    short save_BR_address=(short)(current_msp+1);
 	    push(0);
+	    Machine.writeMemory(current_msp++, (short)11); //BR
 	    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
 	    Scope routine_scope = rb.getBody();
 	    if (routine_scope != null) { // not a forward decl
 
-		symbolTable.add_to_symboltable(decl, symboltable, lexic_level, symbolTable.current_order_number_ll[lexic_level]); // add first for recursive definition
+		symbolTable.add_to_symboltable(decl, symboltable, lexic_level, symbolTable.current_order_number_ll[lexic_level], current_msp); // add first for recursive definition
+// 		System.out.println("current_msp: " + current_msp);
 		symbolTable.current_order_number_ll[lexic_level]++;
 		ASTList<ScalarDecl> params = rb.getParameters();
 		if (decl.getType() == null) { // procedure
@@ -270,12 +272,23 @@ public class CodeGen
 	return;
     }
     
-    
     /** handles declaration part */
     private void handle_part_declaration(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type, int lexic_level) throws MemoryAddressException {
 	
 	symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
 	symbolTable.current_order_number_ll[lexic_level]++;
+	return;
+    }
+    
+    private void add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params, int lexic_level) {
+// 	    System.out.println("add_params");
+	if (params != null) {
+	    LinkedList<ScalarDecl> l = params.get_list();
+	    for (ScalarDecl d : l) {
+		symbolTable.add_to_symboltable(d, ht, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
+		symbolTable.current_order_number_ll[lexic_level]++;
+	    }
+	}
 	return;
     }
     
@@ -287,7 +300,6 @@ public class CodeGen
 // 		ps.print(sym.toString() + "\n");
 	}
     }
-	
 	
     private void push(short value) throws MemoryAddressException {
 	Machine.writeMemory(current_msp++, (short)4);

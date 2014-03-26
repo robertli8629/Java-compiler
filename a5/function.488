@@ -1,0 +1,11 @@
+{
+ 
+  func testfunc3(a:integer, b:integer):integer {
+    result a+b
+  }
+
+  var x:integer
+  
+  x:=0
+  put "x: ", x, newline, newline
+}
