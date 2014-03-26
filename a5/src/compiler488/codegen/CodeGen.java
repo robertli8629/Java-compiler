@@ -310,12 +310,10 @@ public class CodeGen
 	}
         if(stmt instanceof AssignStmt) {
             AssignStmt asgn_stmt = (AssignStmt) stmt;
-            IdentExpn expn=(IdentExpn)asgn_stmt.getLval();
-            Symbol symbol=symbolTable.find_variable(expn.getIdent());
-            addr(symbol.getll(),symbol.geton());
-            generate_expression(asgn_stmt.getRval());
-            Machine.writeMemory(current_msp++,(short)3);//STORE
-            return;
+            Expn expn = asgn_stmt.getLval();
+	    addr_variable(expn);
+	    generate_expression(asgn_stmt.getRval());
+	    Machine.writeMemory(current_msp++, (short)3); //STORE
         }
         if(stmt instanceof IfStmt) {
             IfStmt if_stmt = (IfStmt) stmt;
@@ -677,24 +675,60 @@ public class CodeGen
         }
     }
 	
-    private void generate_variable(Expn expn) throws MemoryAddressException {
+    // generate the address of the variable
+    private void addr_variable(Expn expn) throws MemoryAddressException {
 	if (expn instanceof IdentExpn) {
 	    IdentExpn ident_expn=(IdentExpn) expn;
 	    Symbol symbol = symbolTable.find_variable(ident_expn.toString());
 	    
-	    addr(symbol.getll(),symbol.geton());
-	    Machine.writeMemory(current_msp++, (short)2); //LOAD
+	    addr(symbol.getll(), symbol.geton());
 
 	}
 
 	if (expn instanceof SubsExpn) { // array 
 	    SubsExpn sub_expn=(SubsExpn) expn;
-
 	    Symbol symbol = symbolTable.find_variable(sub_expn.getVariable());
+	    
+	    Expn sub_expn1 = sub_expn.getSubscript1();
+	    Expn sub_expn2 = sub_expn.getSubscript2();
+	    
+	    ArrayDeclPart adp = (ArrayDeclPart)symbol.getType().getLink();
+	    
+	    addr(symbol.getll(), symbol.geton());
+	    
+	    generate_expression(sub_expn1);
+	    
+	    int lb1 = adp.getLowerBoundary1();
+	    push(lb1);
+	    Machine.writeMemory(current_msp++, (short)15); //SUB
+	    
+	    if (sub_expn2 != null) { // 2 dimensional
+		int ub1 = adp.getUpperBoundary1();
+		push(ub1 - lb1);
+		Machine.writeMemory(current_msp++, (short)16); //MUL
+		
+		generate_expression(sub_expn2);
+	    
+		int lb2 = adp.getLowerBoundary2();
+		push(lb2);
+		Machine.writeMemory(current_msp++, (short)15); //SUB
+		
+		Machine.writeMemory(current_msp++, (short)14); //ADD
+		
+	    }
+	    
+	    Machine.writeMemory(current_msp++, (short)14); //ADD
 	    
 	}
 
 	return;
+    
+    }
+	
+    // load the value of the variable
+    private void generate_variable(Expn expn) throws MemoryAddressException {
+	addr_variable(expn);
+	Machine.writeMemory(current_msp++, (short)2); //LOAD
     }
 
     
