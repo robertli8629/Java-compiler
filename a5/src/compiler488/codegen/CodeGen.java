@@ -707,13 +707,14 @@ public class CodeGen
 	    Machine.writeMemory(current_msp++, (short)15); //SUB
 	    
 	    if (sub_expn2 != null) { // 2 dimensional
-		int ub1 = adp.getUpperBoundary1();
-		push(ub1 - lb1);
+		int ub2 = adp.getUpperBoundary2();
+		int lb2 = adp.getLowerBoundary2();
+		
+		push(ub2 - lb2 + 1);
 		Machine.writeMemory(current_msp++, (short)16); //MUL
 		
 		generate_expression(sub_expn2);
-	    
-		int lb2 = adp.getLowerBoundary2();
+
 		push(lb2);
 		Machine.writeMemory(current_msp++, (short)15); //SUB
 		
