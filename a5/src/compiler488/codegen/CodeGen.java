@@ -244,7 +244,8 @@ public class CodeGen
 	
 	// Semantic analysis S54: associate params if any with scope
 	if (decl instanceof RoutineDecl) {
-	
+	    short save_BR_address=(short)(current_msp+1);
+	    push(0);
 	    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
 	    Scope routine_scope = rb.getBody();
 	    if (routine_scope != null) { // not a forward decl
@@ -254,8 +255,10 @@ public class CodeGen
 		ASTList<ScalarDecl> params = rb.getParameters();
 		if (decl.getType() == null) { // procedure
 		    traverse(routine_scope, params, null, lexic_level + 1);
+		    Machine.writeMemory(save_BR_address,current_msp);
 		} else { // function
 		    traverse(routine_scope, params, decl, lexic_level + 1);
+		    Machine.writeMemory(save_BR_address,current_msp);
 		}
 		return;
 	    }
