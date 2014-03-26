@@ -20,14 +20,7 @@
       x := x+1
       y[x] := x
       put "y[x]: ", y[x], newline, newline
-      %exit
-  } end
-  
-  x := -1
-  while (x<10) do {
-      y[x] := x
-      put "y[x]: ", x, " : ", y[x], newline, newline
-      x := x+1
+      exit when true
   } end
   
   x:=0
@@ -35,6 +28,7 @@
       x := x+1
       z[2,x] := x
       put "z[2,x]: ", z[2,x], newline, newline
+      exit when true
   } end
   
   put "x: ", x, newline, newline

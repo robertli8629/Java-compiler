@@ -221,7 +221,6 @@ public class CodeGen
 		    if(l==null){
 			l=new LinkedList<Short>();
 		    }
-// 		    handle_statement(stmt, ref, lexic_level);
 		    generate_statement(stmt, l, lexic_level);
 	    }
 	}
@@ -243,7 +242,6 @@ public class CodeGen
 	    return;
 	}
 	
-	// Semantic analysis S54: associate params if any with scope
 	if (decl instanceof RoutineDecl) {
 	    short save_BR_address=(short)(current_msp+1);
 	    push(0);
@@ -439,19 +437,36 @@ public class CodeGen
             GetStmt get_stmt=(GetStmt) stmt;
             ASTList<Readable> inputs = get_stmt.getInputs();
             LinkedList<Readable> input_ll = inputs.get_list();
-            for(Readable input : input_ll){
+            for(Readable input : input_ll){               
                 if (input instanceof IdentExpn) {
-                    IdentExpn expn = (IdentExpn) input;
-                    Symbol symbol=symbolTable.find_variable(expn.getIdent());
-                    addr(symbol.getll(),symbol.geton());
-               
-               
-                } else if (input instanceof SubsExpn) {
-                    SubsExpn expn = (SubsExpn) input;
-                    Symbol symbol=symbolTable.find_variable(expn.getVariable());
-                    addr(symbol.getll(),symbol.geton());
-               
-                }
+		    IdentExpn ident_expn=(IdentExpn) input;
+		    Symbol symbol = symbolTable.find_variable(ident_expn.toString());
+		    addr(symbol.getll(), symbol.geton());
+		}
+		if (input instanceof SubsExpn) { // array 
+		    SubsExpn sub_expn=(SubsExpn) input;
+		    Symbol symbol = symbolTable.find_variable(sub_expn.getVariable());
+		    Expn sub_expn1 = sub_expn.getSubscript1();
+		    Expn sub_expn2 = sub_expn.getSubscript2();
+		    ArrayDeclPart adp = (ArrayDeclPart)symbol.getType().getLink();
+		    addr(symbol.getll(), symbol.geton());
+		    generate_expression(sub_expn1);
+		    int lb1 = adp.getLowerBoundary1();
+		    push(lb1);
+		    Machine.writeMemory(current_msp++, (short)15); //SUB
+		    if (sub_expn2 != null) { // 2 dimensional
+			int ub2 = adp.getUpperBoundary2();
+			int lb2 = adp.getLowerBoundary2();
+			push(ub2 - lb2 + 1);
+			Machine.writeMemory(current_msp++, (short)16); //MUL
+			generate_expression(sub_expn2);
+			push(lb2);
+			Machine.writeMemory(current_msp++, (short)15); //SUB
+			Machine.writeMemory(current_msp++, (short)14); //ADD
+		    }
+		    Machine.writeMemory(current_msp++, (short)14); //ADD
+		}
+                
                 Machine.writeMemory(current_msp++,(short)24); //READI
                 Machine.writeMemory(current_msp++,(short)3); //STORE
             }
