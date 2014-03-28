@@ -1,6 +1,0 @@
-{
-	% CSC488 declaration array test-Failing case
-    
-	var x:integer
-	x[1]:=1
-}

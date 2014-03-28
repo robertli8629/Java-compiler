@@ -1,9 +1,0 @@
-{
-	% CSC488 declaration procedure test-Failing case
-	
-	proc test(x:integer){
-	    put x
-	    result x
-	}
-	put 6
-}

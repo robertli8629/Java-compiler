@@ -1,6 +1,0 @@
-{
-	% CSC488 one declaration test-Failing case
-    
-	var x:integer
-	y:=3
-}

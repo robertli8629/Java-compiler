@@ -93,8 +93,8 @@ public class CodeGen
 	global_st = st;
 	symbolTable = new SymbolTable();
 	
-	System.out.println(global_st.current_order_number_ll[0]);
-	System.out.println(global_st.current_order_number_ll[1]);
+// 	System.out.println(global_st.current_order_number_ll[0]);
+// 	System.out.println(global_st.current_order_number_ll[1]);
 	
 	int alloc_size = global_st.current_order_number_ll[0];
 	
