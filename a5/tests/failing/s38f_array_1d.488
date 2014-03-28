@@ -1,9 +1,0 @@
-{
-    var bool : boolean
-    var a[20, 10], b[-3..5, 4..10] : boolean
-
-    bool := a[20]
-    bool := a[10]
-    bool := b[-1]
-    bool := b[5]
-}

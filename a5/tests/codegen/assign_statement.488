@@ -1,9 +1,9 @@
 { 
-var a:integer
-a:=1+3
-if(a=4) then{
-  put "result:1"
-}else{
-  put "result:0"
+  var a:integer
+  a:=1+3
+  if(a=4) then{
+    put "result:1"
+  }else{
+    put "result:0"
+  } fi
 }
-} 

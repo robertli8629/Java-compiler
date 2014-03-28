@@ -14,20 +14,11 @@ do
 done
 }
 
-runtests_AST () {
+runtests_codegen () {
 for file in `ls ./*.488`
 do
     echo "Running $file"
-    java -jar $COMPILER -X -D a $file
-    echo
-done
-}
-
-runtests_symbol_table () {
-for file in `ls ./*.488`
-do
-    echo "Running $file"
-    java -jar $COMPILER_SYMBOL_TABLE -X -D y $file
+    java -jar $COMPILER $file
     echo
 done
 }
@@ -36,16 +27,10 @@ pushd $WHERE/tests/failing > /dev/null
 runtests
 popd > /dev/null
 pushd $WHERE/tests/passing > /dev/null
-runtests
+
 popd > /dev/null
-pushd $WHERE/tests/ast > /dev/null
-runtests_AST
-popd > /dev/null
-pushd $WHERE/tests/symbol_table/passing > /dev/null
-runtests_symbol_table
-popd > /dev/null
-pushd $WHERE/tests/symbol_table/failing > /dev/null
-runtests_symbol_table
+pushd $WHERE/tests/codegen > /dev/null
+runtests_codegen
 popd > /dev/null
 
 echo "All tests run!"
