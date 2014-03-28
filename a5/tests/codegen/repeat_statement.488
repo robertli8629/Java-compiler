@@ -1,17 +1,17 @@
 {
-var i:integer
-var ans:integer
-ans:=0
-i:=0
-repeat {
-  ans:=ans+i
-  i:=i+1
-}
-until (i>100)
-if(ans=5050) then{
-  put "result:1"
-}else{
-  put "result:0"
-}
-fi
+  var i:integer
+  var ans:integer
+  ans:=0
+  i:=0
+  repeat {
+    ans:=ans+i
+    i:=i+1
+  }
+  until (i>100)
+  if (ans = 5050) then{
+    put "result:1"
+  } else {
+    put "result:0"
+  }
+  fi
 }
