@@ -1,0 +1,19 @@
+{
+var a:boolean
+var b:boolean
+a:=true
+b:=false
+if (a and b) then{
+  put "result:0"
+}else{
+  put "result:1"
+}
+fi
+put newline
+if (a or b) then{
+  put "result:1"
+}else{
+  put "result:0"
+}
+fi
+}
