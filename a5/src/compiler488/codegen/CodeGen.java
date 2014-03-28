@@ -112,7 +112,7 @@ public class CodeGen
 	Machine.writeMemory(current_msp++, Machine.DUPN); // DUPN
 	
 	// start main scope
-	traverse((Scope) programAST, null, null, 0,null);
+	traverse((Scope) programAST, null, null, 0, null);
 	
 	// exit main scope
 	Machine.writeMemory(current_msp++, Machine.HALT); // HALT
@@ -183,7 +183,7 @@ public class CodeGen
 	 * arg: if not null, it represents parameter list passed by function/procedure declaration scope
 	 * ref: if not null, it represents function declaration, which is used to check the return type of the function
 	 *  */
-    private void traverse(Scope s, ASTList<ScalarDecl> arg, Object ref, int lexic_level, LinkedList<Short> l) throws MemoryAddressException {
+    private void traverse(Scope s, ASTList<ScalarDecl> arg, Object ref, int lexic_level, LinkedList<Short> exit_addr_list) throws MemoryAddressException {
 
 	Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
 
@@ -218,10 +218,10 @@ public class CodeGen
 	    ListIterator iterator_stmt = stmt_ll.listIterator();
 	    while (iterator_stmt.hasNext()){
 		    Stmt stmt = (Stmt)iterator_stmt.next();
-		    if(l==null){
-			l=new LinkedList<Short>();
+		    if (exit_addr_list == null) {
+			exit_addr_list = new LinkedList<Short>();
 		    }
-		    generate_statement(stmt, l, lexic_level);
+		    generate_statement(stmt, exit_addr_list, lexic_level);
 	    }
 	}
 	
@@ -317,10 +317,10 @@ public class CodeGen
 	Machine.writeMemory(current_msp++, ON);
     }
     
-    private void generate_statement(Stmt stmt, LinkedList<Short> l, int lexic_level) throws MemoryAddressException{
+    private void generate_statement(Stmt stmt, LinkedList<Short> exit_addr_list, int lexic_level) throws MemoryAddressException{
         if(stmt instanceof Scope){
 	    Scope scope = (Scope) stmt; 
-	    traverse(scope, null, null, lexic_level,l);
+	    traverse(scope, null, null, lexic_level, exit_addr_list);
 	}
         if(stmt instanceof AssignStmt) {
             AssignStmt asgn_stmt = (AssignStmt) stmt;
@@ -341,7 +341,7 @@ public class CodeGen
             int i;
             for (i = 0; i < stmt_ll.size(); i++) {
                 Stmt list_stmt = stmt_ll.get(i);
-                generate_statement(list_stmt, l, lexic_level);
+                generate_statement(list_stmt, exit_addr_list, lexic_level);
             }
             if (if_stmt.getWhenFalse()!=null) {
                 short save_BR_address=(short)(current_msp + 1);
@@ -353,7 +353,7 @@ public class CodeGen
                 LinkedList<Stmt> false_ll = false_list.get_list();
                 for(i = 0; i < false_ll.size(); i++){
                     Stmt fasle_stmt = false_ll.get(i);
-                    generate_statement(fasle_stmt, l, lexic_level);
+                    generate_statement(fasle_stmt, exit_addr_list, lexic_level);
                 }
                
                 Machine.writeMemory(save_BR_address, current_msp);
@@ -412,17 +412,16 @@ public class CodeGen
         if (stmt instanceof ExitStmt) {
             ExitStmt exit_stmt = (ExitStmt) stmt;      
             if (exit_stmt.getExpn() == null) { // exit stmt
-                push((short)0);
-                l.add((short)(current_msp+1));
-                push((short)0);
+                exit_addr_list.add((short)(current_msp+1));
+                push(Machine.UNDEFINED);
                 Machine.writeMemory(current_msp++, Machine.BR); //BR
             } else { // exit when stmt
                 generate_expression(exit_stmt.getExpn());
-                push((short)1);
+                push(1);
                 Machine.writeMemory(current_msp++, Machine.SUB); //SUB
                 Machine.writeMemory(current_msp++, Machine.NEG); //NEG
-                l.add((short)(current_msp+1));
-                push((short)0);
+                exit_addr_list.add((short)(current_msp+1));
+                push(Machine.UNDEFINED);
                 Machine.writeMemory(current_msp++, Machine.BF); //BF
             }
         }
