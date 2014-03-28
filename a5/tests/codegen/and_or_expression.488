@@ -12,7 +12,23 @@
   fi
   
   put newline
+  if (b and a) then{
+    put "result:0"
+  } else {
+    put "result:1"
+  }
+  fi
+  
+  put newline
   if (a or b) then{
+    put "result:1"
+  } else {
+    put "result:0"
+  }
+  fi
+  
+  put newline
+  if (b or a) then{
     put "result:1"
   } else {
     put "result:0"
