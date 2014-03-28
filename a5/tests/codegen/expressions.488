@@ -1,0 +1,54 @@
+{
+
+  var x : integer % print 1 if case passing, else if case failing
+  x := 1
+  
+  put "result: ", x, newline
+  
+  x := -1
+  
+  put "result: ", -x, newline
+  
+  put "result: ", x + 2, newline
+
+  put "result: ", 0 - x, newline
+  
+  put "result: ", x * -1, newline
+
+  put "result: ", x / -1, newline
+  
+  x := (true ? 1 : -1)
+  put "result: ", x, newline
+  
+  x := (false ? -1 : 1)
+  put "result: ", x, newline
+  
+  x := (not true ? -1 : 1)
+  put "result: ", x, newline
+  
+  x := (true and false ? -1 : 1)
+  put "result: ", x, newline
+  
+  x := (true or false ? 1 : -1)
+  put "result: ", x, newline
+  
+  x := (1 = 2 ? -1 : 1)
+  put "result: ", x, newline
+  
+  x := (1<2 ? 1 : -1)
+  put "result: ", x, newline
+  
+  x := (1<=2 ? 1 : -1)
+  put "result: ", x, newline
+  
+  x := (2>2 ? -1 : 1)
+  put "result: ", x, newline
+  
+  x := (2>=2 ? 1 : -1)
+  put "result: ", x, newline
+  
+  x := (1+(true ? 1 : -1))/2
+  put "result: ", x, newline
+
+  
+}
