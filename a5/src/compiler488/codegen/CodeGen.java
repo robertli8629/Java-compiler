@@ -587,13 +587,27 @@ public class CodeGen
         if (expn instanceof BoolExpn) {
             BoolExpn bool_expn=(BoolExpn) expn;
             generate_expression(bool_expn.getLeft());
-            generate_expression(bool_expn.getRight());
+            short save_BF_address=(short)(current_msp+1);
+            push(Machine.UNDEFINED);
+            Machine.writeMemory(current_msp++,(short)12);
             if (bool_expn.getOpSymbol().equals("and")) {
-                Machine.writeMemory(current_msp++, (short)16); //MUL
+                generate_expression(bool_expn.getRight());
+                short save_BR_address=(short)(current_msp+1);
+                push(Machine.UNDEFINED);
+                Machine.writeMemory(current_msp++,(short)11);//BR
+                Machine.writeMemory(save_BF_address,current_msp);
+                push(0);
+                Machine.writeMemory(save_BR_address,current_msp);
                 return;
             }
             if (bool_expn.getOpSymbol().equals("or")) {
-                Machine.writeMemory(current_msp++, (short)20); //OR
+                push(1);
+                short save_BR_address=(short)(current_msp+1);
+                push(Machine.UNDEFINED);
+                Machine.writeMemory(current_msp++,(short)11);//BR
+                Machine.writeMemory(save_BF_address,current_msp);
+                generate_expression(bool_expn.getRight());
+                Machine.writeMemory(save_BR_address,current_msp);
                 return;
             }
         }
