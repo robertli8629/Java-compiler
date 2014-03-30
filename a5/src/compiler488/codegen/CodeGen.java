@@ -70,6 +70,10 @@ public class CodeGen
     /** flag to identify routine type */
     private enum RoutineType { FUNC, PROC }
 
+    /** Global stack to store addresses of branch instructions that need
+      * patching. Specifically those for return and result statements. */
+    private LinkedList<Short> branchToRoutineEndStack;
+
     /**  
      *  Constructor to initialize code generation
      */
@@ -98,6 +102,7 @@ public class CodeGen
 	/********************************************************/
 	global_st = st;
 	symbolTable = new SymbolTable();
+    branchToRoutineEndStack = new LinkedList<Short>();
 	
 // 	System.out.println(global_st.current_order_number_ll[0]);
 // 	System.out.println(global_st.current_order_number_ll[1]);
@@ -255,15 +260,15 @@ public class CodeGen
 	
 	if (decl instanceof RoutineDecl) {
 
-        // Set up branch over routine's instructions
-        // to avoid unwanted execution.
+        /* Set up branch over routine's instructions
+         * to avoid unwanted execution. */
 	    short save_BR_address=(short)(current_msp+1);
 	    push(Machine.UNDEFINED);
-	    Machine.writeMemory(current_msp++, Machine.BR); //BR
+	    Machine.writeMemory(current_msp++, Machine.BR);
 
 	    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
 	    Scope routine_scope = rb.getBody();
-	    if (routine_scope != null) { // not a forward decl
+	    if (routine_scope != null) {    // not a forward decl
 
 		ASTList<ScalarDecl> params = rb.getParameters();
 
@@ -276,19 +281,19 @@ public class CodeGen
         int neededWords =
             global_st.current_order_number_ll[lexic_level + 1];
 
-        // Callee responsible for allocating required space for locals
+        // Callee responsible for allocating required space for locals.
         push(Machine.UNDEFINED);
         push(neededWords);
         Machine.writeMemory(current_msp++, Machine.DUPN);
 
-        // Generate internal routine code
+        // Generate internal routine code.
 		if (decl.getType() == null) {   // procedure
 		    traverse(routine_scope, params, null, lexic_level + 1,null);
 		} else {                        // function
 		    traverse(routine_scope, params, decl, lexic_level + 1,null);
 		}
 
-        // Append routine exit code in case of missing result/return statement
+        // Append routine exit code. Complete return/result branches.
         generateRoutineEpilogue(params.size(), lexic_level + 1, neededWords);
 
 		Machine.writeMemory(save_BR_address,current_msp);
@@ -472,10 +477,13 @@ public class CodeGen
             return;
         }
         if (stmt instanceof ReturnStmt) {
-//             push();
-            Machine.writeMemory(current_msp++, Machine.POPN);//POPN
-            Machine.writeMemory(current_msp++, Machine.SETD);//SETD
-            Machine.writeMemory(current_msp++, Machine.BR);//BR
+
+            /* Branch to routine epilogue.
+             * Address patched during handling of RoutineDecl. */
+            branchToRoutineEndStack.push((short) (current_msp + 1));
+            push(Machine.UNDEFINED);
+            Machine.writeMemory(current_msp++, Machine.BR);
+
             return;
         }
         if (stmt instanceof GetStmt) {
@@ -858,6 +866,13 @@ public class CodeGen
                                          int lexLvl,
                                          int allocatedSpace)
             throws MemoryAddressException {
+
+        /* Complete all branches from return or result statements.
+         * Empties patch stack. */
+        while (null != branchToRoutineEndStack.peek()) {
+            Machine.writeMemory(branchToRoutineEndStack.pop(),
+                                current_msp);
+        }
 
         // Pop activation record to reclaim stack space
         push((short) (numParams + allocatedSpace));

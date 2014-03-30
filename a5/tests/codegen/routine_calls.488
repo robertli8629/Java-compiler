@@ -1,13 +1,29 @@
 {
-    % Test argument passing
-    proc print_args(arg1 : integer, arg2 : integer, arg3 : integer) {
+    var x : integer
+
+    % Test argument passing with NO return
+    proc print_args1(arg1 : integer, arg2 : integer, arg3 : integer) {
         put arg1, " "
         put arg2, " "
         put arg3, newline
     }
 
+    % Test argument passing WITH return
+    proc print_args2(arg1 : integer, arg2 : integer, arg3 : integer) {
+        put arg1, " "
+        put arg2, " "
+        put arg3, newline
+        return
+    }
+
+    x := 3
+
     put "Expected: 10 101 44", newline
     put "Result: " 
-    print_args(10, 50 * 2 + 1, 80 / 2 + 4)
+    print_args1(10, 50 * 2 + 1, 80 / 2 + 4)
+
+    put "Expected: -1 30 1023", newline
+    put "Result: " 
+    print_args2(-1, 10 * x, 100 * 10 + 10 + 5 - x + 13)
 }
 
