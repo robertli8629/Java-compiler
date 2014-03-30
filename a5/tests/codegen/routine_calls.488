@@ -4,7 +4,6 @@
         put arg1, " "
         put arg2, " "
         put arg3, newline
-        return
     }
 
     put "Expected: 10 101 44", newline

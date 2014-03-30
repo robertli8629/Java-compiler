@@ -254,9 +254,13 @@ public class CodeGen
 	}
 	
 	if (decl instanceof RoutineDecl) {
+
+        // Set up branch over routine's instructions
+        // to avoid unwanted execution.
 	    short save_BR_address=(short)(current_msp+1);
 	    push(Machine.UNDEFINED);
 	    Machine.writeMemory(current_msp++, Machine.BR); //BR
+
 	    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
 	    Scope routine_scope = rb.getBody();
 	    if (routine_scope != null) { // not a forward decl
@@ -267,13 +271,26 @@ public class CodeGen
 		symbolTable.add_to_symboltable(decl, symboltable, lexic_level,
                 symbolTable.current_order_number_ll[lexic_level], current_msp,
                 params.size());
-// 		System.out.println("current_msp: " + current_msp);
 		symbolTable.current_order_number_ll[lexic_level]++;
-		if (decl.getType() == null) { // procedure
+
+        int neededWords =
+            global_st.current_order_number_ll[lexic_level + 1];
+
+        // Callee responsible for allocating required space for locals
+        push(Machine.UNDEFINED);
+        push(neededWords);
+        Machine.writeMemory(current_msp++, Machine.DUPN);
+
+        // Generate internal routine code
+		if (decl.getType() == null) {   // procedure
 		    traverse(routine_scope, params, null, lexic_level + 1,null);
-		} else { // function
+		} else {                        // function
 		    traverse(routine_scope, params, decl, lexic_level + 1,null);
 		}
+
+        // Append routine exit code in case of missing result/return statement
+        generateRoutineEpilogue(params.size(), lexic_level + 1, neededWords);
+
 		Machine.writeMemory(save_BR_address,current_msp);
 		return;
 	    }
@@ -816,7 +833,7 @@ public class CodeGen
 
         retAddr = (short) (current_msp + 1);      // Store to patch
         push(Machine.UNDEFINED);                  // Return address
-        addr(lexLvl, (short) 0);    // Save display entry
+        addr(lexLvl, (short) 0);                  // Save display entry
 
         for (Expn e : args) {
             generate_expression(e);
@@ -836,6 +853,23 @@ public class CodeGen
         // Fill return address with first instruction after branch
         Machine.writeMemory(retAddr, current_msp);
     }
+
+    private void generateRoutineEpilogue(int numParams,
+                                         int lexLvl,
+                                         int allocatedSpace)
+            throws MemoryAddressException {
+
+        // Pop activation record to reclaim stack space
+        push((short) (numParams + allocatedSpace));
+        Machine.writeMemory(current_msp++, Machine.POPN);
+        
+        // Saved display ref on top of stack. Reset display.
+        Machine.writeMemory(current_msp++, Machine.SETD);
+        Machine.writeMemory(current_msp++, (short) lexLvl);
+
+        // Return address on top of stack. Branch back to caller.
+        Machine.writeMemory(current_msp++, Machine.BR);
+    } 
 
 }
 
