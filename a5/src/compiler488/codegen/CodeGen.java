@@ -274,11 +274,12 @@ public class CodeGen
 	    if (routine_scope != null) {    // not a forward decl
 
 		ASTList<ScalarDecl> params = rb.getParameters();
+        int numParams = null == params ? 0 : params.size();
 
         // add first for recursive definition
 		symbolTable.add_to_symboltable(decl, symboltable, lexic_level,
                 symbolTable.current_order_number_ll[lexic_level], current_msp,
-                params.size());
+                numParams);
 		symbolTable.current_order_number_ll[lexic_level]++;
 
         int neededWords =
@@ -297,7 +298,7 @@ public class CodeGen
 		}
 
         // Append routine exit code. Complete return/result branches.
-        generateRoutineEpilogue(params.size(), lexic_level + 1, neededWords);
+        generateRoutineEpilogue(numParams, lexic_level + 1, neededWords);
 
 		Machine.writeMemory(save_BR_address,current_msp);
 		return;
@@ -582,7 +583,7 @@ public class CodeGen
         }
     }
     
-    private void generate_expression(Expn expn) throws MemoryAddressException{
+    private void generate_expression(Expn expn) throws Exception{
         if (expn instanceof IntConstExpn) {
             IntConstExpn int_expn=(IntConstExpn)expn;
             push(int_expn.getValue());
@@ -740,42 +741,28 @@ public class CodeGen
             generate_variable(expn);
         }
         if (expn instanceof FunctionCallExpn) {
-            FunctionCallExpn func_expn=(FunctionCallExpn) expn;
-            Machine.writeMemory(current_msp++, Machine.PUSH); //PUSH
-            short undefined_address=current_msp;
-            current_msp++;
-       
-            Machine.writeMemory(current_msp++, Machine.PUSH); //PUSH
-            short after_function_address=current_msp;
-            current_msp++;
-       
-            Machine.writeMemory(current_msp++, Machine.ADDR); //ADDR
-            //LL
-            //ON
-       
-            Machine.writeMemory(current_msp++, Machine.PUSHMT); //PUSHMT
-            Machine.writeMemory(current_msp++, Machine.SETD); //SETD
-            //LL
-       
-            ASTList<Expn> arg_list = func_expn.getArguments();
-            LinkedList<Expn> arg_ll = arg_list.get_list();
-            int i;
-            for (i = 0; i < arg_ll.size(); i++) {
-                Expn arg_expn = arg_ll.get(i);
-                generate_expression(arg_expn);
+
+            FunctionCallExpn funcExpn;
+            Symbol funcEntry;
+
+            funcExpn = (FunctionCallExpn) expn;
+
+            funcEntry = symbolTable.find_variable(funcExpn.getIdent());
+            if (null == funcEntry) {
+                throw new ExecutionException(
+                    "Unknown function name during code generation.\n");
             }
-       
-            Machine.writeMemory(current_msp++, Machine.PUSH); //PUSH
-//             Machine.writeMemory(current_msp++,?);//function address
-            Machine.writeMemory(current_msp++, Machine.BR); //BR
-       
-            Machine.writeMemory(after_function_address,current_msp);
-       
+
+            generateRoutinePrologue(funcExpn.getArguments().get_list(),
+                                    (short) (funcEntry.getll() + 1),
+                                    funcEntry.getStartLine(),
+                                    funcEntry.getNumParams(),
+                                    RoutineType.FUNC);
         }
     }
 	
     // generate the address of the variable
-    private void addr_variable(Expn expn) throws MemoryAddressException {
+    private void addr_variable(Expn expn) throws Exception {
 	if (expn instanceof IdentExpn) {
 	    IdentExpn ident_expn=(IdentExpn) expn;
 	    Symbol symbol = symbolTable.find_variable(ident_expn.toString());
@@ -826,7 +813,7 @@ public class CodeGen
     }
 	
     // load the value of the variable
-    private void generate_variable(Expn expn) throws MemoryAddressException {
+    private void generate_variable(Expn expn) throws Exception {
 	addr_variable(expn);
 	Machine.writeMemory(current_msp++, Machine.LOAD); //LOAD
     }
@@ -836,7 +823,7 @@ public class CodeGen
                                          short routineAddr,
                                          int numParams,
                                          RoutineType type)
-            throws MemoryAddressException {
+            throws Exception {
 
         short retAddr, argAddr;
 

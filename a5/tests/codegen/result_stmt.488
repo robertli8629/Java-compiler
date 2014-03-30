@@ -1,0 +1,10 @@
+{
+    func f() : integer {
+        result 10
+    }
+
+    put "Expected: 10", newline
+    put "Result: "
+    put f(), newline
+}
+
