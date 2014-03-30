@@ -1,0 +1,17 @@
+CSC488 Assignment 5 -- Code Generator Design Doc -- Group 7
+
+------------------
+Update to A4 design regarding routine calls:
+
+To fix the problem of updating the display too early when evaluating
+parameters in our A4 design, we have swapped the ordering in which
+these operations are handled. Parameters are now evaluated prior to
+the display being updated to point to the new activation record.
+
+Parameters are kept at the same offsets as expected previously
+(that is, 0 to n - 1 where n is the number of parameters) by
+subtracting the number of parameters from the address on the
+stack after the PUSHMT instruction. This results in the address
+of the first parameter being on the stack for the following SETD
+instruction that updates the display.
+-------------------

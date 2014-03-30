@@ -5,6 +5,7 @@ import java.util.*;
 import compiler488.compiler.Main;
 import compiler488.runtime.Machine;
 import compiler488.runtime.MemoryAddressException;
+import compiler488.runtime.ExecutionException;
 import compiler488.symbol.*;
 import compiler488.ast.ASTList;
 import compiler488.ast.stmt.*;
@@ -65,6 +66,10 @@ public class CodeGen
     private short current_msp = 0;
     private SymbolTable symbolTable;
     private SymbolTable global_st;
+
+    /** flag to identify routine type */
+    private enum RoutineType { FUNC, PROC }
+
     /**  
      *  Constructor to initialize code generation
      */
@@ -83,7 +88,8 @@ public class CodeGen
      */
 
    /** Additional initialization for Code Generation (if required) */
-   public void Initialize(Program programAST, SymbolTable st) throws MemoryAddressException
+   public void Initialize(Program programAST, SymbolTable st)
+        throws Exception
 	{
 	/********************************************************/
 	/* Initialization code for the code generator GOES HERE */
@@ -183,7 +189,9 @@ public class CodeGen
 	 * arg: if not null, it represents parameter list passed by function/procedure declaration scope
 	 * ref: if not null, it represents function declaration, which is used to check the return type of the function
 	 *  */
-    private void traverse(Scope s, ASTList<ScalarDecl> arg, Object ref, int lexic_level, LinkedList<Short> exit_addr_list) throws MemoryAddressException {
+    private void traverse(Scope s, ASTList<ScalarDecl> arg, Object ref,
+                          int lexic_level, LinkedList<Short> exit_addr_list)
+                          throws Exception {
 
 	Hashtable<String,Symbol> symboltable=new Hashtable<String,Symbol>();
 
@@ -230,7 +238,10 @@ public class CodeGen
     }
     
     /** handles declaration */
-    private void handle_declaration(Declaration decl, Hashtable<String,Symbol> symboltable, int lexic_level) throws MemoryAddressException {
+    private void handle_declaration(Declaration decl,
+                                    Hashtable<String,Symbol> symboltable,
+                                    int lexic_level)
+            throws Exception {
 	
 	if (decl instanceof MultiDeclarations) {
 	    ASTList<DeclarationPart> decl_list = ((MultiDeclarations)decl).getElements();
@@ -244,23 +255,26 @@ public class CodeGen
 	
 	if (decl instanceof RoutineDecl) {
 	    short save_BR_address=(short)(current_msp+1);
-	    push(0);
+	    push(Machine.UNDEFINED);
 	    Machine.writeMemory(current_msp++, Machine.BR); //BR
 	    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
 	    Scope routine_scope = rb.getBody();
 	    if (routine_scope != null) { // not a forward decl
 
-		symbolTable.add_to_symboltable(decl, symboltable, lexic_level, symbolTable.current_order_number_ll[lexic_level], current_msp); // add first for recursive definition
+		ASTList<ScalarDecl> params = rb.getParameters();
+
+        // add first for recursive definition
+		symbolTable.add_to_symboltable(decl, symboltable, lexic_level,
+                symbolTable.current_order_number_ll[lexic_level], current_msp,
+                params.size());
 // 		System.out.println("current_msp: " + current_msp);
 		symbolTable.current_order_number_ll[lexic_level]++;
-		ASTList<ScalarDecl> params = rb.getParameters();
 		if (decl.getType() == null) { // procedure
 		    traverse(routine_scope, params, null, lexic_level + 1,null);
-		    Machine.writeMemory(save_BR_address,current_msp);
 		} else { // function
 		    traverse(routine_scope, params, decl, lexic_level + 1,null);
-		    Machine.writeMemory(save_BR_address,current_msp);
 		}
+		Machine.writeMemory(save_BR_address,current_msp);
 		return;
 	    }
 	}
@@ -317,7 +331,10 @@ public class CodeGen
 	Machine.writeMemory(current_msp++, ON);
     }
     
-    private void generate_statement(Stmt stmt, LinkedList<Short> exit_addr_list, int lexic_level) throws MemoryAddressException{
+    private void generate_statement(Stmt stmt, LinkedList<Short> exit_addr_list,
+                                    int lexic_level)
+            throws Exception{
+
         if(stmt instanceof Scope){
 	    Scope scope = (Scope) stmt; 
 	    traverse(scope, null, null, lexic_level, exit_addr_list);
@@ -506,24 +523,32 @@ public class CodeGen
             }
         }
         if (stmt instanceof ProcedureCallStmt) {
-            ProcedureCallStmt proc_stmt = (ProcedureCallStmt)stmt;
-            short save_BR_address=(short)(current_msp+1);
-            push((short)0);
-            Machine.writeMemory(current_msp++, Machine.ADDR);//ADDR
-       
-            Machine.writeMemory(current_msp++, Machine.PUSHMT);//PUSHMT
-            Machine.writeMemory(current_msp++, Machine.SETD);//SETD
-       
-            ASTList<Expn> arg_list = proc_stmt.getArguments();
-            LinkedList<Expn> arg_ll = arg_list.get_list();
-            int i;
-            for (i = 0; i < arg_ll.size(); i++) {
-                Expn arg_expn = arg_ll.get(i);
-                generate_expression(arg_expn);
+
+            ProcedureCallStmt procStmt;
+            Symbol procEntry;
+            short routineAddr;
+            int routineLexLvl, numParams;
+
+            procStmt = (ProcedureCallStmt) stmt;
+
+            procEntry = symbolTable.find_variable(procStmt.getName());
+            if (null == procEntry) {
+                throw new ExecutionException(
+                    "Unknown procedure name during code generation.\n");
             }
 
-            push((short)0);
-            Machine.writeMemory(current_msp++,Machine.BR);
+            routineAddr = procEntry.getStartLine();
+            numParams = procEntry.getNumParams();
+
+            // Add one since the stored LL is the LL the routine is declared in
+            routineLexLvl = (short) (procEntry.getll() + 1);
+
+            // Generate caller code. Branches to routine.
+            generateRoutinePrologue(procStmt.getArguments().get_list(),
+                                    (short) routineLexLvl,
+                                    routineAddr,
+                                    numParams,
+                                    RoutineType.PROC);
         }
     }
     
@@ -776,6 +801,41 @@ public class CodeGen
 	Machine.writeMemory(current_msp++, Machine.LOAD); //LOAD
     }
 
-    
-    
+    private void generateRoutinePrologue(LinkedList<Expn> args,
+                                         short lexLvl,
+                                         short routineAddr,
+                                         int numParams,
+                                         RoutineType type)
+            throws MemoryAddressException {
+
+        short retAddr, argAddr;
+
+        if (type == RoutineType.FUNC) {
+            push(Machine.UNDEFINED);              // Return value
+        }
+
+        retAddr = (short) (current_msp + 1);      // Store to patch
+        push(Machine.UNDEFINED);                  // Return address
+        addr(lexLvl, (short) 0);    // Save display entry
+
+        for (Expn e : args) {
+            generate_expression(e);
+        }
+
+        // Update display to point to first argument
+        Machine.writeMemory(current_msp++, Machine.PUSHMT);
+        push(numParams);
+        Machine.writeMemory(current_msp++, Machine.SUB);
+        Machine.writeMemory(current_msp++, Machine.SETD);
+        Machine.writeMemory(current_msp++, lexLvl);
+
+        // Unconditional branch to routine instructions
+        push(routineAddr);
+        Machine.writeMemory(current_msp++, Machine.BR);
+
+        // Fill return address with first instruction after branch
+        Machine.writeMemory(retAddr, current_msp);
+    }
+
 }
+

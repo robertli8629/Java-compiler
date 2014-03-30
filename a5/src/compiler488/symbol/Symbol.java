@@ -18,18 +18,23 @@ public class Symbol {
 	/** Symbol  constructor
          *  Create and initialize a symbol 
 	 */
-	public Symbol  (String name, String kind, short start_line, SymbolType type, int lexic_level, int order_number){
+	public Symbol  (String name, String kind, short start_line, SymbolType type,
+                    int lexic_level, int order_number, int numParams){
 	    this.name = name;
 	    this.kind = kind;
 	    this.start_line = start_line;
 	    this.type = type;
 	    this.lexic_level = lexic_level;
 	    this.order_number = order_number;
+        this.numParams = numParams;
 	}
 	
 	@Override
 	public String toString() {
-		return   "name: " + name + ", kind : " + kind + ", start_line : " + start_line + ", type: " + type.toString() + ", lexic_level: " + lexic_level + ", order_number: " + order_number;
+		return   "name: " + name + ", kind : " + kind + ", start_line : " +
+                  start_line + ", type: " + type.toString() +
+                  ", lexic_level: " + lexic_level + ", order_number: " +
+                  order_number + ", numParams: " + numParams;
 	}
 	
 	public SymbolType getType() {
@@ -45,11 +50,21 @@ public class Symbol {
 	public short geton(){
 	    return (short)this.order_number;
 	}
+
+    public short getStartLine() {
+        return this.start_line;
+    }
+
+    public int getNumParams() {
+        return this.numParams;
+    }
+
 	private String name;
 	private String kind;
 	private short start_line;
 	private SymbolType type;
 	private int lexic_level;
 	private int order_number;
+    private int numParams;
 	
 }

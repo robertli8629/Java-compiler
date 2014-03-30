@@ -88,12 +88,17 @@ public class SymbolTable {
 		kind = "func";
 		s_type.setLink((Object)decl);
 	    }
-	    Symbol sym=new Symbol(decl.getName(), kind, (short)0 , s_type, lexic_level, order_number); 
+	    Symbol sym = new Symbol(decl.getName(), kind, (short)0 , s_type,
+                              lexic_level, order_number, 0); 
 	    symboltable.put(decl.getName(),sym);
 	}
 	
-	/** add declaration to the symbol table with start line of the function */
-	public void add_to_symboltable(Declaration decl, Hashtable<String,Symbol> symboltable, int lexic_level, int order_number, short start_line) {
+	/** Add declaration to the symbol table with start line and number of
+      * parameters for routine. */
+	public void add_to_symboltable(Declaration decl,
+                                   Hashtable<String,Symbol> symboltable,
+                                   int lexic_level, int order_number,
+                                   short start_line, int numParams) {
 	    Type tp = decl.getType();
 	    SymbolType s_type = null;
 	    if (tp != null) {
@@ -108,7 +113,8 @@ public class SymbolTable {
 		kind = "func";
 		s_type.setLink((Object)decl);
 	    }
-	    Symbol sym=new Symbol(decl.getName(), kind, start_line , s_type, lexic_level, order_number); 
+	    Symbol sym = new Symbol(decl.getName(), kind, start_line , s_type,
+                                lexic_level, order_number, numParams); 
 	    symboltable.put(decl.getName(),sym);
 	}
 	
@@ -122,7 +128,8 @@ public class SymbolTable {
 		kind = "array";
 		s_type.setLink((Object)dp);
 	    }
-	    Symbol sym=new Symbol(dp.getName(), kind, (short)0 , s_type, lexic_level, order_number); 
+	    Symbol sym = new Symbol(dp.getName(), kind, (short)0 , s_type,
+                                lexic_level, order_number, 0); 
 	    symboltable.put(dp.getName(),sym);
 	}
 	
