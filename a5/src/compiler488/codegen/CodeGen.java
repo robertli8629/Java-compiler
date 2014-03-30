@@ -263,45 +263,45 @@ public class CodeGen
 	
 	if (decl instanceof RoutineDecl) {
 
-        /* Set up branch over routine's instructions
-         * to avoid unwanted execution. */
-	    short save_BR_address=(short)(current_msp+1);
-	    push(Machine.UNDEFINED);
-	    Machine.writeMemory(current_msp++, Machine.BR);
-
 	    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
 	    Scope routine_scope = rb.getBody();
 	    if (routine_scope != null) {    // not a forward decl
+	    	
+	    	/* Set up branch over routine's instructions
+	         * to avoid unwanted execution. */
+		    short save_BR_address=(short)(current_msp+1);
+		    push(Machine.UNDEFINED);
+		    Machine.writeMemory(current_msp++, Machine.BR);
 
-		ASTList<ScalarDecl> params = rb.getParameters();
-        int numParams = null == params ? 0 : params.size();
-
-        // add first for recursive definition
-		symbolTable.add_to_symboltable(decl, symboltable, lexic_level,
-                symbolTable.current_order_number_ll[lexic_level], current_msp,
-                numParams);
-		symbolTable.current_order_number_ll[lexic_level]++;
-
-        int neededWords =
-            global_st.current_order_number_ll[lexic_level + 1];
-
-        // Callee responsible for allocating required space for locals.
-        push(Machine.UNDEFINED);
-        push(neededWords);
-        Machine.writeMemory(current_msp++, Machine.DUPN);
-
-        // Generate internal routine code.
-		if (decl.getType() == null) {   // procedure
-		    traverse(routine_scope, params, null, lexic_level + 1,null);
-		} else {                        // function
-		    traverse(routine_scope, params, decl, lexic_level + 1,null);
-		}
-
-        // Append routine exit code. Complete return/result branches.
-        generateRoutineEpilogue(numParams, lexic_level + 1, neededWords);
-
-		Machine.writeMemory(save_BR_address,current_msp);
-		return;
+			ASTList<ScalarDecl> params = rb.getParameters();
+	        int numParams = null == params ? 0 : params.size();
+	
+	        // add first for recursive definition
+			symbolTable.add_to_symboltable(decl, symboltable, lexic_level,
+	                symbolTable.current_order_number_ll[lexic_level], current_msp,
+	                numParams);
+			symbolTable.current_order_number_ll[lexic_level]++;
+	
+	        int neededWords =
+	            global_st.current_order_number_ll[lexic_level + 1];
+	
+	        // Callee responsible for allocating required space for locals.
+	        push(Machine.UNDEFINED);
+	        push(neededWords);
+	        Machine.writeMemory(current_msp++, Machine.DUPN);
+	
+	        // Generate internal routine code.
+			if (decl.getType() == null) {   // procedure
+			    traverse(routine_scope, params, null, lexic_level + 1,null);
+			} else {                        // function
+			    traverse(routine_scope, params, decl, lexic_level + 1,null);
+			}
+	
+	        // Append routine exit code. Complete return/result branches.
+	        generateRoutineEpilogue(numParams, lexic_level + 1, neededWords);
+	
+			Machine.writeMemory(save_BR_address,current_msp);
+			return;
 	    }
 	}
 	

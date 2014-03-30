@@ -1,11 +1,41 @@
 {
+  %forward func func2(a:integer, b:integer):integer
  
-  func testfunc3(a:integer, b:integer):integer {
-    result a+b
+  func func1(a:integer, b:integer):integer {
+  	func func3(c:integer, d:integer):integer {
+  		result c*d
+  	}
+    result a+b+func3(a,b)
   }
+
+  func func2(a:integer, b:integer):integer {
+    result a-b
+  }
+  
+  func get_fibonacci(element : integer) : integer {
+        if (element < 0)
+        then {
+            put "Element must be >= 0", newline
+            result -1
+        }
+        fi
+
+        if (element = 1 or element = 2)
+        then {
+            result 1
+        } else {
+            result get_fibonacci(element - 1) + get_fibonacci(element - 2)
+        }
+        fi
+    }
+    
 
   var x:integer
   
-  x:=0
+  x:=func1(1,func2(5,1))
   put "x: ", x, newline, newline
+  
+  x:=get_fibonacci(8)
+  put "x: ", x, newline, newline
+  
 }

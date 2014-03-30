@@ -1,0 +1,18 @@
+{
+  forward func func2(a:integer, b:integer):integer
+ 
+  func func1(a:integer, b:integer):integer {
+    result 1+func2(a,b)
+  }
+
+  func func2(a:integer, b:integer):integer {
+    result a-b
+  }
+    
+
+  var x:integer
+  
+  x:=func1(1,func2(5,1))
+  put "x: ", x, newline, newline
+  
+}
