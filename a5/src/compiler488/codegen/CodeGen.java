@@ -322,11 +322,14 @@ public class CodeGen
     
     private void add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params, int lexic_level) {
 // 	    System.out.println("add_params");
+    int paramOffset = 0;
 	if (params != null) {
 	    LinkedList<ScalarDecl> l = params.get_list();
 	    for (ScalarDecl d : l) {
-		symbolTable.add_to_symboltable(d, ht, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
-		symbolTable.current_order_number_ll[lexic_level]++;
+		//symbolTable.add_to_symboltable(d, ht, lexic_level,
+         //   symbolTable.current_order_number_ll[lexic_level]);
+		symbolTable.add_to_symboltable(d, ht, lexic_level, paramOffset++);
+		//symbolTable.current_order_number_ll[lexic_level]++;
 	    }
 	}
 	return;
