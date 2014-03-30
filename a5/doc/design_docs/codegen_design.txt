@@ -1,17 +1,84 @@
 CSC488 Assignment 5 -- Code Generator Design Doc -- Group 7
 
-------------------
-Update to A4 design regarding routine calls:
+Functions and Procedures
+
+Routine Body Code Generation
+
+The process of code generation for routines kicks off when a RoutineDecl node
+is visited in the AST. At this point, code is generated for a few different
+actions.
+
+To begin, an unconditional branch is emitted that jumps the routine's internal
+instructions. This is necessary to avoid falling through executing instructions
+to adjacent routine instructions in memory when a routine has not actually been
+called.
+
+Next, code is emitted to allocate space for the routine's local variables. This
+is the sole responsibility of the callee during routine call setup. This code
+is added to the front of the routine and is executed everytime the routine is
+called, prior to the routine's actual instructions.
+
+Code is then recursively generated for the arbitrary declarations and statements
+the routine may contain.
+
+Once the routine's instructions are complete, the routine epilogue code is
+appended. Code from result and return statements will jump to this point to
+exit the routine, and routines that lack explicit result and return
+statements will also be caught by these instructions and exit properly.
+Note that return values on the stack for functions that fail to include
+a result statement will be Machine.UNDEFINED.
+
+The epilogue code pops all local and argument storage from the stack,
+resets the display to the saved value and branches to the return address.
+
+Epilogue code is created by the generateRoutineEpilogue method.
+
+Routine Entrance Code
+
+With code for routines now in memory, we are left to handle any calls to
+the routines. This is done by emitting routine prologue code in the caller
+when a ProcedureCallStmt or FunctionCallExpn is visited in the AST.
+
+The preparation for routine calling involves allocating space for a return
+value (only if a function is being called), a return address and saving
+the display entry for the current lexic level. Arguments are then evaluated
+on the stack, the display is updated to the callee's context and a branch
+is set to the first instruction of the routine.
 
 To fix the problem of updating the display too early when evaluating
-parameters in our A4 design, we have swapped the ordering in which
-these operations are handled. Parameters are now evaluated prior to
+arguments in our A4 design, we have swapped the ordering in which
+these operations are handled. Arguments are now evaluated prior to
 the display being updated to point to the new activation record.
 
-Parameters are kept at the same offsets as expected previously
+Arguments are kept at the same offsets as expected previously
 (that is, 0 to n - 1 where n is the number of parameters) by
-subtracting the number of parameters from the address on the
-stack after the PUSHMT instruction. This results in the address
-of the first parameter being on the stack for the following SETD
-instruction that updates the display.
--------------------
+subtracting the number of arguments from the address on the
+stack after a PUSHMT instruction. This must be done at runtime and results
+in the address of the first argument being on the stack for the following
+SETD instruction that updates the display.
+
+The generateRoutinePrologue method does the bulk of this work.
+
+Return Values and Result Statements
+
+During call setup, one word is allocated to hold the return value of a function
+call. This word is three words below the beginning of the function's activation
+record, so its address is known.
+
+The return value is populated when visiting a ResultStmt node in the AST.
+This is accomplished by loading the address of the return value, evaluating
+the result expression and storing the final value. After a function exits,
+the return value is the only thing left on the stack.
+
+After storing the return value, a result statement will branch to the function
+epilogue code stored at the end of the function body. This is a simple branch
+instruction, but in order to patch in the address of the yet-to-be-generated
+exit code, this branch address is added to a global stack called the
+branchToRoutineExitStack. This stack is cleaned out by the routine exit code,
+which patches each address on the stack in turn with the address of its code. 
+
+Return Statements
+
+Return statements are handled in the same manner as result statements, minus
+the evaluation and storing of a return value.
+
