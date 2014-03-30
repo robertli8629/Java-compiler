@@ -74,6 +74,9 @@ public class CodeGen
       * patching. Specifically those for return and result statements. */
     private LinkedList<Short> branchToRoutineEndStack;
 
+    /** Offset of return address from start of activation record. */
+    private final short RETURN_ADDR_OFFSET = -3;
+
     /**  
      *  Constructor to initialize code generation
      */
@@ -465,14 +468,16 @@ public class CodeGen
             }
         }
         if (stmt instanceof ResultStmt) {
-            ResultStmt result_stmt = (ResultStmt) stmt;
-            generate_expression(result_stmt.getValue());
+
+            // Store result expression value into return address
+            addr((short) lexic_level, RETURN_ADDR_OFFSET);
+            generate_expression(((ResultStmt) stmt).getValue());
             Machine.writeMemory(current_msp++, Machine.STORE);
-       
-//             push();
-            Machine.writeMemory(current_msp++, Machine.POPN);//POPN
-            Machine.writeMemory(current_msp++, Machine.SETD);//SETD
-            Machine.writeMemory(current_msp++, Machine.BR);//BR
+
+            // Branch to routine exit code
+            branchToRoutineEndStack.push((short) (current_msp + 1));
+            push(Machine.UNDEFINED);    // To be patched
+            Machine.writeMemory(current_msp++, Machine.BR);
        
             return;
         }
@@ -481,7 +486,7 @@ public class CodeGen
             /* Branch to routine epilogue.
              * Address patched during handling of RoutineDecl. */
             branchToRoutineEndStack.push((short) (current_msp + 1));
-            push(Machine.UNDEFINED);
+            push(Machine.UNDEFINED);    // To be patched
             Machine.writeMemory(current_msp++, Machine.BR);
 
             return;
