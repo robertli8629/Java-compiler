@@ -19,7 +19,7 @@ public class Symbol {
          *  Create and initialize a symbol 
 	 */
 	public Symbol  (String name, String kind, short start_line, SymbolType type,
-                    int lexic_level, int order_number, int numParams){
+                    int lexic_level, int order_number, int numParams, boolean is_forward_decl){
 	    this.name = name;
 	    this.kind = kind;
 	    this.start_line = start_line;
@@ -27,6 +27,7 @@ public class Symbol {
 	    this.lexic_level = lexic_level;
 	    this.order_number = order_number;
         this.numParams = numParams;
+        this.is_forward_decl = is_forward_decl;
 	}
 	
 	@Override
@@ -58,6 +59,10 @@ public class Symbol {
     public int getNumParams() {
         return this.numParams;
     }
+    
+    public boolean is_forward_decl() {
+    	return this.is_forward_decl;
+    }
 
 	private String name;
 	private String kind;
@@ -66,5 +71,6 @@ public class Symbol {
 	private int lexic_level;
 	private int order_number;
     private int numParams;
+    private boolean is_forward_decl;
 	
 }

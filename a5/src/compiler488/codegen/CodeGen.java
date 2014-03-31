@@ -2,6 +2,7 @@ package compiler488.codegen;
 
 import java.io.*;
 import java.util.*;
+
 import compiler488.compiler.Main;
 import compiler488.runtime.Machine;
 import compiler488.runtime.MemoryAddressException;
@@ -265,6 +266,10 @@ public class CodeGen
 
 	    RoutineBody rb = ((RoutineDecl)decl).getRoutineBody();
 	    Scope routine_scope = rb.getBody();
+	    
+	    ASTList<ScalarDecl> params = rb.getParameters();
+        int numParams = null == params ? 0 : params.size();
+        
 	    if (routine_scope != null) {    // not a forward decl
 	    	
 	    	/* Set up branch over routine's instructions
@@ -272,14 +277,23 @@ public class CodeGen
 		    short save_BR_address=(short)(current_msp+1);
 		    push(Machine.UNDEFINED);
 		    Machine.writeMemory(current_msp++, Machine.BR);
-
-			ASTList<ScalarDecl> params = rb.getParameters();
-	        int numParams = null == params ? 0 : params.size();
+	        
+	        // check if forward declared
+	        String name = decl.getName();
+	        Symbol forward_decl = symbolTable.find_variable(name);
+	        if (forward_decl != null) { // find a forward declaration
+	        	System.out.println("find a forward decl");
+	        	LinkedList<Short> addr_list = (LinkedList<Short>)forward_decl.getType().getLink();
+	        	Iterator<Short> iterator = addr_list.iterator();
+                while (iterator.hasNext()) {
+                    Machine.writeMemory(iterator.next(), current_msp);
+                }
+	        }
 	
 	        // add first for recursive definition
 			symbolTable.add_to_symboltable(decl, symboltable, lexic_level,
 	                symbolTable.current_order_number_ll[lexic_level], current_msp,
-	                numParams);
+	                numParams, false);
 			symbolTable.current_order_number_ll[lexic_level]++;
 	
 	        int neededWords =
@@ -302,6 +316,12 @@ public class CodeGen
 	
 			Machine.writeMemory(save_BR_address,current_msp);
 			return;
+	    } else { // forward decl
+	    	symbolTable.add_to_symboltable(decl, symboltable, lexic_level, 
+	    			symbolTable.current_order_number_ll[lexic_level], (short)0,
+	    			numParams, true);
+	    	symbolTable.current_order_number_ll[lexic_level]++;
+	    	return;
 	    }
 	}
 	
@@ -570,6 +590,11 @@ public class CodeGen
                 throw new ExecutionException(
                     "Unknown procedure name during code generation.\n");
             }
+            
+            LinkedList<Short> addr_list = null;
+            if (procEntry.is_forward_decl()) {
+            	addr_list = (LinkedList<Short>)procEntry.getType().getLink();
+            }
 
             routineAddr = procEntry.getStartLine();
             numParams = procEntry.getNumParams();
@@ -582,7 +607,8 @@ public class CodeGen
                                     (short) routineLexLvl,
                                     routineAddr,
                                     numParams,
-                                    RoutineType.PROC);
+                                    RoutineType.PROC,
+                                    addr_list);
         }
     }
     
@@ -755,12 +781,18 @@ public class CodeGen
                 throw new ExecutionException(
                     "Unknown function name during code generation.\n");
             }
+            
+            LinkedList<Short> addr_list = null;
+            if (funcEntry.is_forward_decl()) {
+            	addr_list = (LinkedList<Short>)funcEntry.getType().getLink();
+            }
 
             generateRoutinePrologue(funcExpn.getArguments().get_list(),
                                     (short) (funcEntry.getll() + 1),
                                     funcEntry.getStartLine(),
                                     funcEntry.getNumParams(),
-                                    RoutineType.FUNC);
+                                    RoutineType.FUNC,
+                                    addr_list);
         }
     }
 	
@@ -825,10 +857,11 @@ public class CodeGen
                                          short lexLvl,
                                          short routineAddr,
                                          int numParams,
-                                         RoutineType type)
+                                         RoutineType type,
+                                         LinkedList<Short> addr_list)
             throws Exception {
 
-        short retAddr, argAddr;
+        short retAddr, argAddr, savedBrAddr;
 
         if (type == RoutineType.FUNC) {
             push(Machine.UNDEFINED);              // Return value
@@ -849,6 +882,12 @@ public class CodeGen
         Machine.writeMemory(current_msp++, Machine.SETD);
         Machine.writeMemory(current_msp++, lexLvl);
 
+        // forward declaration: save address to list 
+        savedBrAddr = (short)(current_msp + 1);
+        if (addr_list != null) {
+        	addr_list.add(savedBrAddr);
+        }
+        
         // Unconditional branch to routine instructions
         push(routineAddr);
         Machine.writeMemory(current_msp++, Machine.BR);

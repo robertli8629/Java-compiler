@@ -89,7 +89,7 @@ public class SymbolTable {
 		s_type.setLink((Object)decl);
 	    }
 	    Symbol sym = new Symbol(decl.getName(), kind, (short)0 , s_type,
-                              lexic_level, order_number, 0); 
+                              lexic_level, order_number, 0, false); 
 	    symboltable.put(decl.getName(),sym);
 	}
 	
@@ -98,7 +98,7 @@ public class SymbolTable {
 	public void add_to_symboltable(Declaration decl,
                                    Hashtable<String,Symbol> symboltable,
                                    int lexic_level, int order_number,
-                                   short start_line, int numParams) {
+                                   short start_line, int numParams, boolean is_forward_decl) {
 	    Type tp = decl.getType();
 	    SymbolType s_type = null;
 	    if (tp != null) {
@@ -114,7 +114,10 @@ public class SymbolTable {
 		s_type.setLink((Object)decl);
 	    }
 	    Symbol sym = new Symbol(decl.getName(), kind, start_line , s_type,
-                                lexic_level, order_number, numParams); 
+                                lexic_level, order_number, numParams, is_forward_decl); 
+	    if (is_forward_decl) {
+	    	s_type.setLink(new LinkedList<Short>());
+	    }
 	    symboltable.put(decl.getName(),sym);
 	}
 	
@@ -129,7 +132,7 @@ public class SymbolTable {
 		s_type.setLink((Object)dp);
 	    }
 	    Symbol sym = new Symbol(dp.getName(), kind, (short)0 , s_type,
-                                lexic_level, order_number, 0); 
+                                lexic_level, order_number, 0, false); 
 	    symboltable.put(dp.getName(),sym);
 	}
 	
