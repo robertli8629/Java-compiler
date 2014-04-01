@@ -226,7 +226,7 @@ public class CodeGen
 // 	    if (showSymbolTable) { 
 // 	    	printHash(symboltable);
 // 	    }
-// 	printHash(symboltable);
+ 	printHash(symboltable);
 	
 	// recursion
 	ASTList<Stmt> AST_stat=s.getStatements();
@@ -334,10 +334,16 @@ public class CodeGen
     
     /** handles declaration part */
     private void handle_part_declaration(DeclarationPart dp, Hashtable<String,Symbol> symboltable, Type type, int lexic_level) throws MemoryAddressException {
-	
-	symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
-	symbolTable.current_order_number_ll[lexic_level]++;
-	return;
+    	if (dp instanceof ArrayDeclPart) {
+    		ArrayDeclPart adp = (ArrayDeclPart)dp;
+    		int size = adp.calculate_array_size();
+    		symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
+    		symbolTable.current_order_number_ll[lexic_level] += size;
+    		return;
+    	}
+    	symbolTable.add_to_symboltable(dp, symboltable, type, lexic_level, symbolTable.current_order_number_ll[lexic_level]);
+    	symbolTable.current_order_number_ll[lexic_level]++;
+    	return;
     }
     
     private void add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params, int lexic_level) {
