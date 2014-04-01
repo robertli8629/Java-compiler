@@ -226,7 +226,7 @@ public class CodeGen
 // 	    if (showSymbolTable) { 
 // 	    	printHash(symboltable);
 // 	    }
- 	printHash(symboltable);
+// 	printHash(symboltable);
 	
 	// recursion
 	ASTList<Stmt> AST_stat=s.getStatements();
