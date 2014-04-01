@@ -282,7 +282,7 @@ public class CodeGen
 	        String name = decl.getName();
 	        Symbol forward_decl = symbolTable.find_variable(name);
 	        if (forward_decl != null) { // find a forward declaration
-	        	System.out.println("find a forward decl");
+	        	//System.out.println("find a forward decl");
 	        	LinkedList<Short> addr_list = (LinkedList<Short>)forward_decl.getType().getLink();
 	        	Iterator<Short> iterator = addr_list.iterator();
                 while (iterator.hasNext()) {
