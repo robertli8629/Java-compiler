@@ -24,7 +24,7 @@
                   else
                     exit
                   fi
-                until not false
+                until false
               } else
                 exit
               fi
@@ -32,7 +32,7 @@
           } else
             exit
           fi
-        until true
+        until false
       } else
         exit
       fi
@@ -57,7 +57,6 @@
     }
     fi
     }
-    ans := 1    % should also jump this
   end
   
   if (ans = 5050) then{
