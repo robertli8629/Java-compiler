@@ -281,8 +281,7 @@ public class CodeGen
 	        // check if forward declared
 	        String name = decl.getName();
 	        Symbol forward_decl = symbolTable.find_variable(name);
-	        if (forward_decl != null) { // find a forward declaration
-	        	//System.out.println("find a forward decl");
+	        if (forward_decl != null && forward_decl.is_forward_decl()) { // find a forward declaration
 	        	LinkedList<Short> addr_list = (LinkedList<Short>)forward_decl.getType().getLink();
 	        	Iterator<Short> iterator = addr_list.iterator();
                 while (iterator.hasNext()) {

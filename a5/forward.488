@@ -12,7 +12,7 @@
 
   var x:integer
   
-  x:=func1(5,4)
+  x:=func1(5,1)
   put "x: ", x, newline, newline
   
 }
