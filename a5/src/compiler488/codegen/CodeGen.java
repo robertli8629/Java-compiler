@@ -668,7 +668,7 @@ public class CodeGen
             Machine.writeMemory(current_msp++, Machine.NEG); //NEG
             return;
         }
-        if (expn instanceof BoolExpn) {
+        if (expn instanceof BoolExpn) { // and, or
             BoolExpn bool_expn=(BoolExpn) expn;
             generate_expression(bool_expn.getLeft());
             short save_BF_address=(short)(current_msp+1);

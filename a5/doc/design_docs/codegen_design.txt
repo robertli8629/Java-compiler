@@ -1,5 +1,6 @@
 CSC488 Assignment 5 -- Code Generator Design Doc -- Group 7
 
+
 Functions and Procedures
 
 Routine Body Code Generation
@@ -81,4 +82,47 @@ Return Statements
 
 Return statements are handled in the same manner as result statements, minus
 the evaluation and storing of a return value.
+
+forward declarations:
+
+When a forward declaration is encountered, we need to let all callers of that
+routine know where the start address of the actual routine is. Therefore 
+we add a list of address into the symboltable of the forward declaration
+to store the addresses of the forward routine callers. When we reach the 
+actual routine definition, we then write back the start address to all callers
+and we have already stored the information of all callers in the list.
+
+
+
+Expressions
+
+Code generation of expressions follow the design from our A4. The only new design
+we have in this assignment is to change the 'and', 'or' expressions by evaluating
+the left expression first. Based on the condition, we may branch over and skip the 
+evaluation of the right hand side expression. 
+
+
+
+Statements
+
+Most of the statement generations follow the design from our A4. However, some of
+the tricks we used to write back the branch address after we reach some later code
+was not specified in A4. Basically if we have a branch statement and we don't yet 
+know where to branch to as we traversing the AST tree (e.g. branch in if and loops), 
+we leave the branch destination undefined and used a local variable to store the 
+address of that branch statement. When later on we know where the branch statement 
+should go, we then write back the correct address to the address we have stored 
+in the local variable.
+
+exit statements
+
+Branching from exit statements can be tricky. There could be multiple exit statements 
+in a loop and we don't know where to branch until we reach the end of the loop. The 
+way we did it is to create a list of addresses at the beginning of a loop statement. 
+And when every time we encounter an exit we add the address of branch statement that
+needs update on the branch destination into the list. When we reach the end of the 
+loop statement, the branch destination is known and we can write it to every place 
+that needs update on the branch destination.
+
+
 
