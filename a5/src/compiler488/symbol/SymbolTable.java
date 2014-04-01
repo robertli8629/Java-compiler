@@ -68,8 +68,10 @@ public class SymbolTable {
 	
 	/** the main symbol table stack */
 	public Stack<Hashtable<String,Symbol>> symbolstack;
-	
-	public int[] current_order_number_ll = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    /** Support 16 lexic levels, the display max. */	
+	public int[] current_order_number_ll =
+        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	
 	
 	/** add declaration to the symbol table */
