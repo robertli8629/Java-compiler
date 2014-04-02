@@ -1,0 +1,69 @@
+{
+    % Test various occurences of the result statement
+
+    var global : integer
+
+    func f() : integer {
+        result 10
+    }
+
+    func g() : integer {
+        global := 0
+        result 1
+
+        % Should be jumped
+        global := 100
+        result 2
+    }
+
+    func h() : boolean {
+        result 20 = 2 and 3 not= 4 or true or false and
+                (not true or true and not true)
+    }
+
+    func i() : integer {
+        func j() : integer {
+            global := 33
+            result global
+        }
+        result 2 + j()
+    }
+
+    func k() : integer {
+        % missing result
+    }
+
+    func l() : integer {
+        global := 20
+        {
+            result 3
+        }
+        global := 11
+        result 4
+    }
+
+    put "Expected: 10", newline
+    put "Result: ", f(), newline, newline
+
+    put "Expected: 1 0", newline
+    put "Result: ", g(), " ", global, newline, newline
+
+    put "Expected: true", newline
+    put "Result: "
+    if (h()) then
+        put "true", newline
+    else
+        put "false, newline
+    fi
+    put newline
+
+    put "Expected: 35", newline
+    put "Result: ", i(), newline, newline
+
+    put "Expected: -32768", newline     % Machine.UNDEFINED
+    put "Result: ", k(), newline, newline
+
+    put "Expected: 3 20", newline
+    put "Result: ", l(), " ", global,  newline, newline
+}
+
