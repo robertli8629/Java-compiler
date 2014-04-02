@@ -1,8 +1,12 @@
 Task Breakdown -- CSC488 A5 -- Group 7
 
-Yuchen Li:
-Minmin Liu:
+
+Yuchen Li:    Code generation for statements and expressions. Documentation. Testing
+
+Minmin Liu:   Code generation for statements and expressions. Testing
+
 Alka Sharma:  Code generation for routines, result and return statements. Testing.
+
 Geoff Haugan: Code generation for function/procedure calls, result and return
               statements. Routine call testing and design documentation.
 
