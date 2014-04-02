@@ -108,9 +108,6 @@ public class CodeGen
 	symbolTable = new SymbolTable();
     branchToRoutineEndStack = new LinkedList<Short>();
 	
-// 	System.out.println(global_st.current_order_number_ll[0]);
-// 	System.out.println(global_st.current_order_number_ll[1]);
-	
 	int alloc_size = global_st.current_order_number_ll[0];
 	
 	Machine.setPC( (short) 0 ) ;		/* where code to be executed begins */
@@ -222,10 +219,6 @@ public class CodeGen
 	    }
 	}
 	
-	
-// 	    if (showSymbolTable) { 
-// 	    	printHash(symboltable);
-// 	    }
 // 	printHash(symboltable);
 	
 	// recursion
@@ -346,15 +339,11 @@ public class CodeGen
     }
     
     private void add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params, int lexic_level) {
-// 	    System.out.println("add_params");
     int paramOffset = 0;
 	if (params != null) {
 	    LinkedList<ScalarDecl> l = params.get_list();
 	    for (ScalarDecl d : l) {
-		//symbolTable.add_to_symboltable(d, ht, lexic_level,
-         //   symbolTable.current_order_number_ll[lexic_level]);
-		symbolTable.add_to_symboltable(d, ht, lexic_level, paramOffset++);
-		//symbolTable.current_order_number_ll[lexic_level]++;
+	    	symbolTable.add_to_symboltable(d, ht, lexic_level, paramOffset++);
 	    }
 	}
 	return;
@@ -365,7 +354,6 @@ public class CodeGen
 	for (String s : keyset) {
 	    Symbol sym = ht.get(s);
 	    System.out.println(sym.toString());
-// 		ps.print(sym.toString() + "\n");
 	}
     }
 	
