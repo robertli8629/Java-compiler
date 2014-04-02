@@ -23,10 +23,10 @@ do
 done
 }
 
-pushd $WHERE/tests/failing > /dev/null
+pushd $WHERE/testing/fail > /dev/null
 runtests_codegen
 popd > /dev/null
-pushd $WHERE/tests/passing > /dev/null
+pushd $WHERE/testing/pass > /dev/null
 runtests_codegen
 popd > /dev/null
 

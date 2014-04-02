@@ -1,3 +1,15 @@
 Testing Documentation -- CSC488 A5 -- Group 7
 
 
+Code generation testing
+
+To test the code generation we did in this assignment, we chose to build various
+components piece by piece. We start of writing all the expression codes and
+make sure all expressions work. Then we did all the statements. Finally after
+we have finished our routine call and return, we combined everything together 
+and make sure the whole program works.
+
+In our testing folder, we have test cases for all components of the language.
+We also tested some run time errors such as divide by zero and loading an 
+undefined value.
+
