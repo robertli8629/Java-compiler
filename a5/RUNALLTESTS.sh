@@ -24,7 +24,7 @@ done
 }
 
 pushd $WHERE/tests/failing > /dev/null
-runtests
+runtests_codegen
 popd > /dev/null
 pushd $WHERE/tests/passing > /dev/null
 

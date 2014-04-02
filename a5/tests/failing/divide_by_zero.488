@@ -1,0 +1,9 @@
+{
+
+  var i:integer
+  i := 1
+  
+  put "i/0 = ", i/0, " expect error", newline
+
+
+}
