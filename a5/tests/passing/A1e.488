@@ -4,10 +4,10 @@
     % A program using recursive functions and procedures, with and without
     % parameters. Includes a nested procedure and function declaration.
     %
-    % These routines mostly repeatly output something or repeatedly read
-    % input until a certain value is seen.
+    % This file contains recursive function that does not uses get statement.
+    % This is done by using a global variable.
     %
-    % Author: g0haugan
+    % Author: g1liyuch
     % Group 7: g1liyuch, g1minmin, g0haugan, g0sharma
 
     proc repeat_hello(times : integer) {
@@ -27,15 +27,23 @@
         }
         fi
     }
+    
+    var counter : integer
 
-    proc run_bad_shell() {
-        var int : integer
-        get int
-        if (int = 3)
+    proc print_five_times() {
+    
+        proc print_hello() {
+            put "Hello", newline
+            return
+        }
+
+        if (counter >= 5)
         then {
             return
         } else {
-            run_bad_shell()
+            counter := counter + 1
+            print_hello()
+            print_five_times()
         }
         fi
         return
@@ -58,37 +66,41 @@
         fi
     }
 
-    func run_bad_shell_func() : boolean {
-
-        var int : integer
-
-        func is_equal(num1 : integer, num2 : integer) : boolean {
-            if (num1 = num2)
-            then {
-                result true
-            } else {
-                result false
-            }
-            fi
-        }
-
-        get int
-
-        if (is_equal(int, 10))
-        then {
+    func print_five_times_func() : boolean {
+    
+        var bool : boolean
+    
+        func print_hello_func() : boolean {
+            put "Hello", newline
             result true
         }
-        fi
 
-        result run_bad_shell_func()
+        if (counter >= 5)
+        then {
+            result true
+        } else {
+            counter := counter + 1
+            bool := print_hello_func()
+            result print_five_times_func()
+        }
+        fi
+        result true
     }
 
     var fib : integer
     var bool : boolean
+    
+    counter := 0
 
-    repeat_hello(4)
-    run_bad_shell()
+    repeat_hello(5)
+    put newline
+    
+    print_five_times()
+    put newline
+    
+    counter := 0
 
     fib := get_fibonacci(10)
-    bool := run_bad_shell_func()
+    bool := print_five_times_func()
 }
+

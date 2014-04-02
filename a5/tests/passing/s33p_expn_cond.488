@@ -1,9 +1,0 @@
-{
-    var i : integer
-    var bool : boolean
-
-    i := (true ? i : 100)
-    bool := (true ? false : true)
-    bool := (true ? false : bool)
-}
-

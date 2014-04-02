@@ -15,57 +15,57 @@
 
 	if (x < y) 
 	then { 
-		put (x + y)
+		put (x + y), " expected: 5", newline
 	} else {
-		put (x - y)
+		put (x - y), "error", newline
 	} 
 	fi
 	
 	if ((x * 2) > y) 
 	then {
-		put (x / 2) 
+		put (x / 2), " expected: 1", newline
 	}
 	fi
 	
 	if (x < y and (x + 2) > y) 
 	then {
-		put x 
+		put x, " expected: 2", newline
 	}
 	fi
 	
 	if (x < y or x > y) 
 	then { 
-		put y
+		put y, " expected: 3", newline
 	} 
 	fi
 	
 	if (not (x <= y or x >= y)) 
 	then {
-		put 1
+		put 1, "error", newline
 	}
 	fi
 	
 	if ((x + 1) = y) 
 	then {
-		put 2
+		put 2, " expected: 2", newline
 	} 
 	fi
 	
 	if (x not = y) 
 	then {
-		put 3
+		put 3, " expected: 3", newline
 	} 
 	fi
 	
 	if (-x > y) 
 	then {
-	 	put 4
+	 	put 4, " error", newline
 	} 
 	fi
 	
 	if (true or false) 
 	then {
-		put "true"
+		put "true", " expected: true", newline
 	}
 	fi
 	

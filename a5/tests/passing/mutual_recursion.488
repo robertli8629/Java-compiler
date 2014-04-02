@@ -6,6 +6,7 @@ forward proc proc1(i : integer)
 forward proc proc2(i : integer)
 
 proc proc1(i : integer) {
+	put "proc1", newline
     if (i >= 10)
     then {
         return
@@ -16,6 +17,7 @@ proc proc1(i : integer) {
 }
 
 proc proc2(i : integer) {
+	put "proc2", newline
     if (i >= 10)
     then {
         return

@@ -30,6 +30,8 @@
 	a := foo()
 	b := add(a, 1)
 	print_zero()
+	put " expected: 0", newline
 	print_int(a + b)
+	put " expected: 1", newline
 
 }
