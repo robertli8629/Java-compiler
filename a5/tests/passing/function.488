@@ -33,9 +33,9 @@
   var x:integer
   
   x:=func1(1,func2(5,1))
-  put "x: ", x, newline, newline
+  put "x: ", x, " expect: 9", newline
   
   x:=get_fibonacci(8)
-  put "x: ", x, newline, newline
+  put "x: ", x, " expect: 21", newline
   
 }

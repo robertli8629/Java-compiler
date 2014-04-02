@@ -1,0 +1,23 @@
+{
+  proc proc1(a:integer, b:integer) {
+  	proc proc3(c:integer, d:integer) {
+  		put "3: ", a, " ", b, newline
+  		return
+  	}
+    put "1: ", a, " ", b, newline
+    proc3(4,5)
+    return
+  }
+
+  proc proc2(a:integer, b:integer) {
+  	put "2: ", a, " ", b, newline
+    return
+  }
+    
+
+  var x:integer
+  
+  proc1(3,4)
+  proc2(1,2)
+  
+}

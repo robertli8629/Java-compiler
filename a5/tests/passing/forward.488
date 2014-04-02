@@ -13,6 +13,6 @@
   var x:integer
   
   x:=func1(5,1)
-  put "x: ", x, newline, newline
+  put "x: ", x, " expect: 5", newline
   
 }
