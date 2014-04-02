@@ -4,6 +4,61 @@ PASSING
 
 A1a.488 through A1e.488:
     Existing full program examples from A1.
+    
+and_or_expression.488:
+	Testing logical expression 'and', 'or'
+
+arg_passing.488:
+	Testing argument passing
+
+arrays.488:
+	Testing arrays
+
+assign_statement.488:
+	Testing assignment statements
+
+declarations.488:
+	Testing declarations
+
+exit_statement.488:
+	Testing exit statements
+
+exit_when_statements.488:
+	Testing exit when statements
+
+expressions.488:
+	Testing expressions
+
+forward.488:
+	Testing forward declaration
+
+function.488:
+	Testing functions
+
+hello_world.488:
+	Hello world program
+
+mutual_recursion.488:
+	Testing mutual recursive function call
+
+procedures.488:
+	Testing procedures
+
+repeat_statement.488:
+	Testing repeat statements
+
+result_stmt.488:
+	Testing result statements
+
+routine_calls.488:
+	Testing routine calls
+
+scopes.488:
+	Testing scopes
+
+while_statement.488:
+	Testing while statements
+	
 
 FAILING
 
