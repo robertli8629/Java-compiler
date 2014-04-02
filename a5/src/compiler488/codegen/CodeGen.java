@@ -190,7 +190,7 @@ public class CodeGen
      //  ADDITIONAL FUNCTIONS TO IMPLEMENT CODE GENERATION GO HERE
      
      
-     	/** 
+     /** 
 	 * main code generation routine
 	 * arg: if not null, it represents parameter list passed by function/procedure declaration scope
 	 * ref: if not null, it represents function declaration, which is used to check the return type of the function
@@ -338,6 +338,7 @@ public class CodeGen
     	return;
     }
     
+    /** add routine parameters */
     private void add_params(Hashtable<String,Symbol> ht, ASTList<ScalarDecl> params, int lexic_level) {
     int paramOffset = 0;
 	if (params != null) {
@@ -349,6 +350,7 @@ public class CodeGen
 	return;
     }
     
+    /** print symbol table */
     private void printHash(Hashtable<String,Symbol> ht) {
 	Set<String> keyset = ht.keySet();
 	for (String s : keyset) {
@@ -357,36 +359,40 @@ public class CodeGen
 	}
     }
 	
+    /** emit machine push instruction */
     private void push(short value) throws MemoryAddressException {
 	Machine.writeMemory(current_msp++, Machine.PUSH);
         Machine.writeMemory(current_msp++, value);
     }
     
+    /** emit machine push instruction */
     private void push(int value) throws MemoryAddressException {
 	Machine.writeMemory(current_msp++, Machine.PUSH);
         Machine.writeMemory(current_msp++, (short)value);
     }
     
+    /** emit machine addr instruction */
     private void addr(short LL, short ON) throws MemoryAddressException {
 	Machine.writeMemory(current_msp++, Machine.ADDR);
 	Machine.writeMemory(current_msp++, LL);
 	Machine.writeMemory(current_msp++, ON);
     }
     
+    /** code generation for statements */
     private void generate_statement(Stmt stmt, LinkedList<Short> exit_addr_list,
                                     int lexic_level)
             throws Exception{
 
         if(stmt instanceof Scope){
-	    Scope scope = (Scope) stmt; 
-	    traverse(scope, null, null, lexic_level, exit_addr_list);
-	}
+        	Scope scope = (Scope) stmt; 
+        	traverse(scope, null, null, lexic_level, exit_addr_list);
+        }
         if(stmt instanceof AssignStmt) {
             AssignStmt asgn_stmt = (AssignStmt) stmt;
             Expn expn = asgn_stmt.getLval();
-	    addr_variable(expn);
-	    generate_expression(asgn_stmt.getRval());
-	    Machine.writeMemory(current_msp++, Machine.STORE); //STORE
+            addr_variable(expn);
+            generate_expression(asgn_stmt.getRval());
+            Machine.writeMemory(current_msp++, Machine.STORE); //STORE
         }
         if(stmt instanceof IfStmt) {
             IfStmt if_stmt = (IfStmt) stmt;
@@ -605,6 +611,7 @@ public class CodeGen
         }
     }
     
+    /** code generation for expressions */
     private void generate_expression(Expn expn) throws Exception{
         if (expn instanceof IntConstExpn) {
             IntConstExpn int_expn=(IntConstExpn)expn;
@@ -789,7 +796,7 @@ public class CodeGen
         }
     }
 	
-    // generate the address of the variable
+    /** generate the address of the variable */
     private void addr_variable(Expn expn) throws Exception {
 	if (expn instanceof IdentExpn) {
 	    IdentExpn ident_expn=(IdentExpn) expn;
@@ -840,12 +847,13 @@ public class CodeGen
     
     }
 	
-    // load the value of the variable
+    /** load the value of the variable */
     private void generate_variable(Expn expn) throws Exception {
-	addr_variable(expn);
-	Machine.writeMemory(current_msp++, Machine.LOAD); //LOAD
+    	addr_variable(expn);
+    	Machine.writeMemory(current_msp++, Machine.LOAD); //LOAD
     }
 
+    /** generate routine prologue */
     private void generateRoutinePrologue(LinkedList<Expn> args,
                                          short lexLvl,
                                          short routineAddr,
@@ -889,6 +897,7 @@ public class CodeGen
         Machine.writeMemory(retAddr, current_msp);
     }
 
+    /** generate routine epilogue */
     private void generateRoutineEpilogue(int numParams,
                                          int lexLvl,
                                          int allocatedSpace)
