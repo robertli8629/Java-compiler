@@ -1,0 +1,37 @@
+{
+
+	% CSC488 A1 part d
+	% A program using non-recursive functions and procedures with and
+	% without parameters.
+	% Author: g1liyuch - Yuchen Li
+	% Group 7: g1liyuch, g1minmin, g0haugan, g0sharma
+
+	func foo() : integer {
+		result 0
+	}
+
+	func add(x : integer, y : integer) : integer {
+		result x + y
+	}
+
+	proc print_zero() {
+		put 0
+		return
+	}
+
+	proc print_int(x : integer) {
+		put x
+		return
+	}
+
+	var a : integer
+	var b : integer
+
+	a := foo()
+	b := add(a, 1)
+	print_zero()
+	put " expected: 0", newline
+	print_int(a + b)
+	put " expected: 1", newline
+
+}
